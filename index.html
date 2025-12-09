@@ -1043,7 +1043,7 @@ function apriSoccerStats() {
   const LS_KEY = 'bettools_history';
   const LS_BANKROLL = 'bettools_bankroll_start';
   
-  function loadBankrollStart(){
+  function (){
   const raw = localStorage.getItem(LS_BANKROLL);
   const v = safeNum(raw);
   return v > 0 ? v : 0;
@@ -1452,29 +1452,6 @@ function renderEquityChart(filtered, baseline) {
     }
   });
 }
-
-
-  // ======== Motore Bankroll & Stake ========
-  const brStart = loadBankrollStart();
-  const brStartInput = document.getElementById('br_start');
-  const brCurrentEl = document.getElementById('br_current');
-  const brDeltaEl = document.getElementById('br_delta');
-  const stkStdEl = document.getElementById('stk_std');
-  const stkHighEl = document.getElementById('stk_high');
-  const stkNoteEl = document.getElementById('stk_note');
-  const tipoSel = document.getElementById('f_tipo').value;
-
-  // inizializza campo input se non è ancora popolato
-  if (brStart > 0 && !brStartInput.value) {
-    brStartInput.value = brStart.toFixed(2);
-  }
-
-  if (brStart <= 0) {
-    brCurrentEl.textContent = '-';
-    brDeltaEl.textContent = 'Imposta un bankroll iniziale per vedere stake consigliate.';
-    stkStdEl.textContent = '-';
-    stkHighEl.textContent = '-';
-    stkNoteEl.textContent = '';
     return;
   }
 
