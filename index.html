@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Bet Tools</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background:#f3f4f6;
+    color:#111827;
+  }
+  header {
+    padding:10px 16px;
+    background:#111827;
+    color:white;
+    text-align:center;
+  }
+  header h1 {
+    font-size:20px;
+    margin:4px 0;
+  }
+  .tabs {
+    display:flex;
+    border-bottom:1px solid #d1d5db;
+    background:#e5e7eb;
+  }
+  .tab-btn {
+    flex:1;
+    padding:10px;
+    text-align:center;
+    font-size:14px;
+    border:none;
+    background:transparent;
+    cursor:pointer;
+  }
+  .tab-btn.active {
+    background:#ffffff;
+    border-bottom:3px solid #2563eb;
+    font-weight:bold;
+  }
+  main {
+    padding:14px;
+  }
+  h2 {
+    margin-top:14px;
+    margin-bottom:8px;
+    font-size:18px;
+  }
+  .box {
+    background:#ffffff;
+    padding:14px;
+    border-radius:10px;
+    margin-top:10px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.08);
+  }
+  label {
+    display:block;
+    margin-top:8px;
+    font-size:13px;
+  }
+  input, select {
+    width:100%;
+    padding:8px;
+    margin-top:4px;
+    border-radius:8px;
+    border:1px solid #d1d5db;
+    font-size:14px;
+  }
+  button {
+    width:100%;
+    margin-top:10px;
+    padding:10px;
+    border-radius:8px;
+    border:none;
+    background:#2563eb;
+    color:white;
+    font-size:15px;
+    cursor:pointer;
+  }
+  button.secondary {
+    background:#6b7280;
+  }
+  button.small {
+    width:auto;
+    padding:6px 10px;
+    font-size:12px;
+  }
+  .result {
+    margin-top:10px;
+    background:#eef2ff;
+    padding:10px;
+    border-radius:8px;
+    font-size:13px;
+  }
+  .muted { font-size:12px; color:#6b7280; margin-top:4px; }
+  .error { color:#b91c1c; font-weight:bold; }
+  .row {
+    display:flex;
+    gap:8px;
+  }
+  .row > div {
+    flex:1;
+  }
+
+  /* Storico tabella */
+  table {
+    width:100%;
+    border-collapse:collapse;
+    font-size:12px;
+    margin-top:8px;
+  }
+  th, td {
+    border:1px solid #e5e7eb;
+    padding:4px;
+    text-align:center;
+  }
+  th {
+    background:#e5e7eb;
+  }
+
+  /* Dashboard */
+  .stat-grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:8px;
+  }
+  .stat-box {
+    background:#fff;
+    padding:8px;
+    border-radius:8px;
+    font-size:12px;
+    box-shadow:0 1px 4px rgba(0,0,0,0.05);
+  }
+  .stat-title {
+    font-weight:bold;
+    font-size:12px;
+    margin-bottom:4px;
+  }
+  canvas {
+    width:100%;
+    max-width:600px;
+    border-radius:8px;
+    background:#ffffff;
+    margin-top:10px;
+  }
+
+  @media (min-width:768px) {
+    main { max-width:800px; margin:0 auto; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Bet Tools</h1>
+  <div style="font-size:12px;">Suite personale calcolatori & storico</div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="calc" onclick="showTab('calc')">Calcolatori</button>
+  <button class="tab-btn" data-tab="storico" onclick="showTab('storico')">Storico</button>
+  <button class="tab-btn" data-tab="dash" onclick="showTab('dash')">Dashboard</button>
+</div>
+
+<main>
+  <!-- TAB A: CALCOLATORI -->
+  <section id="tab-calc">
+
+    <!-- 1) Asian line intera -->
+    <h2>Asian Line Intera</h2>
+    <div class="box">
+      <div class="muted">Simula una linea asiatica intera con due Over. Se Quota B = 0, tutta la puntata va su Quota A.</div>
+
+      <label>Puntata Totale (€)</label>
+      <input id="a_totale" type="number" step="0.01" value="2">
+
+      <label>Quota A - Over Minore</label>
+      <input id="a_quotaA" type="number" step="0.01" value="1.52">
+
+      <label>Quota B - Over Maggiore (0 se non giocata)</label>
+      <input id="a_quotaB" type="number" step="0.01" value="1.75">
+
+      <button onclick="calcolaAsianIntera()">Calcola</button>
+      <button class="secondary" onclick="aggiungiStoricoDaCalc('asian')">➕ Aggiungi allo storico</button>
+
+      <div id="a_result" class="result" style="display:none;"></div>
+    </div>
+
+    <!-- 2) Protezione -->
+    <h2>Protezione Void (Giocata Principale + Secondaria)</h2>
+    <div class="box">
+      <div class="muted">Usa una seconda giocata a quota bassa per coprire (quasi) la perdita della prima. Se Quota B = 0, tutta la puntata va su Quota A.</div>
+
+      <label>Puntata Totale (€)</label>
+      <input id="p_totale" type="number" step="0.01" value="2">
+
+      <label>Quota A - Giocata Principale</label>
+      <input id="p_quotaA" type="number" step="0.01" value="1.50">
+
+      <label>Quota B - Giocata Secondaria (0 se non giocata)</label>
+      <input id="p_quotaB" type="number" step="0.01" value="1.45">
+
+      <button onclick="calcolaProtezione()">Calcola</button>
+      <button class="secondary" onclick="aggiungiStoricoDaCalc('protezione')">➕ Aggiungi allo storico</button>
+
+      <div id="p_result" class="result" style="display:none;"></div>
+    </div>
+
+    <!-- 3) Asian 0.75 / 1.25 ecc -->
+    <h2>Asian 0.75 / 1.25 / 1.75 ecc.</h2>
+    <div class="box">
+      <div class="muted">
+        Simula linee asiatiche .25/.75 usando due Over. Per semplicità la puntata è divisa 50/50 tra Over Inferiore e Over Superiore (se Quota B &gt; 0).<br>
+        Se Quota B = 0, tutta la puntata va su Quota A.
+      </div>
+
+      <label>Puntata Totale (€)</label>
+      <input id="s_totale" type="number" step="0.01" value="2">
+
+      <label>Quota A - Over Inferiore</label>
+      <input id="s_quotaA" type="number" step="0.01" value="1.60">
+
+      <label>Quota B - Over Superiore (0 se non giocata)</label>
+      <input id="s_quotaB" type="number" step="0.01" value="1.80">
+
+      <button onclick="calcolaAsianSplit()">Calcola</button>
+      <button class="secondary" onclick="aggiungiStoricoDaCalc('split')">➕ Aggiungi allo storico</button>
+
+      <div id="s_result" class="result" style="display:none;"></div>
+    </div>
+
+    <!-- 4) Link Goaloo / Soccerstats -->
+    <h2>Link Statistiche (Goaloo / SoccerStats)</h2>
+    <div class="box">
+      <div class="muted">
+        Inserisci la partita nel formato <b>“Napoli - Juventus”</b>. La data usata è quella di oggi.
+      </div>
+      <label>Partita</label>
+      <input id="match_name" type="text" placeholder="Napoli - Juventus">
+
+      <button onclick="openGoaloo()">Apri Goaloo</button>
+      <button class="secondary" onclick="openSoccerStats()">Apri SoccerStats</button>
+
+      <div class="muted" id="match_info"></div>
+    </div>
+
+  </section>
+
+  <!-- TAB B: STORICO -->
+  <section id="tab-storico" style="display:none;">
+    <h2>Nuova riga storico</h2>
+    <div class="box">
+      <div class="row">
+        <div>
+          <label>Data</label>
+          <input id="h_data" type="date">
+        </div>
+        <div>
+          <label>Tipo scommessa</label>
+          <select id="h_tipo">
+            <option value="">-- Seleziona --</option>
+            <option>2 More Corner FT</option>
+            <option>Next Goal Home - Pari</option>
+            <option>New Neigh Casa</option>
+            <option>New Dominio Home</option>
+            <option>Secondo Goal HT Lite</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Partita</label>
+      <input id="h_partita" type="text" placeholder="Napoli - Juventus">
+
+      <div class="row">
+        <div>
+          <label>Quota A</label>
+          <input id="h_quotaA" type="number" step="0.01">
+        </div>
+        <div>
+          <label>Quota B</label>
+          <input id="h_quotaB" type="number" step="0.01">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Puntata A (€)</label>
+          <input id="h_stakeA" type="number" step="0.01">
+        </div>
+        <div>
+          <label>Puntata B (€)</label>
+          <input id="h_stakeB" type="number" step="0.01">
+        </div>
+      </div>
+
+      <label>Esito</label>
+      <select id="h_esito" onchange="aggiornaProfitPreview()">
+        <option value="">-- Seleziona --</option>
+        <option>Vinte entrambe</option>
+        <option>Solo A vinta</option>
+        <option>Solo B vinta</option>
+        <option>Perse entrambe</option>
+        <option>Non giocata</option>
+      </select>
+
+      <div id="h_profitPreview" class="muted"></div>
+
+      <button onclick="salvaStorico()">Salva riga nello storico</button>
+      <button class="secondary" onclick="resetFormStorico()">Reset form</button>
+    </div>
+
+    <h2>Storico completo</h2>
+    <div class="box">
+      <div class="row" style="justify-content:space-between;align-items:center;">
+        <div class="muted" id="h_summary"></div>
+        <button class="small secondary" onclick="cancellaStorico()">Cancella tutto</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table id="h_table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Tipo</th>
+              <th>Partita</th>
+              <th>Quota A</th>
+              <th>Quota B</th>
+              <th>Stake A</th>
+              <th>Stake B</th>
+              <th>Esito</th>
+              <th>Profitto</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB C: DASHBOARD -->
+  <section id="tab-dash" style="display:none;">
+    <h2>Dashboard</h2>
+    <div class="box">
+      <div class="row">
+        <div>
+          <label>Tipo scommessa</label>
+          <select id="f_tipo" onchange="aggiornaDashboard()">
+            <option value="">Tutti</option>
+            <option>2 More Corner FT</option>
+            <option>Next Goal Home - Pari</option>
+            <option>New Neigh Casa</option>
+            <option>New Dominio Home</option>
+            <option>Secondo Goal HT Lite</option>
+          </select>
+        </div>
+        <div>
+          <label>Periodo</label>
+          <select id="f_periodo" onchange="aggiornaDashboard()">
+            <option value="all">Da sempre</option>
+            <option value="week">Ultima settimana</option>
+            <option value="month">Ultimo mese</option>
+            <option value="6month">Ultimi 6 mesi</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Esito</label>
+          <select id="f_esito" onchange="aggiornaDashboard()">
+            <option value="">Tutti</option>
+            <option>Vinte entrambe</option>
+            <option>Solo A vinta</option>
+            <option>Solo B vinta</option>
+            <option>Perse entrambe</option>
+            <option>Non giocata</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:flex-end;justify-content:flex-end;">
+          <button class="small secondary" onclick="exportCSV()">Esporta CSV</button>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="stat-title">Profitto totale</div>
+          <div id="d_profit"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-title">ROI %</div>
+          <div id="d_roi"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-title">N° giocate</div>
+          <div id="d_count"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-title">Quota media</div>
+          <div id="d_quotaMedia"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-title">Win rate %</div>
+          <div id="d_winrate"></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-title">% Solo A / Solo B</div>
+          <div id="d_ab"></div>
+        </div>
+      </div>
+
+      <canvas id="equityChart" width="600" height="200"></canvas>
+      <div class="muted">Equity chart sul periodo selezionato (baseline corretta in base allo storico precedente).</div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ==== UTILITIES ==== */
+function showTab(id) {
+  document.getElementById('tab-calc').style.display = (id==='calc') ? '' : 'none';
+  document.getElementById('tab-storico').style.display = (id==='storico') ? '' : 'none';
+  document.getElementById('tab-dash').style.display = (id==='dash') ? '' : 'none';
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === id);
+  });
+  if (id === 'storico') {
+    renderStorico();
+  }
+  if (id === 'dash') {
+    aggiornaDashboard();
+  }
+}
+
+function roundBook(v) {
+  return Math.round(v * 10) / 10; // un decimale
+}
+function safeNum(v) {
+  const x = parseFloat(v);
+  return (isNaN(x) || !isFinite(x)) ? 0 : x;
+}
+function todayStr() {
+  const d = new Date();
+  return d.toISOString().slice(0,10); // YYYY-MM-DD
+}
+
+/* ==== CALCOLATORI ==== */
+let lastCalc = null; // per precompilare storico
+
+// 1) Asian Line Intera
+function calcolaAsianIntera() {
+  const totale = safeNum(document.getElementById('a_totale').value);
+  let qA = safeNum(document.getElementById('a_quotaA').value);
+  let qB = safeNum(document.getElementById('a_quotaB').value);
+  const out = document.getElementById('a_result');
+  out.style.display = 'block';
+
+  if (totale <= 0 || qA <= 1) {
+    out.innerHTML = '<span class="error">Inserisci almeno una Quota A valida e una puntata &gt; 0.</span>';
+    return;
+  }
+
+  let stakeA, stakeB;
+  if (qB <= 0) {
+    // nessuna seconda giocata
+    qB = 0;
+    stakeA = roundBook(totale);
+    stakeB = 0;
+  } else {
+    // ripartizione bilanciata sulle due quote
+    const sum = qA + qB;
+    stakeA = roundBook(totale * (qB / sum));
+    stakeB = roundBook(totale - stakeA);
+  }
+
+  const stakeTot = stakeA + stakeB;
+  const entrambe = roundBook((stakeA * qA + stakeB * (qB||0)) - stakeTot);
+  const soloMin = roundBook((stakeA * qA) - stakeTot);
+
+  out.innerHTML =
+    '<b>Punta su Quota A (Over Minore):</b> ' + stakeA.toFixed(1) + '€<br>' +
+    '<b>Punta su Quota B (Over Maggiore):</b> ' + stakeB.toFixed(1) + '€<br><br>' +
+    '<b>Entrambe Vinte:</b> ' + (entrambe>=0?'+':'') + entrambe.toFixed(2) + '€<br>' +
+    '<b>Solo Over Minore vinto:</b> ' + (soloMin>=0?'+':'') + soloMin.toFixed(2) + '€';
+
+  lastCalc = {
+    quotaA: qA, quotaB: qB,
+    stakeA: stakeA, stakeB: stakeB
+  };
+}
+
+// 2) Protezione
+function calcolaProtezione() {
+  const totale = safeNum(document.getElementById('p_totale').value);
+  let qA = safeNum(document.getElementById('p_quotaA').value);
+  let qB = safeNum(document.getElementById('p_quotaB').value);
+  const out = document.getElementById('p_result');
+  out.style.display = 'block';
+
+  if (totale <= 0 || qA <= 1) {
+    out.innerHTML = '<span class="error">Inserisci almeno Quota A valida e puntata &gt; 0.</span>';
+    return;
+  }
+
+  let stakeA, stakeB;
+  if (qB <= 0) {
+    qB = 0;
+    stakeA = roundBook(totale);
+    stakeB = 0;
+  } else {
+    // ripartizione bilanciata, ma puoi cambiare formula in futuro
+    const sum = qA + qB;
+    stakeA = roundBook(totale * (qB / sum));
+    stakeB = roundBook(totale - stakeA);
+  }
+
+  const stakeTot = stakeA + stakeB;
+  const entrambe = roundBook((stakeA * qA + stakeB * (qB||0)) - stakeTot);
+  const soloA  = roundBook((stakeA * qA) - stakeTot);
+  const soloB  = roundBook((stakeB * (qB||0)) - stakeTot);
+
+  out.innerHTML =
+    '<b>Punta su Quota A (Giocata Principale):</b> ' + stakeA.toFixed(1) + '€<br>' +
+    '<b>Punta su Quota B (Giocata Secondaria):</b> ' + stakeB.toFixed(1) + '€<br><br>' +
+    '<b>Entrambe Vinte:</b> ' + (entrambe>=0?'+':'') + entrambe.toFixed(2) + '€<br>' +
+    '<b>Solo Prima Vinta:</b> ' + (soloA>=0?'+':'') + soloA.toFixed(2) + '€<br>' +
+    '<b>Solo Seconda Vinta:</b> ' + (soloB>=0?'+':'') + soloB.toFixed(2) + '€';
+
+  lastCalc = {
+    quotaA: qA, quotaB: qB,
+    stakeA: stakeA, stakeB: stakeB
+  };
+}
+
+// 3) Asian split (0.75/1.25...)
+function calcolaAsianSplit() {
+  const totale = safeNum(document.getElementById('s_totale').value);
+  let qA = safeNum(document.getElementById('s_quotaA').value);
+  let qB = safeNum(document.getElementById('s_quotaB').value);
+  const out = document.getElementById('s_result');
+  out.style.display = 'block';
+
+  if (totale <= 0 || qA <= 1) {
+    out.innerHTML = '<span class="error">Inserisci almeno Quota A valida e puntata &gt; 0.</span>';
+    return;
+  }
+
+  let stakeA, stakeB;
+  if (qB <= 0) {
+    qB = 0;
+    stakeA = roundBook(totale);
+    stakeB = 0;
+  } else {
+    // split 50/50
+    stakeA = roundBook(totale / 2);
+    stakeB = roundBook(totale - stakeA);
+  }
+
+  const stakeTot = stakeA + stakeB;
+  const entrambe = roundBook((stakeA * qA + stakeB * (qB||0)) - stakeTot);
+  const soloA  = roundBook((stakeA * qA) - stakeTot);
+  const soloB  = roundBook((stakeB * (qB||0)) - stakeTot);
+
+  out.innerHTML =
+    '<b>Punta su Quota A (Over Inferiore):</b> ' + stakeA.toFixed(1) + '€<br>' +
+    '<b>Punta su Quota B (Over Superiore):</b> ' + stakeB.toFixed(1) + '€<br><br>' +
+    '<b>Entrambe Vinte:</b> ' + (entrambe>=0?'+':'') + entrambe.toFixed(2) + '€<br>' +
+    '<b>Solo Ove
