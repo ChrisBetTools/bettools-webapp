@@ -355,26 +355,37 @@
     </div>
 
     <!-- Asian .25 / .75 -->
-    <h2>Asian 0.75 / 1.25 / 1.75...</h2>
-    <div class="box">
-      <div class="muted">
-        Simula linee .25/.75 dividendo la puntata fra Over inferiore e superiore. Se <b>Quota B = 0</b>, tutta la puntata va su Quota A.
-      </div>
+<h2>Asian 0.25 / 0.75 (Over)</h2>
+<div class="box">
+  <div class="muted">
+    Simula linee .25/.75 sugli Over dividendo la puntata fra Over inferiore e superiore.<br>
+    Esempi:<br>
+    • Over 1.25 = metà su Over 1.0, metà su Over 1.5<br>
+    • Over 1.75 = metà su Over 1.5, metà su Over 2.0<br>
+    Se <b>Quota B = 0</b>, tutta la puntata va su Quota A.
+  </div>
 
-      <label>Puntata Totale (€)</label>
-      <input id="s_totale" type="number" step="0.01" value="2">
+  <label>Tipo linea</label>
+  <select id="s_tipo">
+    <option value="0.25">Linea 0.25 (es. 1.25 = 1.0 &amp; 1.5)</option>
+    <option value="0.75">Linea 0.75 (es. 1.75 = 1.5 &amp; 2.0)</option>
+  </select>
 
-      <label>Quota A – Over Inferiore</label>
-      <input id="s_quotaA" type="number" step="0.01" value="1.60">
+  <label>Puntata Totale (€)</label>
+  <input id="s_totale" type="number" step="0.01" value="2">
 
-      <label>Quota B – Over Superiore (0 se non giocata)</label>
-      <input id="s_quotaB" type="number" step="0.01" value="1.80">
+  <label>Quota A – Over Inferiore</label>
+  <input id="s_quotaA" type="number" step="0.01" value="1.60">
 
-      <button onclick="calcolaAsianSplit()">Calcola</button>
-      <button class="secondary" onclick="aggiungiStoricoDaCalc('Asian Split')">➕ Aggiungi allo storico</button>
+  <label>Quota B – Over Superiore (0 se non giocata)</label>
+  <input id="s_quotaB" type="number" step="0.01" value="1.80">
 
-      <div id="s_result" class="result" style="display:none;"></div>
-    </div>
+  <button onclick="calcolaAsianSplit()">Calcola</button>
+  <button class="secondary" onclick="aggiungiStoricoDaCalc('Asian Split')">➕ Aggiungi allo storico</button>
+
+  <div id="s_result" class="result" style="display:none;"></div>
+</div>
+
 
     <!-- Link Statistiche -->
     <h2>Link Statistiche</h2>
@@ -560,8 +571,36 @@
         </div>
       </div>
 
+      <!-- Nuovo blocco: bankroll & stake consigliato -->
+      <h3 class="muted" style="margin-top:10px;font-size:13px;">Gestione bankroll & stake consigliato</h3>
+
+      <div class="row">
+        <div>
+          <label>Bankroll iniziale (€)</label>
+          <input id="br_start" type="number" step="0.01" oninput="updateBankrollStart()">
+        </div>
+        <div>
+          <label>Bankroll attuale</label>
+          <div class="muted" id="br_current">-</div>
+          <div class="muted" id="br_delta"></div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:6px;">
+        <div class="stat-box" style="flex:1;">
+          <div class="stat-title">Stake standard (max 5%)</div>
+          <div id="stk_std"></div>
+        </div>
+        <div class="stat-box" style="flex:1;">
+          <div class="stat-title">Stake high-edge (max 10%)</div>
+          <div id="stk_high"></div>
+        </div>
+      </div>
+      <div class="muted" id="stk_note" style="margin-top:4px;"></div>
+
       <canvas id="equityChart" width="600" height="220"></canvas>
       <div class="muted">Equity chart sul periodo filtrato (baseline corretta in base allo storico precedente).</div>
+ 
     </div>
   </section>
 </main>
@@ -676,43 +715,91 @@
     lastCalc = { quotaA: qA, quotaB: qB, stakeA, stakeB };
   }
 
-  // 3) Asian Split .25/.75
-  function calcolaAsianSplit() {
-    const totale = safeNum(document.getElementById('s_totale').value);
-    let qA = safeNum(document.getElementById('s_quotaA').value);
-    let qB = safeNum(document.getElementById('s_quotaB').value);
-    const out = document.getElementById('s_result');
-    out.style.display = 'block';
+// 3) Asian Split .25/.75 sugli Over
+function calcolaAsianSplit() {
+  const totale = safeNum(document.getElementById('s_totale').value);
+  const tipo = document.getElementById('s_tipo').value; // "0.25" o "0.75"
+  let qA = safeNum(document.getElementById('s_quotaA').value);
+  let qB = safeNum(document.getElementById('s_quotaB').value);
+  const out = document.getElementById('s_result');
+  out.style.display = 'block';
 
-    if (totale <= 0 || qA <= 1) {
-      out.innerHTML = '<span class="error">Inserisci almeno Quota A valida e puntata &gt; 0.</span>';
-      return;
-    }
-
-    let stakeA, stakeB;
-    if (qB <= 0) {
-      qB = 0;
-      stakeA = roundBook(totale);
-      stakeB = 0;
-    } else {
-      stakeA = roundBook(totale / 2);
-      stakeB = roundBook(totale - stakeA);
-    }
-
-    const stakeTot = stakeA + stakeB;
-    const entrambe = roundBook((stakeA * qA + stakeB * qB) - stakeTot);
-    const soloA  = roundBook((stakeA * qA) - stakeTot);
-    const soloB  = roundBook((stakeB * qB) - stakeTot);
-
-    out.innerHTML =
-      '<b>Punta su Quota A (Over Inferiore):</b> ' + stakeA.toFixed(1) + '€<br>' +
-      '<b>Punta su Quota B (Over Superiore):</b> ' + stakeB.toFixed(1) + '€<br><br>' +
-      '<b>Entrambe Vinte:</b> ' + (entrambe>=0?'+':'') + entrambe.toFixed(2) + '€<br>' +
-      '<b>Solo Over Minore vinto:</b> ' + (soloA>=0?'+':'') + soloA.toFixed(2) + '€<br>' +
-      '<b>Solo Over Maggiore vinto:</b> ' + (soloB>=0?'+':'') + soloB.toFixed(2) + '€';
-
-    lastCalc = { quotaA: qA, quotaB: qB, stakeA, stakeB };
+  if (totale <= 0 || qA <= 1) {
+    out.innerHTML = '<span class="error">Inserisci almeno Quota A valida e puntata &gt; 0.</span>';
+    return;
   }
+
+  let stakeA, stakeB;
+  if (qB <= 0) {
+    qB = 0;
+    stakeA = roundBook(totale);
+    stakeB = 0;
+  } else {
+    stakeA = roundBook(totale / 2);
+    stakeB = roundBook(totale - stakeA);
+  }
+
+  const stakeTot = stakeA + stakeB;
+
+  // Calcolo sugli esiti per numero di gol
+  // Supponiamo che Over Inferiore sia esattamente il "gradino basso":
+  // ad es. per 1.25 -> Over 1.0 & Over 1.5; per 1.75 -> Over 1.5 & Over 2.0
+  const lineaInferiore = 0; // non serve il valore numerico qui per il profitto, solo la logica .25/.75
+
+  let text = '';
+  text += '<b>Punta su Quota A (Over Inferiore):</b> ' + stakeA.toFixed(1) + '€<br>';
+  text += '<b>Punta su Quota B (Over Superiore):</b> ' + stakeB.toFixed(1) + '€<br><br>';
+
+  if (qB <= 0) {
+    // caso particolare: solo una quota
+    const fullWin = roundBook(stakeA * qA - stakeTot);
+    text += '<b>Solo Over A (linea singola):</b> ' + (fullWin>=0?'+':'') + fullWin.toFixed(2) + '€';
+    out.innerHTML = text;
+    lastCalc = { quotaA: qA, quotaB: qB, stakeA, stakeB };
+    return;
+  }
+
+  if (tipo === '0.25') {
+    // es. Over 1.25 = Over 1.0 + Over 1.5
+    // 0 gol: entrambi persi
+    const profit0 = -stakeTot;
+
+    // 1 gol: Over inferiore (1.0) push -> rimborso stakeA, Over superiore (1.5) perde
+    const ritorno1 = stakeA; // rimborso stakeA
+    const profit1 = roundBook(ritorno1 - stakeTot);
+
+    // 2+ gol: entrambi vincenti
+    const ritorno2 = stakeA * qA + stakeB * qB;
+    const profit2 = roundBook(ritorno2 - stakeTot);
+
+    text += '<u>Esiti tipici (es. Over 1.25):</u><br>';
+    text += '· 0 gol: ' + profit0.toFixed(2) + '€ (perdi tutto)<br>';
+    text += '· 1 gol: ' + (profit1>=0?'+':'') + profit1.toFixed(2) + '€ (metà rimborsata, metà persa)<br>';
+    text += '· 2+ gol: ' + (profit2>=0?'+':'') + profit2.toFixed(2) + '€ (vinte entrambe)';
+  } else {
+    // tipo === '0.75'
+    // es. Over 1.75 = Over 1.5 + Over 2.0
+    // 0-1 gol: entrambi persi
+    const profit01 = -stakeTot;
+
+    // 2 gol: Over 1.5 vinto, Over 2.0 push
+    const ritorno2 = stakeA * qA + stakeB; // stakeB rimborsata
+    const profit2 = roundBook(ritorno2 - stakeTot);
+
+    // 3+ gol: entrambi vincenti
+    const ritorno3 = stakeA * qA + stakeB * qB;
+    const profit3 = roundBook(ritorno3 - stakeTot);
+
+    text += '<u>Esiti tipici (es. Over 1.75):</u><br>';
+    text += '· 0-1 gol: ' + profit01.toFixed(2) + '€ (perdi tutto)<br>';
+    text += '· 2 gol: ' + (profit2>=0?'+':'') + profit2.toFixed(2) + '€ (metà vinta, metà rimborsata)<br>';
+    text += '· 3+ gol: ' + (profit3>=0?'+':'') + profit3.toFixed(2) + '€ (vinte entrambe)';
+  }
+
+  out.innerHTML = text;
+  lastCalc = { quotaA: qA, quotaB: qB, stakeA, stakeB };
+}
+
 
   // 4) Link statistiche
   function updateMatchInfo() {
@@ -742,6 +829,28 @@
 
   /* ==== STORICO ==== */
   const LS_KEY = 'bettools_history';
+  const LS_BANKROLL = 'bettools_bankroll_start';
+  
+  function loadBankrollStart(){
+  const raw = localStorage.getItem(LS_BANKROLL);
+  const v = safeNum(raw);
+  return v > 0 ? v : 0;
+}
+
+function saveBankrollStart(v){
+  if (!isFinite(v) || v <= 0){
+    localStorage.removeItem(LS_BANKROLL);
+  } else {
+    localStorage.setItem(LS_BANKROLL, v.toString());
+  }
+}
+
+function updateBankrollStart(){
+  const v = safeNum(document.getElementById('br_start').value);
+  saveBankrollStart(v);
+  aggiornaDashboard();
+}
+
 
   function loadStorico() {
     try {
@@ -935,51 +1044,163 @@
     return { filtered, baseline };
   }
 
-  function aggiornaDashboard() {
-    const { filtered, baseline } = filtraStorico();
+function aggiornaDashboard() {
+  const { filtered, baseline } = filtraStorico();
 
-    let totProfit = 0, totStake = 0;
-    let quotaMediaSum = 0, quotaMediaCount = 0;
-    let countAll = filtered.length;
-    let winCount = 0, onlyA = 0, onlyB = 0;
+  // storico totale (per bankroll)
+  const fullArr = loadStorico();
 
-    filtered.forEach(r => {
-      totProfit += r.profit;
-      const stakeTot = r.stakeA + r.stakeB;
-      totStake += stakeTot;
-      const qMed = r.quotaB ? (r.quotaA + r.quotaB)/2 : r.quotaA;
-      quotaMediaSum += qMed;
-      quotaMediaCount++;
-      if (r.esito === 'Vinte entrambe' || r.esito === 'Solo A vinta' || r.esito === 'Solo B vinta') {
-        winCount++;
-      }
-      if (r.esito === 'Solo A vinta') onlyA++;
-      if (r.esito === 'Solo B vinta') onlyB++;
-    });
+  let totProfit = 0, totStake = 0;
+  let quotaMediaSum = 0, quotaMediaCount = 0;
+  let countAll = filtered.length;
+  let winCount = 0, onlyA = 0, onlyB = 0;
 
-    document.getElementById('d_profit').textContent =
-      (totProfit>=0?'+':'') + totProfit.toFixed(2) + '€';
+  filtered.forEach(r => {
+    totProfit += r.profit;
+    const stakeTot = r.stakeA + r.stakeB;
+    totStake += stakeTot;
+    const qMed = r.quotaB ? (r.quotaA + r.quotaB)/2 : r.quotaA;
+    quotaMediaSum += qMed;
+    quotaMediaCount++;
+    if (r.esito === 'Vinte entrambe' || r.esito === 'Solo A vinta' || r.esito === 'Solo B vinta') {
+      winCount++;
+    }
+    if (r.esito === 'Solo A vinta') onlyA++;
+    if (r.esito === 'Solo B vinta') onlyB++;
+  });
 
-    const roi = totStake>0 ? (totProfit/totStake*100) : 0;
-    document.getElementById('d_roi').textContent =
-      totStake>0 ? roi.toFixed(2) + '%' : '-';
+  const d_profit = document.getElementById('d_profit');
+  const d_roi = document.getElementById('d_roi');
+  const d_count = document.getElementById('d_count');
+  const d_quotaMedia = document.getElementById('d_quotaMedia');
+  const d_winrate = document.getElementById('d_winrate');
+  const d_ab = document.getElementById('d_ab');
 
-    document.getElementById('d_count').textContent = countAll;
+  d_profit.textContent = (totProfit>=0?'+':'') + totProfit.toFixed(2) + '€';
 
-    document.getElementById('d_quotaMedia').textContent =
-      quotaMediaCount>0 ? (quotaMediaSum/quotaMediaCount).toFixed(2) : '-';
+  const roi = totStake>0 ? (totProfit/totStake*100) : 0;
+  d_roi.textContent = totStake>0 ? roi.toFixed(2) + '%' : '-';
 
-    const winRate = countAll>0 ? (winCount/countAll*100) : 0;
-    document.getElementById('d_winrate').textContent =
-      countAll>0 ? winRate.toFixed(2) + '%' : '-';
+  d_count.textContent = countAll;
 
-    const percA = countAll>0 ? (onlyA/countAll*100) : 0;
-    const percB = countAll>0 ? (onlyB/countAll*100) : 0;
-    document.getElementById('d_ab').textContent =
-      countAll>0 ? 'A: ' + percA.toFixed(1) + '% · B: ' + percB.toFixed(1) + '%' : '-';
+  d_quotaMedia.textContent = quotaMediaCount>0 ? (quotaMediaSum/quotaMediaCount).toFixed(2) : '-';
 
-    renderEquityChart(filtered, baseline);
+  const winRate = countAll>0 ? (winCount/countAll*100) : 0;
+  d_winrate.textContent = countAll>0 ? winRate.toFixed(2) + '%' : '-';
+
+  const percA = countAll>0 ? (onlyA/countAll*100) : 0;
+  const percB = countAll>0 ? (onlyB/countAll*100) : 0;
+  d_ab.textContent = countAll>0
+    ? 'A: ' + percA.toFixed(1) + '% · B: ' + percB.toFixed(1) + '%'
+    : '-';
+
+  // Equity chart
+  renderEquityChart(filtered, baseline);
+
+  // ======== Motore Bankroll & Stake ========
+  const brStart = loadBankrollStart();
+  const brStartInput = document.getElementById('br_start');
+  const brCurrentEl = document.getElementById('br_current');
+  const brDeltaEl = document.getElementById('br_delta');
+  const stkStdEl = document.getElementById('stk_std');
+  const stkHighEl = document.getElementById('stk_high');
+  const stkNoteEl = document.getElementById('stk_note');
+  const tipoSel = document.getElementById('f_tipo').value;
+
+  // inizializza campo input se non è ancora popolato
+  if (brStart > 0 && !brStartInput.value) {
+    brStartInput.value = brStart.toFixed(2);
   }
+
+  if (brStart <= 0) {
+    brCurrentEl.textContent = '-';
+    brDeltaEl.textContent = 'Imposta un bankroll iniziale per vedere stake consigliate.';
+    stkStdEl.textContent = '-';
+    stkHighEl.textContent = '-';
+    stkNoteEl.textContent = '';
+    return;
+  }
+
+  // bankroll attuale = iniziale + profitto totale su tutto lo storico
+  let totProfitAll = 0;
+  fullArr.forEach(r => { totProfitAll += r.profit; });
+  const brCurrent = brStart + totProfitAll;
+  brCurrentEl.textContent = brCurrent.toFixed(2) + '€';
+
+  const delta = brCurrent - brStart;
+  brDeltaEl.textContent = 'Δ vs iniziale: ' + (delta>=0?'+':'') + delta.toFixed(2) + '€';
+
+  if (fullArr.length === 0) {
+    stkStdEl.textContent = '-';
+    stkHighEl.textContent = '-';
+    stkNoteEl.textContent = 'Registra almeno qualche giocata per avere uno stake suggerito.';
+    return;
+  }
+
+  // Cap 5% / 10%
+  const capStd = brCurrent * 0.05;
+  const capHigh = brCurrent * 0.10;
+
+  // Fattore f (0–1) modulato da ROI locale e n° giocate filtrate
+  let f = 0;
+  const noteParts = [];
+
+  if (countAll === 0) {
+    // Nessuna giocata con il filtro attuale: stake ultra prudente
+    f = 0.3;
+    noteParts.push('Nessuna giocata nel filtro selezionato: stake prudente basata solo sul bankroll.');
+  } else if (countAll < 30) {
+    // Storico locale corto
+    if (roi <= 0) {
+      f = 0.3;
+      noteParts.push('Storico locale corto e non brillante: stake prudente; ti basi comunque su filtri esterni già validati.');
+    } else {
+      f = 0.4;
+      noteParts.push('Storico locale ancora corto: stake ridotta rispetto al massimo.');
+    }
+  } else {
+    // Storico locale più robusto
+    if (roi <= 0) {
+      // qui NON azzeriamo lo stake perché i filtri livepick sono già affidabili
+      f = 0.4;
+      noteParts.push('Storico locale negativo, ma il filtro di origine è già testato: stake ridotta ma non azzerata.');
+    } else if (roi <= 2) {
+      f = 0.5;
+    } else if (roi <= 5) {
+      f = 0.7;
+    } else if (roi <= 10) {
+      f = 0.9;
+    } else {
+      f = 1.0;
+    }
+  }
+
+  // Stake consigliate
+  let stakeStd = roundBook(capStd * f);
+  let stakeHigh = roundBook(capHigh * f);
+
+  // Non scendiamo mai sotto 0.5% e 1% del bankroll attuale
+  const minStd = brCurrent * 0.005;
+  const minHigh = brCurrent * 0.01;
+  if (stakeStd < minStd) stakeStd = roundBook(minStd);
+  if (stakeHigh < minHigh) stakeHigh = roundBook(minHigh);
+
+  stkStdEl.textContent = stakeStd.toFixed(2) + '€';
+  stkHighEl.textContent = stakeHigh.toFixed(2) + '€';
+
+  noteParts.push(
+    'Fattore rischio f = ' + f.toFixed(2) +
+    ', cap 5% = ' + capStd.toFixed(2) + '€, cap 10% = ' + capHigh.toFixed(2) + '€.'
+  );
+  if (!tipoSel) {
+    noteParts.push('Filtro su tutti i tipi: restringi a una singola strategia per uno stake più mirato.');
+  } else {
+    noteParts.push('Tipo selezionato: ' + tipoSel + '.');
+  }
+
+  stkNoteEl.textContent = noteParts.join(' ');
+}
+
 
   function renderEquityChart(entries, baseline) {
     const canvas = document.getElementById('equityChart');
