@@ -1258,8 +1258,6 @@ function updateBankrollStart(){
 
 function aggiornaDashboard() {
   const { filtered, baseline } = filtraStorico();
-
-  // storico totale (per bankroll)
   const fullArr = loadStorico();
 
   let totProfit = 0, totStake = 0;
@@ -1271,40 +1269,123 @@ function aggiornaDashboard() {
     totProfit += r.profit;
     const stakeTot = r.stakeA + r.stakeB;
     totStake += stakeTot;
-    const qMed = r.quotaB ? (r.quotaA + r.quotaB)/2 : r.quotaA;
+
+    const qMed = r.quotaB ? (r.quotaA + r.quotaB) / 2 : r.quotaA;
     quotaMediaSum += qMed;
     quotaMediaCount++;
-    if (r.esito === 'Vinte entrambe' || r.esito === 'Solo A vinta' || r.esito === 'Solo B vinta') {
+
+    if (
+      r.esito === "Vinte entrambe" ||
+      r.esito === "Solo A vinta" ||
+      r.esito === "Solo B vinta"
+    ) {
       winCount++;
     }
-    if (r.esito === 'Solo A vinta') onlyA++;
-    if (r.esito === 'Solo B vinta') onlyB++;
+    if (r.esito === "Solo A vinta") onlyA++;
+    if (r.esito === "Solo B vinta") onlyB++;
   });
 
-  const d_profit = document.getElementById('d_profit');
-  const d_roi = document.getElementById('d_roi');
-  const d_count = document.getElementById('d_count');
-  const d_quotaMedia = document.getElementById('d_quotaMedia');
-  const d_winrate = document.getElementById('d_winrate');
-  const d_ab = document.getElementById('d_ab');
+  // Aggiorna UI standard
+  document.getElementById("d_profit").textContent =
+    (totProfit >= 0 ? "+" : "") + totProfit.toFixed(2) + "€";
 
-  d_profit.textContent = (totProfit>=0?'+':'') + totProfit.toFixed(2) + '€';
+  const roi = totStake > 0 ? (totProfit / totStake) * 100 : 0;
+  document.getElementById("d_roi").textContent =
+    totStake > 0 ? roi.toFixed(2) + "%" : "-";
 
-  const roi = totStake>0 ? (totProfit/totStake*100) : 0;
-  d_roi.textContent = totStake>0 ? roi.toFixed(2) + '%' : '-';
+  document.getElementById("d_count").textContent = countAll;
 
-  d_count.textContent = countAll;
+  document.getElementById("d_quotaMedia").textContent =
+    quotaMediaCount > 0 ? (quotaMediaSum / quotaMediaCount).toFixed(2) : "-";
 
-  d_quotaMedia.textContent = quotaMediaCount>0 ? (quotaMediaSum/quotaMediaCount).toFixed(2) : '-';
+  const winRate = countAll > 0 ? (winCount / countAll) * 100 : 0;
+  document.getElementById("d_winrate").textContent =
+    countAll > 0 ? winRate.toFixed(2) + "%" : "-";
 
-  const winRate = countAll>0 ? (winCount/countAll*100) : 0;
-  d_winrate.textContent = countAll>0 ? winRate.toFixed(2) + '%' : '-';
+  const percA = countAll > 0 ? (onlyA / countAll) * 100 : 0;
+  const percB = countAll > 0 ? (onlyB / countAll) * 100 : 0;
 
-  const percA = countAll>0 ? (onlyA/countAll*100) : 0;
-  const percB = countAll>0 ? (onlyB/countAll*100) : 0;
-  d_ab.textContent = countAll>0
-    ? 'A: ' + percA.toFixed(1) + '% · B: ' + percB.toFixed(1) + '%'
-    : '-';
+  document.getElementById("d_ab").textContent =
+    countAll > 0
+      ? `A: ${percA.toFixed(1)}% · B: ${percB.toFixed(1)}%`
+      : "-";
+
+  // Ridisegna grafico
+  renderEquityChart(filtered, baseline);
+
+  // ======== SEZIONE STAKE ========
+  const brStart = loadBankrollStart();
+  const brStartInput = document.getElementById("br_start");
+  const brCurrentEl = document.getElementById("br_current");
+  const brDeltaEl = document.getElementById("br_delta");
+  const stkStdEl = document.getElementById("stk_std");
+  const stkHighEl = document.getElementById("stk_high");
+  const stkNoteEl = document.getElementById("stk_note");
+
+  if (brStart > 0 && !brStartInput.value) {
+    brStartInput.value = brStart.toFixed(2);
+  }
+
+  if (brStart <= 0) {
+    brCurrentEl.textContent = "-";
+    brDeltaEl.textContent =
+      "Imposta un bankroll iniziale per vedere stake consigliate.";
+    stkStdEl.textContent = "-";
+    stkHighEl.textContent = "-";
+    stkNoteEl.textContent = "";
+    return;
+  }
+
+  // Calcolo bankroll attuale
+  let totProfitAll = 0;
+  fullArr.forEach((r) => (totProfitAll += r.profit));
+
+  const brCurrent = brStart + totProfitAll;
+  brCurrentEl.textContent = `${brCurrent.toFixed(2)}€`;
+
+  const delta = brCurrent - brStart;
+  brDeltaEl.textContent =
+    "Δ vs iniziale: " + (delta >= 0 ? "+" : "") + delta.toFixed(2) + "€";
+
+  // SEZIONE LIMITE STAKE
+  const STAKE_MIN = Math.max(1, brCurrent * 0.02);
+  const STAKE_BASE = brCurrent * 0.05;
+  const STAKE_MAX = brCurrent * 0.10;
+
+  // Fattore rischio f
+  let f = 0.6;
+  if (countAll > 0) {
+    if (roi <= 0) f = 0.6;
+    else if (roi <= 2) f = 0.7;
+    else if (roi <= 5) f = 0.8;
+    else if (roi <= 10) f = 0.9;
+    else f = 1.0;
+  } else {
+    f = 0.5;
+  }
+
+  // Calcolo stake
+  let stakeStd = STAKE_BASE * f;
+  let stakeHigh = STAKE_MAX * f;
+
+  if (stakeStd < STAKE_MIN) stakeStd = STAKE_MIN;
+  if (stakeStd > STAKE_MAX) stakeStd = STAKE_MAX;
+
+  if (stakeHigh < STAKE_MIN) stakeHigh = STAKE_MIN;
+  if (stakeHigh > STAKE_MAX) stakeHigh = STAKE_MAX;
+
+  stakeStd = roundBook(stakeStd);
+  stakeHigh = roundBook(stakeHigh);
+
+  stkStdEl.textContent = `${stakeStd.toFixed(2)}€`;
+  stkHighEl.textContent = `${stakeHigh.toFixed(2)}€`;
+
+  stkNoteEl.textContent =
+    `Stake base (5% BR): ${STAKE_BASE.toFixed(2)}€. ` +
+    `Min: ${roundBook(STAKE_MIN).toFixed(2)}€, Max: ${STAKE_MAX.toFixed(2)}€. ` +
+    `Fattore rischio f=${f.toFixed(2)}.`;
+}
+
 
   // Equity chart
   /* ============================================================
