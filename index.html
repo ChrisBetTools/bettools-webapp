@@ -127,19 +127,16 @@
         border-color: #007aff;
     }
 
-    /* Colori testo helper */
     .text-red { color: #ff3b30; }
     .text-blue { color: #0a84ff; }
     .text-green { color: #10b981; }
     .text-gray { color: #6b7280; }
 
-    /* Storico */
     .stRow {
         padding: 12px;
         border-bottom: 1px solid #e5e7eb;
     }
 
-    /* Modal */
     #editModal {
         position: fixed;
         inset: 0;
@@ -150,7 +147,6 @@
         z-index: 999;
     }
 </style>
-
 </head>
 <body>
 
@@ -165,95 +161,98 @@
 <!--     PAGINA CALCOLI      -->
 <!-- ======================= -->
 <div id="page_calc" class="page" style="display:block;">
-<!-- === ASIAN LINE INTERA === -->
-<div class="card">
-    <h2>Asian Line Intera</h2>
-    <p class="text-gray" style="font-size:13px;">
-        Simula una linea asiatica intera con due Over.  
-        Se Quota B = 0, tutta la puntata va su Quota A.
-    </p>
 
-    <label>Puntata Totale (€)</label>
-    <input id="al_tot" type="number" step="0.1">
+    <!-- === ASIAN LINE INTERA === -->
+    <div class="card">
+        <h2>Asian Line Intera</h2>
+        <p class="text-gray" style="font-size:13px;">
+            Simula una linea asiatica intera con due Over.  
+            Se Quota B = 0, tutta la puntata va su Quota A.
+        </p>
 
-    <label>Quota A (Over Minore)</label>
-    <input id="al_qA" type="number" step="0.01">
+        <label>Puntata Totale (€)</label>
+        <input id="al_tot" type="number" step="0.1">
 
-    <label>Quota B (Over Maggiore – 0 se non giocata)</label>
-    <input id="al_qB" type="number" step="0.01">
+        <label>Quota A (Over Minore)</label>
+        <input id="al_qA" type="number" step="0.01">
 
-    <button class="btn" onclick="calcolaAsianIntera()">Calcola</button>
+        <label>Quota B (Over Maggiore – 0 se non giocata)</label>
+        <input id="al_qB" type="number" step="0.01">
 
-    <div id="al_out" class="card" style="display:none; margin-top:10px;"></div>
+        <button class="btn" onclick="calcolaAsianIntera()">Calcola</button>
 
-    <button class="btn" style="background:#636366" onclick="aggiungiStoricoDaCalc('asian_intera')">
-        + Aggiungi allo storico
-    </button>
-</div>
+        <div id="al_out" class="card" style="display:none; margin-top:10px;"></div>
 
-
-<!-- === PROTEZIONE VOID === -->
-<div class="card">
-    <h2>Protezione Void (Giocata Principale + Copertura)</h2>
-    <p class="text-gray" style="font-size:13px;">
-        Usa una seconda giocata a quota bassa per coprire (quasi) la perdita
-        della principale. Se Quota B = 0, tutta la puntata va su Quota A.
-    </p>
-
-    <label>Puntata Totale (€)</label>
-    <input id="pv_tot" type="number" step="0.1">
-
-    <label>Quota A (Giocata principale)</label>
-    <input id="pv_qA" type="number" step="0.01">
-
-    <label>Quota B (Copertura – 0 se non giocata)</label>
-    <input id="pv_qB" type="number" step="0.01">
-
-    <button class="btn" onclick="calcolaProtezione()">Calcola</button>
-
-    <div id="pv_out" class="card" style="display:none; margin-top:10px;"></div>
-
-    <button class="btn" style="background:#636366" onclick="aggiungiStoricoDaCalc('protezione')">
-        + Aggiungi allo storico
-    </button>
-</div>
+        <button class="btn" style="background:#636366" onclick="aggiungiStoricoDaCalc('asian_intera')">
+            + Aggiungi allo storico
+        </button>
+    </div>
 
 
-<!-- === ASIAN FRAZIONARI (0.25 / 0.75) === -->
-<div class="card">
-    <h2>Over Asiatici Frazionari (0.25 / 0.75)</h2>
-    <p class="text-gray" style="font-size:13px;">
-        Simula over tipo 2.25 o 2.75 dividendo lo stake sui due Over adiacenti.
-    </p>
+    <!-- === PROTEZIONE VOID === -->
+    <div class="card">
+        <h2>Protezione Void (Giocata Principale + Copertura)</h2>
+        <p class="text-gray" style="font-size:13px;">
+            Usa una seconda giocata a quota bassa per coprire (quasi) la perdita
+            della principale. Se Quota B = 0, tutta la puntata va su Quota A.
+        </p>
 
-    <label>Tipo linea</label>
-    <select id="af_linea">
-        <option value="0.25">Over X.25</option>
-        <option value="0.75">Over X.75</option>
-    </select>
+        <label>Puntata Totale (€)</label>
+        <input id="pv_tot" type="number" step="0.1">
 
-    <label>Valore X (es. 2 → Over 2.25 o 2.75)</label>
-    <input id="af_base" type="number" step="0.5">
+        <label>Quota A (Giocata principale)</label>
+        <input id="pv_qA" type="number" step="0.01">
 
-    <label>Puntata Totale (€)</label>
-    <input id="af_tot" type="number" step="0.1">
+        <label>Quota B (Copertura – 0 se non giocata)</label>
+        <input id="pv_qB" type="number" step="0.01">
 
-    <label>Quota Over Minore</label>
-    <input id="af_qLow" type="number" step="0.01">
+        <button class="btn" onclick="calcolaProtezione()">Calcola</button>
 
-    <label>Quota Over Maggiore</label>
-    <input id="af_qHigh" type="number" step="0.01">
+        <div id="pv_out" class="card" style="display:none; margin-top:10px;"></div>
 
-    <button class="btn" onclick="calcolaAsianFraz()">Calcola</button>
+        <button class="btn" style="background:#636366" onclick="aggiungiStoricoDaCalc('protezione')">
+            + Aggiungi allo storico
+        </button>
+    </div>
 
-    <div id="af_out" class="card" style="display:none; margin-top:10px;"></div>
 
-    <button class="btn" style="background:#636366" onclick="aggiungiStoricoDaCalc('asian_fraz')">
-        + Aggiungi allo storico
-    </button>
-</div>
+    <!-- === ASIAN FRAZIONARI (0.25 / 0.75) === -->
+    <div class="card">
+        <h2>Over Asiatici Frazionari (0.25 / 0.75)</h2>
+        <p class="text-gray" style="font-size:13px;">
+            Simula over tipo 2.25 o 2.75 dividendo lo stake sui due Over adiacenti.
+        </p>
+
+        <label>Tipo linea</label>
+        <select id="af_linea">
+            <option value="0.25">Over X.25</option>
+            <option value="0.75">Over X.75</option>
+        </select>
+
+        <label>Valore X (es. 2 → Over 2.25 o 2.75)</label>
+        <input id="af_base" type="number" step="0.5">
+
+        <label>Puntata Totale (€)</label>
+        <input id="af_tot" type="number" step="0.1">
+
+        <label>Quota Over Minore</label>
+        <input id="af_qLow" type="number" step="0.01">
+
+        <label>Quota Over Maggiore</label>
+        <input id="af_qHigh" type="number" step="0.01">
+
+        <button class="btn" onclick="calcolaAsianFraz()">Calcola</button>
+
+        <div id="af_out" class="card" style="display:none; margin-top:10px;"></div>
+
+        <button class="btn" style="background:#636366" onclick="aggiungiStoricoDaCalc('asian_fraz')">
+            + Aggiungi allo storico
+        </button>
+    </div>
 
 </div> <!-- fine page_calc -->
+
+
 <!-- ======================== -->
 <!--        STORICO           -->
 <!-- ======================== -->
@@ -423,6 +422,8 @@
         <button class="btn" style="background:#ccc; color:#222;" onclick="closeEdit()">Chiudi</button>
     </div>
 </div>
+
+
 <script>
 /* ===========================
    COSTANTI & UTILITY
@@ -957,6 +958,8 @@ function aggiornaDashboard() {
         if (lost) lostBoth++;
     });
 
+    const other = Math.max(countAll - wonAny - lostBoth, 0);
+
     const kpi_profit  = document.getElementById('kpi_profit');
     const kpi_yield   = document.getElementById('kpi_yield');
     const kpi_odd     = document.getElementById('kpi_odd');
@@ -965,4 +968,143 @@ function aggiornaDashboard() {
 
     kpi_profit.textContent = (totProfit >= 0 ? '+' : '') + totProfit.toFixed(1) + '€';
 
-    const roi = totStake > 0 ? (tot
+    const roi = totStake > 0 ? (totProfit / totStake) * 100 : 0;
+    kpi_yield.textContent = totStake > 0 ? roi.toFixed(1) + '%' : '-';
+
+    kpi_matches.textContent = countAll;
+
+    kpi_odd.textContent = quotaMediaCount > 0
+        ? (quotaMediaSum / quotaMediaCount).toFixed(2)
+        : '-';
+
+    const avgStake = stakeCount > 0 ? (totStake / stakeCount) : 0;
+    kpi_stake.textContent = stakeCount > 0
+        ? avgStake.toFixed(2) + '€'
+        : '-';
+
+    renderWinRateChart(wonAny, lostBoth, other);
+    renderProfitChart(arr);
+
+    /* STAKE ENGINE */
+    const brStart = loadBankrollStart();
+    const brStartInput = document.getElementById('br_start');
+    const brCurrentEl  = document.getElementById('br_current');
+    const brDeltaEl    = document.getElementById('br_delta');
+    const stkStdEl     = document.getElementById('stk_std');
+    const stkHighEl    = document.getElementById('stk_high');
+    const stkNoteEl    = document.getElementById('stk_note');
+
+    if (brStart > 0 && !brStartInput.value) {
+        brStartInput.value = brStart.toFixed(2);
+    }
+
+    if (brStart <= 0) {
+        brCurrentEl.textContent = '-';
+        brDeltaEl.textContent   = '-';
+        stkStdEl.textContent    = '-';
+        stkHighEl.textContent   = '-';
+        stkNoteEl.textContent   = 'Imposta un bankroll iniziale per vedere lo stake suggerito.';
+        return;
+    }
+
+    let totProfitAll = 0;
+    arrAll.forEach(r => totProfitAll += r.profit);
+    const brCurrent = brStart + totProfitAll;
+
+    brCurrentEl.textContent = brCurrent.toFixed(2) + '€';
+    const delta = brCurrent - brStart;
+    brDeltaEl.textContent = (delta >= 0 ? '+' : '') + delta.toFixed(2) + '€';
+
+    const STAKE_MIN  = Math.max(1, brCurrent * 0.02);
+    const STAKE_BASE = brCurrent * 0.05;
+    const STAKE_MAX  = brCurrent * 0.10;
+
+    let f = 0.6;
+    if (countAll === 0) {
+        f = 0.5;
+    } else {
+        if (roi <= 0) f = 0.6;
+        else if (roi <= 2)  f = 0.7;
+        else if (roi <= 5)  f = 0.8;
+        else if (roi <= 10) f = 0.9;
+        else f = 1.0;
+    }
+
+    let stakeStd  = STAKE_BASE * f;
+    let stakeHigh = STAKE_MAX * f;
+
+    if (stakeStd  < STAKE_MIN) stakeStd  = STAKE_MIN;
+    if (stakeStd  > STAKE_MAX) stakeStd  = STAKE_MAX;
+    if (stakeHigh < STAKE_MIN) stakeHigh = STAKE_MIN;
+    if (stakeHigh > STAKE_MAX) stakeHigh = STAKE_MAX;
+
+    stakeStd  = roundBook(stakeStd);
+    stakeHigh = roundBook(stakeHigh);
+
+    stkStdEl.textContent  = stakeStd.toFixed(2) + '€';
+    stkHighEl.textContent = stakeHigh.toFixed(2) + '€';
+
+    stkNoteEl.textContent =
+        `Stake base (5% BR): ${STAKE_BASE.toFixed(2)}€. ` +
+        `Min: ${roundBook(STAKE_MIN).toFixed(2)}€, Max: ${STAKE_MAX.toFixed(2)}€. ` +
+        `Fattore rischio f=${f.toFixed(2)} (basato su ROI & n° giocate).`;
+}
+
+/* ===========================
+   EXPORT CSV
+=========================== */
+function exportCSV() {
+    const arr = loadStorico().slice().sort((a,b) => {
+        if (a.data === b.data) return (a.id||0) - (b.id||0);
+        return a.data < b.data ? -1 : 1;
+    });
+
+    if (!arr.length) {
+        alert('Nessuna riga da esportare.');
+        return;
+    }
+
+    const header = ['Data','Tipo','Partita','QuotaA','QuotaB','StakeA','StakeB','Esito','Profitto'];
+    const rows = [header.join(';')];
+
+    arr.forEach(r => {
+        rows.push([
+            r.data,
+            r.tipo,
+            (r.partita || '').replace(/;/g, ','),
+            r.quotaA.toFixed(2),
+            r.quotaB ? r.quotaB.toFixed(2) : '0.00',
+            r.stakeA.toFixed(2),
+            r.stakeB.toFixed(2),
+            r.esito,
+            r.profit.toFixed(2)
+        ].join(';'));
+    });
+
+    const blob = new Blob([rows.join('\n')], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bettools_storico.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+/* ===========================
+   INIT
+=========================== */
+document.addEventListener('DOMContentLoaded', () => {
+    showTab('calc');
+    renderStorico();
+    aggiornaDashboard();
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+    }
+});
+</script>
+
+</body>
+</html>
