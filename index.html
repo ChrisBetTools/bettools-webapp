@@ -575,7 +575,7 @@ function calcolaProtezione() {
         return;
     }
 
-    // Quota B = 0 → nessuna copertura
+    // Quota B = 0 → nessuna copertura, tutta la puntata su A
     if (qB === 0) {
         const stakeA = roundBook(S);
         const stakeB = 0;
@@ -592,9 +592,9 @@ function calcolaProtezione() {
         return;
     }
 
-    // Con copertura
-    let stakeB = S / (qB - 1);
-    if (stakeB > S) stakeB = S;
+    // Con copertura: vogliamo che se vince SOLO B ≈ void
+    // S_B * qB ≈ S  →  S_B = S / qB
+    let stakeB = S / qB;
     let stakeA = S - stakeB;
 
     stakeA = roundBook(stakeA);
@@ -615,6 +615,7 @@ function calcolaProtezione() {
 
     lastCalc = { tipo: 'protezione', quotaA: qA, quotaB: qB, stakeA, stakeB };
 }
+
 
 /* ===========================
    ASIAN FRAZIONARI (0.25 / 0.75)
@@ -1108,3 +1109,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
