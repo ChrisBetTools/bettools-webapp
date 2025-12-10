@@ -16,238 +16,234 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-    :root {
-        color-scheme: light dark;
-    }
-    body {
-        margin: 0;
-        font-family: -apple-system, system-ui, sans-serif;
-        background: #f3f4f6;
-        color: #111827;
-    }
-    .topTabs {
-        display: flex;
-        background: #e5e7eb;
-        border-bottom: 1px solid #d1d5db;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-    }
-    .topTabs button {
-        flex: 1;
-        padding: 11px 4px;
-        border: 0;
-        background: transparent;
-        font-size: 15px;
-        font-weight: 600;
-        color: #6b7280;
-    }
-    .topTabs button.active {
-        background: #ffffff;
-        color: #111827;
-        border-bottom: 3px solid #2563eb;
-    }
+:root { color-scheme: light dark; }
+body {
+    margin: 0;
+    font-family: -apple-system, system-ui, sans-serif;
+    background: #f3f4f6;
+    color: #111827;
+}
 
-    .page {
-        display: none;
-        padding: 12px;
-    }
+/* Tabs */
+.topTabs {
+    display: flex;
+    background: #e5e7eb;
+    border-bottom: 1px solid #d1d5db;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.topTabs button {
+    flex: 1;
+    padding: 11px 4px;
+    border: 0;
+    background: transparent;
+    font-size: 15px;
+    font-weight: 600;
+    color: #6b7280;
+}
+.topTabs button.active {
+    background: #ffffff;
+    color: #111827;
+    border-bottom: 3px solid #2563eb;
+}
 
-    .card {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 14px;
-        margin-bottom: 14px;
-        box-shadow: 0 4px 10px rgba(15,23,42,0.06);
-    }
+/* Pages */
+.page {
+    display: none;
+    padding: 12px;
+}
 
-    h2 {
-        margin: 0 0 8px 0;
-        font-size: 18px;
-    }
-    p.desc {
-        margin: 0 0 10px 0;
-        font-size: 13px;
-        color: #6b7280;
-    }
+/* Cards */
+.card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 10px rgba(15,23,42,0.06);
+}
+h2 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+}
+p.desc {
+    margin: 0 0 10px 0;
+    font-size: 13px;
+    color: #6b7280;
+}
 
-    label {
-        font-size: 13px;
-        font-weight: 600;
-        display: block;
-        margin: 6px 0 2px;
-    }
-    input, select {
-        width: 100%;
-        padding: 9px;
-        font-size: 14px;
-        border-radius: 8px;
-        border: 1px solid #d1d5db;
-        box-sizing: border-box;
-        background: #f9fafb;
-        color: #111827;
-    }
-    input:focus, select:focus {
-        outline: 2px solid #2563eb;
-        outline-offset: 0;
-        background: #ffffff;
-    }
+/* Inputs */
+label {
+    font-size: 13px;
+    font-weight: 600;
+    display: block;
+    margin: 6px 0 2px;
+}
+input, select {
+    width: 100%;
+    padding: 9px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    box-sizing: border-box;
+    background: #f9fafb;
+    color: #111827;
+}
+input:focus, select:focus {
+    outline: 2px solid #2563eb;
+    outline-offset: 0;
+    background: #ffffff;
+}
 
-    .btn {
-        width: 100%;
-        padding: 11px;
-        margin-top: 10px;
-        border-radius: 9px;
-        border: none;
-        font-size: 15px;
-        font-weight: 600;
-        color: #ffffff;
-        background: #2563eb;
-        cursor: pointer;
-    }
-    .btn.secondary {
-        background: #6b7280;
-    }
-    .btn.danger {
-        background: #ef4444;
-    }
-    .btn.success {
-        background: #16a34a;
-    }
-    .btn:active {
-        opacity: 0.9;
-    }
+/* Buttons */
+.btn {
+    width: 100%;
+    padding: 11px;
+    margin-top: 10px;
+    border-radius: 9px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    color: #ffffff;
+    background: #2563eb;
+    cursor: pointer;
+}
+.btn.secondary { background: #6b7280; }
+.btn.danger { background: #ef4444; }
+.btn.small {
+    width: auto;
+    padding: 4px 8px;
+    font-size: 12px;
+}
+.btn:active { opacity: 0.9; }
 
-    .resultBox {
-        margin-top: 10px;
-        padding: 10px;
-        background: #f9fafb;
-        border-radius: 8px;
-        font-size: 14px;
-    }
-    .text-gray { color: #6b7280; }
-    .text-green { color: #16a34a; }
-    .text-red { color: #ef4444; }
-    .text-blue { color: #2563eb; }
+/* Result box */
+.resultBox {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f9fafb;
+    border-radius: 8px;
+    font-size: 14px;
+}
 
-    /* Storico */
-    table.storico {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 13px;
-    }
-    table.storico th, table.storico td {
-        padding: 6px 4px;
-        border-bottom: 1px solid #e5e7eb;
-    }
-    table.storico th {
-        text-align: left;
-        font-size: 12px;
-        text-transform: uppercase;
-        color: #6b7280;
-    }
+/* Colors */
+.text-gray { color: #6b7280; }
+.text-green { color: #16a34a; }
+.text-red { color: #ef4444; }
+.text-blue { color: #2563eb; }
 
-    /* KPI */
-    .kpiGrid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit,minmax(120px,1fr));
-        gap: 10px;
-        margin-top: 6px;
-    }
-    .kpiItem {
-        text-align: left;
-    }
-    .kpiValue {
-        font-size: 19px;
-        font-weight: 700;
-    }
-    .kpiLabel {
-        font-size: 12px;
-        color: #6b7280;
-    }
+/* Storico */
+table.storico {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+table.storico th, table.storico td {
+    padding: 6px 4px;
+    border-bottom: 1px solid #e5e7eb;
+}
+table.storico th {
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #6b7280;
+}
 
-    .filtersRow {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 8px;
-    }
-    .filtersRow select {
-        flex: 1 1 130px;
-    }
+/* KPI */
+.kpiGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(120px,1fr));
+    gap: 10px;
+    margin-top: 6px;
+}
+.kpiItem { text-align: left; }
+.kpiValue { font-size: 19px; font-weight: 700; }
+.kpiLabel { font-size: 12px; color: #6b7280; }
 
-    /* Winrate layout */
-    .winRateWrap {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    .winRateSide {
-        width: 25%;
-        text-align: center;
-    }
-    .winRateSide .value {
-        font-size: 22px;
-        font-weight: 700;
-    }
-    .winRateSide .label {
-        font-size: 13px;
-        color: #6b7280;
-    }
-    .winRateCenter {
-        width: 120px;
-        height: 120px;
-    }
+/* Filters */
+.filtersRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.filtersRow select { flex: 1 1 130px; }
 
-    .rangeRow {
-        display: flex;
-        justify-content: flex-end;
-        gap: 6px;
-        margin-bottom: 6px;
-    }
-    .rangeBtn {
-        padding: 3px 8px;
-        font-size: 11px;
-        border-radius: 6px;
-        border: 1px solid #d1d5db;
-        background: #f3f4f6;
-    }
-    .rangeBtn.active {
-        background: #2563eb;
-        color: white;
-        border-color: #2563eb;
-    }
+/* WinRate */
+.winRateWrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.winRateSide {
+    width: 25%;
+    text-align: center;
+}
+.winRateSide .value {
+    font-size: 22px;
+    font-weight: 700;
+}
+.winRateSide .label {
+    font-size: 13px;
+    color: #6b7280;
+}
+.winRateCenter {
+    width: 120px;
+    height: 120px;
+}
 
-    /* Modal */
-    #addModal, #editModal {
-        position: fixed;
-        inset: 0;
-        background: rgba(15,23,42,0.55);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 50;
-    }
-    .modalCard {
-        background: white;
-        border-radius: 14px;
-        padding: 16px;
-        width: 92%;
-        max-width: 420px;
-        box-shadow: 0 20px 40px rgba(15,23,42,0.4);
-    }
+/* Range buttons */
+.rangeRow {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+.rangeBtn {
+    padding: 3px 8px;
+    font-size: 11px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    background: #f3f4f6;
+    cursor: pointer;
+}
+.rangeBtn.active {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+}
 
-    @media (prefers-color-scheme: dark) {
-        body { background: #111827; color: #f9fafb; }
-        .topTabs { background: #1f2937; border-bottom-color:#374151; }
-        .topTabs button { color:#9ca3af; }
-        .topTabs button.active { background:#111827; color:#f9fafb; }
-        .card { background:#1f2937; box-shadow:none; }
-        input, select { background:#111827; color:#f9fafb; border-color:#374151; }
-        .resultBox { background:#111827; }
-        table.storico th, table.storico td { border-bottom-color:#374151; }
-        .modalCard { background:#111827; }
-    }
+/* Modal */
+#addModal, #editModal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+.modalCard {
+    background: white;
+    border-radius: 14px;
+    padding: 16px;
+    width: 92%;
+    max-width: 420px;
+    box-shadow: 0 20px 40px rgba(15,23,42,0.4);
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    body { background: #111827; color: #f9fafb; }
+    .topTabs { background: #1f2937; border-bottom-color:#374151; }
+    .topTabs button { color:#9ca3af; }
+    .topTabs button.active { background:#111827; color:#f9fafb; }
+    .card { background:#1f2937; box-shadow:none; }
+    input, select { background:#111827; color:#f9fafb; border-color:#374151; }
+    .resultBox { background:#111827; }
+    table.storico th, table.storico td { border-bottom-color:#374151; }
+    .modalCard { background:#111827; }
+}
 </style>
 </head>
 <body>
@@ -266,7 +262,7 @@
     <div class="card">
         <h2>Asian Line Intera</h2>
         <p class="desc">
-            Simula una linea asiatica intera con due Over. Se Quota B = 0, tutto va su Quota A.
+            Simula una linea asiatica intera con due Over. Se Quota B = 0, tutta la puntata va su Quota A.
         </p>
 
         <label>Puntata Totale (€)</label>
@@ -336,6 +332,7 @@
     </div>
 
 </div>
+
 <!-- ============== PAGINA STORICO ============== -->
 <div id="page_storico" class="page">
 
@@ -343,7 +340,7 @@
         <h2>Storico Giocate</h2>
 
         <div class="filtersRow" style="margin-top:6px;">
-            <select id="f_tipo" onchange="renderStorico(); aggiornaDashboard();">
+            <select id="f_tipo" onchange="renderStorico();">
                 <option value="all">Tutti i tipi</option>
                 <option value="Asian Line Intera">Asian Line Intera</option>
                 <option value="Protezione Void">Protezione Void</option>
@@ -355,7 +352,7 @@
                 <option value="Secondo Goal HT Lite">Secondo Goal HT Lite</option>
             </select>
 
-            <select id="f_periodo" onchange="renderStorico(); aggiornaDashboard();">
+            <select id="f_periodo" onchange="renderStorico();">
                 <option value="tutto">Tutto</option>
                 <option value="oggi">Oggi</option>
                 <option value="ieri">Ieri</option>
@@ -427,8 +424,12 @@
                 <div class="kpiLabel">Total Matches</div>
             </div>
             <div class="kpiItem">
+                <div id="kpi_bets" class="kpiValue">0</div>
+                <div class="kpiLabel">Total Bets (A+B)</div>
+            </div>
+            <div class="kpiItem">
                 <div id="kpi_wr_total" class="kpiValue">0%</div>
-                <div class="kpiLabel">Winrate Totale</div>
+                <div class="kpiLabel">Winrate Totale (bets)</div>
             </div>
             <div class="kpiItem">
                 <div id="kpi_wr_A" class="kpiValue">0%</div>
@@ -491,10 +492,10 @@
 
 </div>
 
-<!-- ============== MODALE AGGIUNTA DAL CALCOLATORE ============== -->
+<!-- ============== MODALE AGGIUNTA / EDIT ============== -->
 <div id="addModal">
     <div class="modalCard">
-        <h2>Aggiungi allo storico</h2>
+        <h2 id="am_title">Aggiungi allo storico</h2>
 
         <label>Partita</label>
         <input id="am_partita" placeholder="Es: Inter - Liverpool">
@@ -530,8 +531,10 @@
 const LS_KEY = 'bettools_storico';
 const LS_BR  = 'bettools_bankroll';
 
-let lastCalc = null;           // {qA,qB,sA,sB}
+let lastCalc = null;       // {qA,qB,sA,sB}
+let editingId = null;      // id riga in edit
 let equityRange = 'all';
+
 let winChartObj = null;
 let profitChartObj = null;
 
@@ -546,7 +549,8 @@ function showTab(name){
         document.getElementById('page_'+p).style.display = (p===name?'block':'none');
         document.getElementById('tab_'+p).classList.toggle('active', p===name);
     });
-    if(name!=='calc'){ renderStorico(); aggiornaDashboard(); }
+    if(name==='storico') renderStorico();
+    if(name==='dash')    aggiornaDashboard();
 }
 
 /* ========= LocalStorage ========= */
@@ -577,10 +581,10 @@ function saveBankrollStart(){
 
 /* ========= Calcolatore Asian Intera ========= */
 function calcolaAsianIntera(){
-    const S  = safeNum(document.getElementById('al_tot').value);
-    const qA = safeNum(document.getElementById('al_qA').value);
-    const qB = safeNum(document.getElementById('al_qB').value);
-    const out=document.getElementById('al_out');
+    const S  = safeNum(al_tot.value);
+    const qA = safeNum(al_qA.value);
+    const qB = safeNum(al_qB.value);
+    const out=al_out;
 
     if(S<=0 || qA<=1 || qB<0){
         out.style.display='block';
@@ -621,10 +625,10 @@ function calcolaAsianIntera(){
 
 /* ========= Calcolatore Protezione ========= */
 function calcolaProtezione(){
-    const S  = safeNum(document.getElementById('pv_tot').value);
-    const qA = safeNum(document.getElementById('pv_qA').value);
-    const qB = safeNum(document.getElementById('pv_qB').value);
-    const out=document.getElementById('pv_out');
+    const S  = safeNum(pv_tot.value);
+    const qA = safeNum(pv_qA.value);
+    const qB = safeNum(pv_qB.value);
+    const out=pv_out;
 
     if(S<=0 || qA<=1 || qB<0){
         out.style.display='block';
@@ -684,12 +688,12 @@ function testoEsitoAsian(linea,g){
     return prefix+'-';
 }
 function calcolaAsianFraz(){
-    const tipo = safeNum(document.getElementById('af_tipo').value); // 0.25 o 0.75
-    const base = safeNum(document.getElementById('af_base').value);
-    const S    = safeNum(document.getElementById('af_tot').value);
-    const qLow = safeNum(document.getElementById('af_qLow').value);
-    const qHigh= safeNum(document.getElementById('af_qHigh').value);
-    const out  = document.getElementById('af_out');
+    const tipo = safeNum(af_tipo.value); // 0.25 o 0.75
+    const base = safeNum(af_base.value);
+    const S    = safeNum(af_tot.value);
+    const qLow = safeNum(af_qLow.value);
+    const qHigh= safeNum(af_qHigh.value);
+    const out  = af_out;
 
     if(S<=0 || qLow<=1 || qHigh<=1 || (tipo!==0.25 && tipo!==0.75)){
         out.style.display='block';
@@ -717,77 +721,102 @@ function calcolaAsianFraz(){
     lastCalc = { qA:qLow, qB:qHigh, sA, sB };
 }
 
-/* ========= Modale aggiunta ========= */
+/* ========= Modale Aggiungi / Edit ========= */
 function apriAddModal(defaultTipo){
     if(!lastCalc){
         alert('Prima esegui il calcolo.');
         return;
     }
-    document.getElementById('am_partita').value='';
-    document.getElementById('am_tipo').value=defaultTipo;
-    document.getElementById('am_esito').value='Non giocata';
-    document.getElementById('addModal').style.display='flex';
+    editingId = null;
+    am_title.textContent = 'Aggiungi allo storico';
+    am_partita.value = '';
+    am_tipo.value = defaultTipo;
+    am_esito.value = 'Non giocata';
+    addModal.style.display='flex';
 }
 function chiudiAddModal(){
-    document.getElementById('addModal').style.display='none';
+    addModal.style.display='none';
+    editingId = null;
+}
+function apriEditModal(id){
+    const arr=loadStorico();
+    const rec=arr.find(r=>r.id===id);
+    if(!rec) return;
+    editingId = id;
+    am_title.textContent = 'Modifica giocata';
+    am_partita.value = rec.partita || '';
+    am_tipo.value = rec.tipo || 'Asian Line Intera';
+    am_esito.value = rec.esito || 'Non giocata';
+    addModal.style.display='flex';
+}
+function calcolaProfit(rec){
+    const stakeTot = rec.stakeA + rec.stakeB;
+    if(rec.esito==='Vinte entrambe'){
+        return rec.stakeA*(rec.quotaA-1)+rec.stakeB*(rec.quotaB-1);
+    }else if(rec.esito==='Solo A vinta'){
+        return rec.stakeA*(rec.quotaA-1) - rec.stakeB;
+    }else if(rec.esito==='Solo B vinta'){
+        return rec.stakeB*(rec.quotaB-1) - rec.stakeA;
+    }else if(rec.esito==='Perse entrambe'){
+        return -stakeTot;
+    }else{
+        return 0;
+    }
 }
 function confermaAddModal(){
-    if(!lastCalc) { chiudiAddModal(); return; }
+    const partita = am_partita.value.trim();
+    const tipo    = am_tipo.value;
+    const esito   = am_esito.value;
 
-    const partita = document.getElementById('am_partita').value.trim();
-    const tipo    = document.getElementById('am_tipo').value;
-    const esito   = document.getElementById('am_esito').value;
-
-    const rec = {
-        id: Date.now(),
-        data: todayISO(),
-        partita,
-        tipo,
-        quotaA: lastCalc.qA,
-        quotaB: lastCalc.qB || 0,
-        stakeA: lastCalc.sA || 0,
-        stakeB: lastCalc.sB || 0,
-        esito,
-        profit: 0
-    };
-
-    const stakeTot = rec.stakeA + rec.stakeB;
-    if(esito==='Vinte entrambe'){
-        rec.profit = rec.stakeA*(rec.quotaA-1)+rec.stakeB*(rec.quotaB-1);
-    }else if(esito==='Solo A vinta'){
-        rec.profit = rec.stakeA*(rec.quotaA-1) - rec.stakeB;
-    }else if(esito==='Solo B vinta'){
-        rec.profit = rec.stakeB*(rec.quotaB-1) - rec.stakeA;
-    }else if(esito==='Perse entrambe'){
-        rec.profit = -stakeTot;
+    if(editingId!==null){
+        // EDIT ESISTENTE
+        const arr = loadStorico();
+        const idx = arr.findIndex(r=>r.id===editingId);
+        if(idx===-1){ chiudiAddModal(); return; }
+        const rec = arr[idx];
+        rec.partita = partita;
+        rec.tipo    = tipo;
+        rec.esito   = esito;
+        rec.profit  = calcolaProfit(rec);
+        saveStorico(arr);
     }else{
-        rec.profit = 0;
+        // NUOVA RIGA DA CALCOLO
+        if(!lastCalc){
+            alert('Prima esegui il calcolo.');
+            return;
+        }
+        const rec = {
+            id: Date.now(),
+            data: todayISO(),
+            partita,
+            tipo,
+            quotaA: lastCalc.qA,
+            quotaB: lastCalc.qB || 0,
+            stakeA: lastCalc.sA || 0,
+            stakeB: lastCalc.sB || 0,
+            esito,
+            profit: 0
+        };
+        rec.profit = calcolaProfit(rec);
+        const arr = loadStorico();
+        arr.push(rec);
+        saveStorico(arr);
     }
-
-    const arr=loadStorico();
-    arr.push(rec);
-    saveStorico(arr);
 
     chiudiAddModal();
     renderStorico();
     aggiornaDashboard();
 }
 
-/* ========= Filtri storici ========= */
-function filtraStorico(baseArr){
-    let arr = baseArr.slice();
-    const tipo = document.getElementById('f_tipo')?.value || 'all';
-    const periodo = document.getElementById('f_periodo')?.value || 'tutto';
-
-    if(tipo!=='all') arr = arr.filter(r=>r.tipo===tipo);
-
+/* ========= Filtri periodo ========= */
+function applyPeriodo(arr, periodo){
+    if(periodo==='tutto') return arr;
     const today = cloneDate(new Date());
 
-    function matchPeriodo(r){
-        if(periodo==='tutto') return true;
+    function match(r){
         if(!r.data) return true;
         const d = cloneDate(new Date(r.data));
-        if(periodo==='oggi') return d.getTime()===today.getTime();
+        if(periodo==='oggi')  return d.getTime()===today.getTime();
         if(periodo==='ieri'){
             const y=cloneDate(today); y.setDate(y.getDate()-1);
             return d.getTime()===y.getTime();
@@ -814,25 +843,30 @@ function filtraStorico(baseArr){
         return true;
     }
 
-    return arr.filter(matchPeriodo);
+    return arr.filter(match);
 }
 
 /* ========= Render Storico ========= */
 function renderStorico(){
-    const box=document.getElementById('storicoBox');
-    if(!box) return;
+    const box=storicoBox;
     const all=loadStorico();
-    const arr=filtraStorico(all);
+    let arr=all.slice();
+
+    const tipo   = f_tipo.value || 'all';
+    const periodo= f_periodo.value || 'tutto';
+
+    if(tipo!=='all') arr=arr.filter(r=>r.tipo===tipo);
+    arr=applyPeriodo(arr, periodo);
 
     if(!arr.length){
         box.innerHTML='<p class="text-gray">Nessuna giocata per i filtri selezionati.</p>';
         return;
     }
 
-    let html='<table class="storico"><tr>'+
-        '<th>Data</th><th>Partita</th><th>Tipo</th><th>Esito</th><th>Profitto</th></tr>';
+    arr.sort((a,b)=> (a.data===b.data? a.id-b.id : (a.data>b.data?1:-1)));
 
-    arr.sort((a,b)=> (a.data===b.data ? a.id-b.id : (a.data>b.data?1:-1)));
+    let html='<table class="storico"><tr>'+
+        '<th>Data</th><th>Partita</th><th>Tipo</th><th>Esito</th><th>Profitto</th><th></th></tr>';
 
     arr.forEach(r=>{
         const colEsito = (r.esito==='Non giocata') ? 'text-red' : 'text-blue';
@@ -843,6 +877,7 @@ function renderStorico(){
             <td>${r.tipo||'-'}</td>
             <td class="${colEsito}">${r.esito}</td>
             <td class="${colProf}">${(r.profit>=0?'+':'')+r.profit.toFixed(2)}€</td>
+            <td><button class="btn small secondary" onclick="apriEditModal(${r.id})">✏️</button></td>
         </tr>`;
     });
 
@@ -859,21 +894,18 @@ function setRange(r){
     aggiornaDashboard();
 }
 
-/* ========= Dashboard & grafici ========= */
-function buildDashFiltered(){
+/* ========= Dashboard ========= */
+function getDashboardFiltered(){
     const all=loadStorico();
-    const tipo=document.getElementById('d_tipo')?.value || 'all';
-    const periodo=document.getElementById('d_periodo')?.value || 'tutto';
+
+    const tipo   = d_tipo.value || 'all';
+    const periodo= d_periodo.value || 'tutto';
+
     let arr=all.slice();
     if(tipo!=='all') arr=arr.filter(r=>r.tipo===tipo);
+    arr=applyPeriodo(arr, periodo);
 
-    // riuso filtri periodo
-    const fakeF=document.getElementById('f_periodo');
-    if(fakeF) fakeF.value=periodo;
-    arr=filtraStorico(arr);
-    if(fakeF) fakeF.value='tutto';
-
-    // range grafico equity
+    // range equity
     const today=cloneDate(new Date());
     arr=arr.filter(r=>{
         if(!r.data) return true;
@@ -881,19 +913,21 @@ function buildDashFiltered(){
         const diff=(today-d)/(1000*60*60*24);
         if(equityRange==='1m') return diff<=30;
         if(equityRange==='6m') return diff<=180;
-        if(equityRange==='12m') return diff<=365;
-        return true; // all
+        if(equityRange==='12m')return diff<=365;
+        return true;
     });
 
-    return {arr,all};
+    return {arr, all};
 }
 
 function aggiornaDashboard(){
-    const {arr,all} = buildDashFiltered();
+    const {arr,all} = getDashboardFiltered();
 
     let profit=0, stakeTot=0;
     let oddSum=0, oddCount=0;
-    let winAny=0, winA=0, winB=0, countA=0, countB=0;
+    let matches=arr.length;
+    let countA=0, countB=0;
+    let winA=0, winB=0;
 
     arr.forEach(r=>{
         profit+=r.profit;
@@ -901,64 +935,54 @@ function aggiornaDashboard(){
         stakeTot+=stake;
         if(r.quotaA){ oddSum+=r.quotaA; oddCount++; countA++; }
         if(r.quotaB){ oddSum+=r.quotaB; oddCount++; countB++; }
+
         const aWin=(r.esito==='Solo A vinta' || r.esito==='Vinte entrambe');
         const bWin=(r.esito==='Solo B vinta' || r.esito==='Vinte entrambe');
-        const lost=(r.esito==='Perse entrambe');
         if(aWin) winA++;
         if(bWin) winB++;
-        if(aWin||bWin) winAny++;
     });
 
-    const matches=arr.length;
-    const kProfit=document.getElementById('kpi_profit');
-    const kYield=document.getElementById('kpi_yield');
-    const kOdd=document.getElementById('kpi_odd');
-    const kStake=document.getElementById('kpi_stake');
-    const kMatches=document.getElementById('kpi_matches');
-    const kWrTot=document.getElementById('kpi_wr_total');
-    const kWrA=document.getElementById('kpi_wr_A');
-    const kWrB=document.getElementById('kpi_wr_B');
+    const totalBets = countA + countB;
+    const winsBets  = winA + winB;
+    const lostBets  = totalBets - winsBets;
 
-    kProfit.textContent=(profit>=0?'+':'')+profit.toFixed(2)+'€';
-    kYield.textContent=stakeTot>0?((profit/stakeTot)*100).toFixed(1)+'%':'-';
-    kOdd.textContent=oddCount>0?(oddSum/oddCount).toFixed(2):'-';
-    kStake.textContent=matches>0?(stakeTot/matches).toFixed(2)+'€':'-';
-    kMatches.textContent=matches;
+    // KPI
+    kpi_profit.textContent = (profit>=0?'+':'')+profit.toFixed(2)+'€';
+    kpi_yield.textContent  = stakeTot>0?((profit/stakeTot)*100).toFixed(1)+'%':'-';
+    kpi_odd.textContent    = oddCount>0?(oddSum/oddCount).toFixed(2):'-';
+    kpi_stake.textContent  = matches>0?(stakeTot/matches).toFixed(2)+'€':'-';
+    kpi_matches.textContent= matches;
+    kpi_bets.textContent   = totalBets;
+    kpi_wr_total.textContent = totalBets>0?((winsBets/totalBets)*100).toFixed(1)+'%':'-';
+    kpi_wr_A.textContent     = countA>0?((winA/countA)*100).toFixed(1)+'%':'-';
+    kpi_wr_B.textContent     = countB>0?((winB/countB)*100).toFixed(1)+'%':'-';
 
-    kWrTot.textContent=matches>0?((winAny/matches)*100).toFixed(1)+'%':'-';
-    kWrA.textContent=countA>0?((winA/countA)*100).toFixed(1)+'%':'-';
-    kWrB.textContent=countB>0?((winB/countB)*100).toFixed(1)+'%':'-';
-
-    // WinRate chart (solo Won / Lost)
-    const ctxW=document.getElementById('chartWinRate').getContext('2d');
-    const lost = matches - winAny;
-
-    const totPlayed = matches;
-    const pWin  = totPlayed>0 ? (winAny/totPlayed*100).toFixed(1) : '0.0';
-    const pLost = totPlayed>0 ? (lost/totPlayed*100).toFixed(1) : '0.0';
-
-    document.getElementById('wr_win').textContent  = pWin+'%';
-    document.getElementById('wr_lost').textContent = pLost+'%';
+    // Win rate donut su bets
+    const ctxW=chartWinRate.getContext('2d');
+    const pWin  = totalBets>0?(winsBets/totalBets*100).toFixed(1):'0.0';
+    const pLost = totalBets>0?(lostBets/totalBets*100).toFixed(1):'0.0';
+    wr_win.textContent  = pWin+'%';
+    wr_lost.textContent = pLost+'%';
 
     if(winChartObj) winChartObj.destroy();
-    winChartObj = new Chart(ctxW,{
+    winChartObj=new Chart(ctxW,{
         type:'doughnut',
         data:{
             labels:['Won','Lost'],
             datasets:[{
-                data:[winAny,lost],
+                data:[winsBets,lostBets],
                 backgroundColor:['#16a34a','#ef4444'],
                 borderWidth:1
             }]
         },
         options:{
             cutout:'70%',
-            plugins:{ legend:{display:false} }
+            plugins:{legend:{display:false}}
         }
     });
 
-    // Profit chart
-    const ctxP=document.getElementById('chartProfit').getContext('2d');
+    // Profit chart cumulative
+    const ctxP=chartProfit.getContext('2d');
     if(profitChartObj) profitChartObj.destroy();
 
     let labels=[], data=[];
@@ -968,17 +992,15 @@ function aggiornaDashboard(){
         labels.push(r.data);
         data.push(cum);
     });
-    if(!labels.length){
-        labels=[todayISO()];
-        data=[0];
-    }
+    if(!labels.length){ labels=[todayISO()]; data=[0]; }
+
     const finale=data[data.length-1];
     const lineColor=finale>=0?'#16a34a':'#ef4444';
     const areaColor=finale>=0?'rgba(22,163,74,0.25)':'rgba(239,68,68,0.25)';
 
     profitChartObj=new Chart(ctxP,{
         type:'line',
-        data:{ labels, datasets:[{
+        data:{labels,datasets:[{
             data,
             borderColor:lineColor,
             backgroundColor:areaColor,
@@ -995,14 +1017,14 @@ function aggiornaDashboard(){
         }
     });
 
-    // Stake engine
+    // Stake engine su TUTTO lo storico (all)
     const brStart = loadBankrollStart();
-    const brInput = document.getElementById('br_start');
-    const brCurEl = document.getElementById('br_current');
-    const brDelEl = document.getElementById('br_delta');
-    const stkStdEl= document.getElementById('stk_std');
-    const stkHighEl=document.getElementById('stk_high');
-    const stkNoteEl=document.getElementById('stk_note');
+    const brInput = br_start;
+    const brCurEl = br_current;
+    const brDelEl = br_delta;
+    const stkStdEl= stk_std;
+    const stkHighEl=stk_high;
+    const stkNoteEl=stk_note;
 
     if(brStart>0 && !brInput.value) brInput.value=brStart.toFixed(2);
 
@@ -1015,8 +1037,11 @@ function aggiornaDashboard(){
         return;
     }
 
-    let totProfitAll=0;
-    all.forEach(r=> totProfitAll+=r.profit);
+    let totProfitAll=0, totStakeAll=0;
+    all.forEach(r=>{
+        totProfitAll+=r.profit;
+        totStakeAll+= (r.stakeA+r.stakeB);
+    });
     const brCurrent = brStart + totProfitAll;
     brCurEl.textContent = brCurrent.toFixed(2)+'€';
     const delta = brCurrent - brStart;
@@ -1025,28 +1050,28 @@ function aggiornaDashboard(){
     const STAKE_MIN = Math.max(1, brCurrent*0.02);
     const STAKE_BASE= brCurrent*0.05;
     const STAKE_MAX = brCurrent*0.10;
+    const roiAll = totStakeAll>0? (totProfitAll/totStakeAll*100) : 0;
 
-    const roi = stakeTot>0 ? profit/stakeTot*100 : 0;
     let f=0.6;
-    if(matches===0) f=0.5;
+    if(all.length===0) f=0.5;
     else{
-        if(roi<=0) f=0.6;
-        else if(roi<=2) f=0.7;
-        else if(roi<=5) f=0.8;
-        else if(roi<=10) f=0.9;
+        if(roiAll<=0) f=0.6;
+        else if(roiAll<=2) f=0.7;
+        else if(roiAll<=5) f=0.8;
+        else if(roiAll<=10)f=0.9;
         else f=1.0;
     }
 
     let stakeStd = Math.min(Math.max(STAKE_BASE*f, STAKE_MIN), STAKE_MAX);
     let stakeHigh= Math.min(Math.max(STAKE_MAX*f, STAKE_MIN), STAKE_MAX);
 
-    stakeStdEl.textContent = stakeStd.toFixed(2)+'€';
-    stakeHighEl.textContent = stakeHigh.toFixed(2)+'€';
+    stkStdEl.textContent = stakeStd.toFixed(2)+'€';
+    stkHighEl.textContent = stakeHigh.toFixed(2)+'€';
 
     stkNoteEl.textContent =
       `Stake base teorico (5% BR): ${STAKE_BASE.toFixed(2)}€. `+
       `Min: ${STAKE_MIN.toFixed(2)}€, Max: ${STAKE_MAX.toFixed(2)}€. `+
-      `Fattore rischio f=${f.toFixed(2)} (in base a ROI & n° giocate).`;
+      `Fattore rischio f=${f.toFixed(2)} (basato su ROI e n° giocate).`;
 }
 
 /* ========= INIT ========= */
@@ -1054,6 +1079,9 @@ document.addEventListener('DOMContentLoaded',()=>{
     showTab('calc');
     renderStorico();
     aggiornaDashboard();
+
+    const brStart = loadBankrollStart();
+    if(brStart>0) br_start.value = brStart.toFixed(2);
 
     if('serviceWorker' in navigator){
         navigator.serviceWorker.register('service-worker.js').catch(()=>{});
