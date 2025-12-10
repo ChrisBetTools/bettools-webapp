@@ -1,1596 +1,938 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bet Tools</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>BetTools - Suite Calcolatori Betting</title>
 
-  <style>
-    :root {
-      --bg: #f2f2f7;
-      --bg-card: #ffffff;
-      --bg-tabbar: #1c1c1e;
-      --text-main: #111827;
-      --text-muted: #6b7280;
-      --accent: #0a84ff;
-      --accent-dark: #0054d6;
-      --border: #e5e7eb;
-      --shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-    }
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #000000;
-        --bg-card: #1c1c1e;
-        --bg-tabbar: #000000;
-        --text-main: #f9fafb;
-        --text-muted: #9ca3af;
-        --accent: #0a84ff;
-        --accent-dark: #0060c7;
-        --border: #3f3f46;
-        --shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
-      }
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
-      background: radial-gradient(circle at top, rgba(10,132,255,0.09), transparent 60%), var(--bg);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    header {
-      padding: 14px 18px 8px 18px;
-      background: rgba(0,0,0,0.85);
-      color: #f9fafb;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.35);
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      backdrop-filter: blur(14px);
-    }
-    header h1 {
-      font-size: 20px;
-      margin: 0;
-      letter-spacing: 0.02em;
-    }
-    header .subtitle {
-      font-size: 12px;
-      opacity: 0.8;
-      margin-top: 2px;
-    }
-
-    .tabs {
-      display: flex;
-      background: var(--bg-tabbar);
-      padding: 4px;
-      gap: 4px;
-      border-radius: 999px;
-      margin-top: 18px;
-    }
-    .tab-btn {
-      flex: 1;
-      border-radius: 999px;
-      border: none;
-      font-size: 12px;
-      padding: 8px 4px;
-      background: transparent;
-      color: rgba(249,250,251,0.7);
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s, transform 0.1s;
-    }
-    .tab-btn.active {
-      background: #f9fafb;
-      color: #111827;
-      transform: translateY(-0.5px);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-    }
-
-    main {
-      flex: 1;
-      padding: 14px;
-      max-width: 900px;
-      width: 100%;
-      margin: 0 auto 56px auto;
-    }
-
-    h2 {
-      margin-top: 18px;
-      margin-bottom: 6px;
-      font-size: 17px;
-    }
-
-    .box {
-      background: var(--bg-card);
-      border-radius: 16px;
-      padding: 14px;
-      margin-top: 8px;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-
-    label {
-      display: block;
-      margin-top: 8px;
-      font-size: 13px;
-      color: var(--text-main);
-    }
-
-    input, select {
-      width: 100%;
-      padding: 9px 10px;
-      margin-top: 4px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      font-size: 14px;
-      background: rgba(249,250,251,0.9);
-      color: var(--text-main);
-    }
-
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(10,132,255,0.25);
-    }
-
-    button {
-      width: 100%;
-      margin-top: 10px;
-      padding: 11px;
-      border-radius: 999px;
-      border: none;
-      background: var(--accent);
-      color: #ffffff;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 8px 16px rgba(10,132,255,0.35);
-      transition: transform 0.08s ease-out, box-shadow 0.08s;
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 20px rgba(10,132,255,0.4);
-    }
-
-    button:active {
-      transform: translateY(1px);
-      box-shadow: 0 4px 10px rgba(10,132,255,0.35);
-    }
-
-    button.secondary {
-      background: rgba(148,163,184,0.35);
-      color: var(--text-main);
-      box-shadow: none;
-      margin-top: 6px;
-    }
-
-    button.small {
-      width: auto;
-      padding: 6px 12px;
-      font-size: 12px;
-      border-radius: 999px;
-      box-shadow: none;
-    }
-
-    .result {
-      margin-top: 10px;
-      background: rgba(15,118,255,0.08);
-      padding: 10px;
-      border-radius: 12px;
-      font-size: 13px;
-      border: 1px solid rgba(37,99,235,0.3);
-    }
-
-    .muted {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    .error {
-      color: #f97373;
-      font-weight: 600;
-    }
-
-    .row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .row > div {
-      flex: 1;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-      margin-top: 8px;
-    }
-
-    th, td {
-      border: 1px solid var(--border);
-      padding: 4px;
-      text-align: center;
-      white-space: nowrap;
-    }
-
-    th {
-      background: rgba(148,163,184,0.2);
-    }
-
-    .stat-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .stat-box {
-      background: var(--bg-card);
-      border-radius: 14px;
-      padding: 8px;
-      box-shadow: var(--shadow);
-      font-size: 12px;
-    }
-
-    .stat-title {
-      font-weight: 600;
-      font-size: 12px;
-      opacity: 0.85;
-      margin-bottom: 4px;
-    }
-
-    canvas {
-      width: 100%;
-      max-width: 700px;
-      border-radius: 16px;
-      background: var(--bg-card);
-      margin-top: 10px;
-      border: 1px solid var(--border);
-    }
-
-    footer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 48px;
-      background: rgba(0,0,0,0.9);
-      color: #9ca3af;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(16px);
-      z-index: 30;
-    }
-
-    @media (min-width: 900px) {
-      main {
-        margin-bottom: 24px;
-      }
-      footer {
-        position: static;
-        margin-top: 20px;
-        border-radius: 999px;
-        max-width: 900px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-    }
-    /* ====== FIX DARK MODE iOS ====== */
-
-@media (prefers-color-scheme: dark) {
-  body {
-    background: #1C1C1E;
-    color: #FFFFFF;
-  }
-
-  .box {
-    background: #2C2C2E;
-    color: #FFFFFF;
-    border-color: #3A3A3C;
-  }
-
-  input, select, textarea {
-    background: #2C2C2E !important;
-    color: #FFFFFF !important;
-    border: 1px solid #3A3A3C !important;
-  }
-
-  .tab-btn {
-    background: #2C2C2E;
-    color: #FFFFFF;
-  }
-
-  .tab-btn.active {
-    background: #0A84FF !important;
-    color: #FFFFFF !important;
-  }
-
-  .stat-box {
-    background: #2C2C2E;
-    border-color: #3A3A3C;
-  }
-
-  .muted {
-    color: #D1D1D6;
-  }
-}
-.edit-popup {
-  background: white;
-  padding: 16px;
-  border-radius: 12px;
-  max-width: 320px;
-  margin: 60px auto;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+<style>
+body {
+    font-family: -apple-system, system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f5f6f7;
+    color: #222;
 }
 
-@media (prefers-color-scheme: dark) {
-  .edit-popup {
-    background: #2C2C2E;
-    color: white;
-  }
-}
-/* Effetto iOS smoother */
-* {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-font-smoothing: antialiased;
+.dark body {
+    background: #121212;
+    color: #e5e5e5;
 }
 
-button {
-  transition: background 0.18s ease;
+/* Tabs */
+.tabBar {
+    display: flex;
+    height: 48px;
+    background: #e9eaed;
+    border-bottom: 1px solid #ccc;
+}
+.tabBtn {
+    flex: 1;
+    text-align: center;
+    line-height: 48px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #666;
+}
+.tabBtn.active {
+    color: #0a84ff;
+    border-bottom: 3px solid #0a84ff;
+    background: #fff;
 }
 
-button:active {
-  transform: scale(0.97);
+/* Container */
+.container {
+    padding: 14px;
+    max-width: 820px;
+    margin: auto;
 }
 
-@media (prefers-color-scheme: dark) {
-  button {
-    background: #0A84FF;
-  }
+/* Input */
+input, select {
+    width: 100%;
+    padding: 11px;
+    font-size: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 6px;
+    background: white;
+    color: black;
 }
 
-  </style>
+.dark input, .dark select {
+    background: #1e1e1e;
+    color: #fff;
+    border-color: #444;
+}
+
+/* Buttons */
+.btn {
+    width: 100%;
+    padding: 13px;
+    font-size: 16px;
+    font-weight: 600;
+    background: #0a84ff;
+    color: #fff;
+    border-radius: 10px;
+    border: none;
+    margin-top: 14px;
+    cursor: pointer;
+}
+.btn:active {
+    opacity: 0.8;
+}
+
+/* Cards */
+.card {
+    background: #fff;
+    padding: 14px;
+    border-radius: 12px;
+    margin-top: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.dark .card {
+    background: #1a1a1a;
+    box-shadow: 0 0 0 transparent;
+    border: 1px solid #333;
+}
+
+/* Storico */
+.stRow {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+.dark .stRow {
+    border-color: #333;
+}
+.stRow strong {
+    font-size: 15px;
+}
+
+/* Grafico */
+#equityChart {
+    width: 100%;
+    height: 260px;
+}
+</style>
+
 </head>
 <body>
-
-<header>
-  <h1>Bet Tools</h1>
-  <div class="subtitle">Suite personale | Calcolatori · Storico · Dashboard</div>
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="calc" onclick="showTab('calc')">Calcolatori</button>
-    <button class="tab-btn" data-tab="storico" onclick="showTab('storico')">Storico</button>
-    <button class="tab-btn" data-tab="dash" onclick="showTab('dash')">Dashboard</button>
-  </div>
-</header>
-  <div id="popup-layer" 
-     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.35); padding:20px; z-index:9999;">
+<!-- ===== TABS SUPERIORI ===== -->
+<div class="tabBar">
+    <div class="tabBtn active" id="tab_calc" onclick="showTab('calc')">Calcolatori</div>
+    <div class="tabBtn" id="tab_storico" onclick="showTab('storico')">Storico</div>
+    <div class="tabBtn" id="tab_dash" onclick="showTab('dash')">Dashboard</div>
 </div>
 
+<!-- ===== CONTENUTO PRINCIPALE ===== -->
+<div class="container">
 
-<main>
-  <!-- TAB CALCOLATORI -->
-  <section id="tab-calc">
-    <!-- Asian Line Intera -->
-    <h2>Asian Line Intera</h2>
-    <div class="box">
-      <div class="muted">
-        Simula una linea asiatica intera usando due Over. Se <b>Quota B = 0</b>, tutta la puntata va su Quota A.
-      </div>
+<!-------------------------------------------
+  TAB 1 - CALCOLATORI
+-------------------------------------------->
+<div id="page_calc">
 
-      <label>Puntata Totale (€)</label>
-      <input id="a_totale" type="number" step="0.01" value="2">
+    <!-- === ASIAN LINE INTERA === -->
+    <div class="card">
+        <h2>Asian Line Intera</h2>
+        <p>Simula una linea asiatica intera usando due Over (es: Over 2.5 + Over 3.5 per simulare Over 3).</p>
 
-      <label>Quota A – Over Minore</label>
-      <input id="a_quotaA" type="number" step="0.01" value="1.52">
+        <label>Puntata Totale (€)</label>
+        <input id="al_tot" type="number" step="0.1">
 
-      <label>Quota B – Over Maggiore (0 se non giocata)</label>
-      <input id="a_quotaB" type="number" step="0.01" value="1.75">
+        <label>Quota A - Over Minore</label>
+        <input id="al_qA" type="number" step="0.01">
 
-      <button onclick="calcolaAsianIntera()">Calcola</button>
-      <button class="secondary" onclick="aggiungiStoricoDaCalc('Asian Line Intera')">➕ Aggiungi allo storico</button>
+        <label>Quota B - Over Maggiore</label>
+        <input id="al_qB" type="number" step="0.01">
 
-      <div id="a_result" class="result" style="display:none;"></div>
+        <button class="btn" onclick="calcolaAsianIntera()">Calcola</button>
+
+        <div id="al_out" class="card" style="margin-top:10px; display:none;"></div>
+
+        <button class="btn" style="background:#636366" onclick="aggiungiStoricoDaCalc('asian')">
+            + Aggiungi allo storico
+        </button>
     </div>
 
-    <!-- Protezione -->
-    <h2>Protezione Void</h2>
-    <div class="box">
-      <div class="muted">
-        Usa una seconda giocata (Quota B) per coprire quasi la perdita di A. Se <b>Quota B = 0</b>, tutta la puntata va su Quota A.
-      </div>
 
-      <label>Puntata Totale (€)</label>
-      <input id="p_totale" type="number" step="0.01" value="2">
 
-      <label>Quota A – Giocata Principale</label>
-      <input id="p_quotaA" type="number" step="0.01" value="1.50">
+    <!-- === PROTEZIONE (Giocata Principale + Secondaria) === -->
+    <div class="card">
+        <h2>Protezione Void (Principale + Secondaria)</h2>
+        <p>Inserisci puntata totale e quote: calcola la distribuzione ideale per coprire la giocata A con B.</p>
 
-      <label>Quota B – Giocata Secondaria (0 se non giocata)</label>
-      <input id="p_quotaB" type="number" step="0.01" value="1.45">
+        <label>Puntata Totale (€)</label>
+        <input id="pv_tot" type="number" step="0.1">
 
-      <button onclick="calcolaProtezione()">Calcola</button>
-      <button class="secondary" onclick="aggiungiStoricoDaCalc('Protezione')">➕ Aggiungi allo storico</button>
+        <label>Quota A (giocata principale)</label>
+        <input id="pv_qA" type="number" step="0.01">
 
-      <div id="p_result" class="result" style="display:none;"></div>
+        <label>Quota B (copertura)</label>
+        <input id="pv_qB" type="number" step="0.01">
+
+        <button class="btn" onclick="calcolaProtezione()">Calcola</button>
+
+        <div id="pv_out" class="card" style="margin-top:10px; display:none;"></div>
+
+        <button class="btn" style="background:#636366" onclick="aggiungiStoricoDaCalc('protezione')">
+            + Aggiungi allo storico
+        </button>
     </div>
 
-    <!-- Asian .25 / .75 -->
-<h2>Asian 0.25 / 0.75 (Over)</h2>
-<div class="box">
-  <div class="muted">
-    Simula linee .25/.75 sugli Over dividendo la puntata fra Over inferiore e superiore.<br>
-    Esempi:<br>
-    • Over 1.25 = metà su Over 1.0, metà su Over 1.5<br>
-    • Over 1.75 = metà su Over 1.5, metà su Over 2.0<br>
-    Se <b>Quota B = 0</b>, tutta la puntata va su Quota A.
-  </div>
+</div> <!-- fine tab calcolatori -->
 
-  <label>Tipo linea</label>
-  <select id="s_tipo">
-    <option value="0.25">Linea 0.25 (es. 1.25 = 1.0 &amp; 1.5)</option>
-    <option value="0.75">Linea 0.75 (es. 1.75 = 1.5 &amp; 2.0)</option>
-  </select>
 
-  <label>Puntata Totale (€)</label>
-  <input id="s_totale" type="number" step="0.01" value="2">
 
-  <label>Quota A – Over Inferiore</label>
-  <input id="s_quotaA" type="number" step="0.01" value="1.60">
+<!-------------------------------------------
+  TAB 2 - STORICO
+-------------------------------------------->
+<div id="page_storico" style="display:none;">
 
-  <label>Quota B – Over Superiore (0 se non giocata)</label>
-  <input id="s_quotaB" type="number" step="0.01" value="1.80">
+    <div class="card">
+        <h2>Storico giocate</h2>
 
-  <button onclick="calcolaAsianSplit()">Calcola</button>
-  <button class="secondary" onclick="aggiungiStoricoDaCalc('Asian Split')">➕ Aggiungi allo storico</button>
+        <!-- FILTRI -->
+        <label>Filtra per tipo</label>
+        <select id="f_tipo" onchange="renderStorico(); aggiornaDashboard();">
+            <option value="all">Tutto</option>
+            <option value="asian">Asian Line</option>
+            <option value="protezione">Protezione</option>
+        </select>
 
-  <div id="s_result" class="result" style="display:none;"></div>
+        <label>Filtra per data</label>
+        <input id="f_data" type="date" onchange="renderStorico(); aggiornaDashboard();">
+
+        <div id="storicoList" style="margin-top:12px;"></div>
+
+        <button class="btn" style="background:#ff3b30" onclick="resetStorico()">
+            Reset Storico
+        </button>
+
+        <button class="btn" style="background:#34c759; margin-top:10px;" onclick="exportCSV()">
+            Esporta CSV
+        </button>
+    </div>
+
+</div> <!-- fine storico -->
+
+
+
+<!-------------------------------------------
+  TAB 3 - DASHBOARD
+-------------------------------------------->
+<div id="page_dash" style="display:none;">
+
+    <div class="card">
+        <h2>Andamento & KPI</h2>
+
+        <canvas id="equityChart" width="600" height="260"></canvas>
+    </div>
+
+    <div class="card">
+        <h3>Statistiche</h3>
+
+        <p><strong>Profitto totale:</strong> <span id="d_profit">-</span></p>
+        <p><strong>ROI:</strong> <span id="d_roi">-</span></p>
+        <p><strong>N° giocate:</strong> <span id="d_count">-</span></p>
+        <p><strong>Quota media:</strong> <span id="d_quotaMedia">-</span></p>
+        <p><strong>Winrate (A - B):</strong> <span id="d_ab">-</span></p>
+        <p><strong>Winrate principale:</strong> <span id="d_winrate">-</span></p>
+    </div>
+
+    <div class="card">
+        <h3>Stake suggerito (basato su bankroll)</h3>
+
+        <label>Bankroll iniziale (€)</label>
+        <input id="br_start" type="number" step="0.1" oninput="saveBankrollStart(); aggiornaDashboard();">
+
+        <p><strong>Bankroll attuale:</strong> <span id="br_current">-</span></p>
+        <p id="br_delta" style="margin-bottom:10px;">-</p>
+
+        <p><strong>Stake Standard (5% BR):</strong> <span id="stk_std">-</span></p>
+        <p><strong>Stake High-Edge (10% BR):</strong> <span id="stk_high">-</span></p>
+
+        <p id="stk_note" style="font-size:13px; opacity:0.8; margin-top:8px;"></p>
+    </div>
+
+</div> <!-- fine dashboard -->
+
+</div> <!-- fine container -->
+
+
+<!-------------------------------------------
+  POPUP MODIFICA STORICO
+-------------------------------------------->
+<div id="editModal"
+     style="
+       position:fixed; left:0; top:0; width:100%; height:100%;
+       background:rgba(0,0,0,0.55); display:none;
+       justify-content:center; align-items:center; z-index:999;"
+>
+    <div class="card" style="max-width:420px; width:90%;">
+
+        <h3>Modifica giocata</h3>
+
+        <input type="hidden" id="em_id">
+
+        <label>Tipo</label>
+        <select id="em_tipo">
+            <option value="asian">Asian Line</option>
+            <option value="protezione">Protezione</option>
+        </select>
+
+        <label>Data</label>
+        <input id="em_data" type="date">
+
+        <label>Partita</label>
+        <input id="em_partita" type="text">
+
+        <label>Quota A</label>
+        <input id="em_qA" type="number" step="0.01">
+
+        <label>Quota B</label>
+        <input id="em_qB" type="number" step="0.01">
+
+        <label>Stake A</label>
+        <input id="em_sA" type="number" step="0.01">
+
+        <label>Stake B</label>
+        <input id="em_sB" type="number" step="0.01">
+
+        <label>Esito</label>
+        <select id="em_esito">
+            <option value="Vinte entrambe">Vinte entrambe</option>
+            <option value="Solo A vinta">Solo A vinta</option>
+            <option value="Solo B vinta">Solo B vinta</option>
+            <option value="Perse entrambe">Perse entrambe</option>
+            <option value="Non giocata">Non giocata</option>
+        </select>
+
+        <button class="btn" onclick="saveEdit()">Salva</button>
+        <button class="btn" style="background:#ccc; color:#333;" onclick="closeEdit()">Chiudi</button>
+
+    </div>
 </div>
-
-
-    <!-- Link Statistiche -->
-    <h2>Link Statistiche</h2>
-    <div class="box">
-      <div class="muted">
-        Inserisci la partita (es. <b>Napoli - Juventus</b>). Verrà usata la data di oggi per affinare la ricerca.
-      </div>
-
-      <label>Partita</label>
-      <input id="match_name" type="text" placeholder="Napoli - Juventus">
-
-      <button onclick="openGoaloo()">Apri Goaloo</button>
-      <button class="secondary" onclick="openSoccerStats()">Apri SoccerStats</button>
-
-      <div class="muted" id="match_info"></div>
-    </div>
-  </section>
-
-  <!-- TAB STORICO -->
-  <section id="tab-storico" style="display:none;">
-    <h2>Nuova riga storico</h2>
-    <div class="box">
-      <div class="row">
-        <div>
-          <label>Data</label>
-          <input id="h_data" type="date">
-        </div>
-        <div>
-          <label>Tipo scommessa</label>
-          <select id="h_tipo">
-            <option value="">-- Seleziona --</option>
-            <option>Asian Line Intera</option>
-            <option>Protezione</option>
-            <option>Asian Split</option>
-            <option>2 More Corner FT</option>
-            <option>Next Goal Home - Pari</option>
-            <option>New Neigh Casa</option>
-            <option>New Dominio Home</option>
-            <option>Secondo Goal HT Lite</option>
-          </select>
-        </div>
-      </div>
-
-      <label>Partita</label>
-      <input id="h_partita" type="text" placeholder="Napoli - Juventus">
-
-      <div class="row">
-        <div>
-          <label>Quota A</label>
-          <input id="h_quotaA" type="number" step="0.01">
-        </div>
-        <div>
-          <label>Quota B</label>
-          <input id="h_quotaB" type="number" step="0.01">
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>Puntata A (€)</label>
-          <input id="h_stakeA" type="number" step="0.01">
-        </div>
-        <div>
-          <label>Puntata B (€)</label>
-          <input id="h_stakeB" type="number" step="0.01">
-        </div>
-      </div>
-
-      <label>Esito</label>
-      <select id="h_esito" onchange="aggiornaProfitPreview()">
-        <option value="">-- Seleziona --</option>
-        <option>Vinte entrambe</option>
-        <option>Solo A vinta</option>
-        <option>Solo B vinta</option>
-        <option>Perse entrambe</option>
-        <option>Non giocata</option>
-      </select>
-
-      <div id="h_profitPreview" class="muted"></div>
-
-      <button onclick="salvaStorico()">Salva nello storico</button>
-      <button class="secondary" onclick="resetFormStorico()">Reset form</button>
-    </div>
-
-    <h2>Storico completo</h2>
-    <div class="box">
-      <div class="row" style="justify-content:space-between;align-items:center;">
-        <div class="muted" id="h_summary"></div>
-        <button class="small secondary" onclick="cancellaStorico()">Cancella tutto</button>
-      </div>
-      <div style="overflow-x:auto;">
-        <table id="h_table">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Tipo</th>
-              <th>Partita</th>
-              <th>Quota A</th>
-              <th>Quota B</th>
-              <th>Stake A</th>
-              <th>Stake B</th>
-              <th>Esito</th>
-              <th>Profitto</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- TAB DASHBOARD -->
-  <section id="tab-dash" style="display:none;">
-    <h2>Dashboard</h2>
-    <div class="box">
-      <div class="row">
-        <div>
-          <label>Tipo scommessa</label>
-          <select id="f_tipo" onchange="aggiornaDashboard()">
-            <option value="">Tutti</option>
-            <option>Asian Line Intera</option>
-            <option>Protezione</option>
-            <option>Asian Split</option>
-            <option>2 More Corner FT</option>
-            <option>Next Goal Home - Pari</option>
-            <option>New Neigh Casa</option>
-            <option>New Dominio Home</option>
-            <option>Secondo Goal HT Lite</option>
-          </select>
-        </div>
-        <div>
-          <label>Periodo</label>
-          <select id="f_periodo" onchange="aggiornaDashboard()">
-            <option value="all">Da sempre</option>
-            <option value="week">Ultima settimana</option>
-            <option value="month">Ultimo mese</option>
-            <option value="6month">Ultimi 6 mesi</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="row" style="margin-top:6px;">
-        <div>
-          <label>Esito</label>
-          <select id="f_esito" onchange="aggiornaDashboard()">
-            <option value="">Tutti</option>
-            <option>Vinte entrambe</option>
-            <option>Solo A vinta</option>
-            <option>Solo B vinta</option>
-            <option>Perse entrambe</option>
-            <option>Non giocata</option>
-          </select>
-        </div>
-        <div style="display:flex;align-items:flex-end;justify-content:flex-end;">
-          <button class="small secondary" onclick="exportCSV()">Esporta CSV</button>
-        </div>
-      </div>
-
-      <div class="stat-grid">
-        <div class="stat-box">
-          <div class="stat-title">Profitto totale</div>
-          <div id="d_profit"></div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-title">ROI %</div>
-          <div id="d_roi"></div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-title">N° giocate</div>
-          <div id="d_count"></div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-title">Quota media</div>
-          <div id="d_quotaMedia"></div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-title">Win rate %</div>
-          <div id="d_winrate"></div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-title">% Solo A / Solo B</div>
-          <div id="d_ab"></div>
-        </div>
-      </div>
-
-      <!-- Nuovo blocco: bankroll & stake consigliato -->
-      <h3 class="muted" style="margin-top:10px;font-size:13px;">Gestione bankroll & stake consigliato</h3>
-
-      <div class="row">
-        <div>
-          <label>Bankroll iniziale (€)</label>
-          <input id="br_start" type="number" step="0.01" oninput="updateBankrollStart()">
-        </div>
-        <div>
-          <label>Bankroll attuale</label>
-          <div class="muted" id="br_current">-</div>
-          <div class="muted" id="br_delta"></div>
-        </div>
-      </div>
-
-      <div class="row" style="margin-top:6px;">
-        <div class="stat-box" style="flex:1;">
-          <div class="stat-title">Stake standard (max 5%)</div>
-          <div id="stk_std"></div>
-        </div>
-        <div class="stat-box" style="flex:1;">
-          <div class="stat-title">Stake high-edge (max 10%)</div>
-          <div id="stk_high"></div>
-        </div>
-      </div>
-      <div class="muted" id="stk_note" style="margin-top:4px;"></div>
-
-      <canvas id="equityChart" width="600" height="220"></canvas>
-      <div class="muted">Equity chart sul periodo filtrato (baseline corretta in base allo storico precedente).</div>
- 
-    </div>
-  </section>
-</main>
 
 <script>
-  /* ==== UTILITIES ==== */
-  function showTab(id) {
-    document.getElementById('tab-calc').style.display = (id === 'calc') ? '' : 'none';
-    document.getElementById('tab-storico').style.display = (id === 'storico') ? '' : 'none';
-    document.getElementById('tab-dash').style.display = (id === 'dash') ? '' : 'none';
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.tab === id);
-    });
-    /* ============================================================
-   BLOCCO 2 — FUNZIONE DI EDIT DELLO STORICO
-   ============================================================ */
+/* ==========================================
+   COSTANTI & UTILITY
+========================================== */
+const LS_KEY = 'bettools_history';
+const LS_BANKROLL = 'bettools_bankroll_start';
 
-/* Popup per edit */
-let editIndex = null;
-
-function apriEdit(i) {
-  const full = loadStorico();
-  const r = full[i];
-  editIndex = i;
-
-  const html = `
-    <div class="edit-popup">
-      <h3>Modifica esito</h3>
-      <p><b>${r.partita}</b><br><span class="muted">${r.data}</span></p>
-
-      <label>Esito finale:</label>
-      <select id="edit_esito">
-        <option value="Vinte entrambe">Vinte entrambe</option>
-        <option value="Solo A vinta">Solo A vinta</option>
-        <option value="Solo B vinta">Solo B vinta</option>
-        <option value="Perse entrambe">Perse entrambe</option>
-        <option value="Mezza vinta">Mezza vinta (Asian)</option>
-        <option value="Mezza persa">Mezza persa (Asian)</option>
-        <option value="Mezza rimborsata">Mezza rimborsata (Asian)</option>
-      </select>
-
-      <label>Numero gol reali (per asian .25 / .75):</label>
-      <input id="edit_gol" type="number" min="0" step="1">
-
-      <div class="row" style="margin-top:10px;">
-        <button onclick="salvaEdit()" style="flex:1;">Salva</button>
-        <button class="secondary" onclick="chiudiEdit()" style="flex:1;">Chiudi</button>
-      </div>
-    </div>
-  `;
-
-  document.getElementById("popup-layer").innerHTML = html;
-  document.getElementById("popup-layer").style.display = "block";
+function safeNum(v) {
+    const n = parseFloat(v);
+    return isNaN(n) ? 0 : n;
 }
 
-function chiudiEdit() {
-  document.getElementById("popup-layer").style.display = "none";
-  editIndex = null;
+// Arrotonda allo 0.1 più vicino
+function roundBook(x) {
+    return Math.round(x * 10) / 10;
 }
 
-/* Calcolo automatico profitto per esito */
-function profitDaEsito(r, esito, gol) {
-  const stakeTot = r.stakeA + r.stakeB;
-
-  // Asian .25 / .75?
-  if (esito === "Mezza vinta") {
-    return roundBook((r.stakeA * r.quotaA) - stakeTot / 2);
-  }
-  if (esito === "Mezza persa") {
-    return roundBook(-stakeTot / 2);
-  }
-  if (esito === "Mezza rimborsata") {
-    return roundBook(-r.stakeB);
-  }
-
-  // Normale
-  if (esito === "Vinte entrambe") {
-    return roundBook((r.stakeA * r.quotaA + r.stakeB * r.quotaB) - stakeTot);
-  }
-  if (esito === "Solo A vinta") {
-    return roundBook((r.stakeA * r.quotaA) - stakeTot);
-  }
-  if (esito === "Solo B vinta") {
-    return roundBook((r.stakeB * r.quotaB) - stakeTot);
-  }
-  if (esito === "Perse entrambe") {
-    return -stakeTot;
-  }
-
-  return 0;
-}
-
-/* Salvataggio dell’edit */
-function salvaEdit() {
-  if (editIndex === null) return;
-
-  const esito = document.getElementById("edit_esito").value;
-  const gol = safeNum(document.getElementById("edit_gol").value);
-  const full = loadStorico();
-  const r = full[editIndex];
-
-  // Profitto calcolato automaticamente
-  const profit = profitDaEsito(r, esito, gol);
-
-  // Aggiorno la riga
-  r.esito = esito;
-  r.profit = profit;
-
-  full[editIndex] = r;
-  saveStorico(full);
-
-  chiudiEdit();
-  renderStorico();
-  aggiornaDashboard();
-}
-
-    if (id === 'storico') renderStorico();
-    if (id === 'dash') aggiornaDashboard();
-  }
-
-  function roundBook(v) {
-    return Math.round(v * 10) / 10; // un decimale
-  }
-
-  function safeNum(v) {
-    const x = parseFloat(v);
-    return (isNaN(x) || !isFinite(x)) ? 0 : x;
-  }
-
-  function todayStr() {
+function todayISO() {
     const d = new Date();
-    return d.toISOString().slice(0,10); // YYYY-MM-DD
-  }
-
-  /* ==== CALCOLATORI ==== */
-  let lastCalc = null; // per precompilare storico
-
-  // 1) Asian Line Intera
-  function calcolaAsianIntera() {
-    const totale = safeNum(document.getElementById('a_totale').value);
-    let qA = safeNum(document.getElementById('a_quotaA').value);
-    let qB = safeNum(document.getElementById('a_quotaB').value);
-    const out = document.getElementById('a_result');
-    out.style.display = 'block';
-
-    if (totale <= 0 || qA <= 1) {
-      out.innerHTML = '<span class="error">Inserisci almeno Quota A valida e puntata &gt; 0.</span>';
-      return;
-    }
-
-    let stakeA, stakeB;
-    if (qB <= 0) {
-      qB = 0;
-      stakeA = roundBook(totale);
-      stakeB = 0;
-    } else {
-      const sum = qA + qB;
-      stakeA = roundBook(totale * (qB / sum));
-      stakeB = roundBook(totale - stakeA);
-    }
-
-    const stakeTot = stakeA + stakeB;
-    const entrambe = roundBook((stakeA * qA + stakeB * qB) - stakeTot);
-    const soloMin = roundBook((stakeA * qA) - stakeTot);
-
-    out.innerHTML =
-      '<b>Punta su Quota A (Over Minore):</b> ' + stakeA.toFixed(1) + '€<br>' +
-      '<b>Punta su Quota B (Over Maggiore):</b> ' + stakeB.toFixed(1) + '€<br><br>' +
-      '<b>Entrambe Vinte:</b> ' + (entrambe>=0?'+':'') + entrambe.toFixed(2) + '€<br>' +
-      '<b>Solo Over Minore vinto:</b> ' + (soloMin>=0?'+':'') + soloMin.toFixed(2) + '€';
-
-    lastCalc = { quotaA: qA, quotaB: qB, stakeA, stakeB };
-  }
-
-  // 2) Protezione
-  function calcolaProtezione() {
-    const totale = safeNum(document.getElementById('p_totale').value);
-    let qA = safeNum(document.getElementById('p_quotaA').value);
-    let qB = safeNum(document.getElementById('p_quotaB').value);
-    const out = document.getElementById('p_result');
-    out.style.display = 'block';
-
-    if (totale <= 0 || qA <= 1) {
-      out.innerHTML = '<span class="error">Inserisci almeno Quota A valida e puntata &gt; 0.</span>';
-      return;
-    }
-
-    let stakeA, stakeB;
-    if (qB <= 0) {
-      qB = 0;
-      stakeA = roundBook(totale);
-      stakeB = 0;
-    } else {
-      const sum = qA + qB;
-      stakeA = roundBook(totale * (qB / sum));
-      stakeB = roundBook(totale - stakeA);
-    }
-
-    const stakeTot = stakeA + stakeB;
-    const entrambe = roundBook((stakeA * qA + stakeB * qB) - stakeTot);
-    const soloA  = roundBook((stakeA * qA) - stakeTot);
-    const soloB  = roundBook((stakeB * qB) - stakeTot);
-
-    out.innerHTML =
-      '<b>Punta su Quota A (Giocata Principale):</b> ' + stakeA.toFixed(1) + '€<br>' +
-      '<b>Punta su Quota B (Giocata Secondaria):</b> ' + stakeB.toFixed(1) + '€<br><br>' +
-      '<b>Entrambe Vinte:</b> ' + (entrambe>=0?'+':'') + entrambe.toFixed(2) + '€<br>' +
-      '<b>Solo Prima Vinta:</b> ' + (soloA>=0?'+':'') + soloA.toFixed(2) + '€<br>' +
-      '<b>Solo Seconda Vinta:</b> ' + (soloB>=0?'+':'') + soloB.toFixed(2) + '€';
-
-    lastCalc = { quotaA: qA, quotaB: qB, stakeA, stakeB };
-  }
-
-// 3) Asian Split .25/.75 sugli Over
-function calcolaAsianSplit() {
-  const totale = safeNum(document.getElementById('s_totale').value);
-  const tipo = document.getElementById('s_tipo').value; // "0.25" o "0.75"
-  let qA = safeNum(document.getElementById('s_quotaA').value);
-  let qB = safeNum(document.getElementById('s_quotaB').value);
-  const out = document.getElementById('s_result');
-  out.style.display = 'block';
-
-  if (totale <= 0 || qA <= 1) {
-    out.innerHTML = '<span class="error">Inserisci almeno Quota A valida e puntata &gt; 0.</span>';
-    return;
-  }
-
-  let stakeA, stakeB;
-  if (qB <= 0) {
-    qB = 0;
-    stakeA = roundBook(totale);
-    stakeB = 0;
-  } else {
-    stakeA = roundBook(totale / 2);
-    stakeB = roundBook(totale - stakeA);
-  }
-
-  const stakeTot = stakeA + stakeB;
-
-  // Calcolo sugli esiti per numero di gol
-  // Supponiamo che Over Inferiore sia esattamente il "gradino basso":
-  // ad es. per 1.25 -> Over 1.0 & Over 1.5; per 1.75 -> Over 1.5 & Over 2.0
-  const lineaInferiore = 0; // non serve il valore numerico qui per il profitto, solo la logica .25/.75
-
-  let text = '';
-  text += '<b>Punta su Quota A (Over Inferiore):</b> ' + stakeA.toFixed(1) + '€<br>';
-  text += '<b>Punta su Quota B (Over Superiore):</b> ' + stakeB.toFixed(1) + '€<br><br>';
-
-  if (qB <= 0) {
-    // caso particolare: solo una quota
-    const fullWin = roundBook(stakeA * qA - stakeTot);
-    text += '<b>Solo Over A (linea singola):</b> ' + (fullWin>=0?'+':'') + fullWin.toFixed(2) + '€';
-    out.innerHTML = text;
-    lastCalc = { quotaA: qA, quotaB: qB, stakeA, stakeB };
-    return;
-  }
-
-  if (tipo === '0.25') {
-    // es. Over 1.25 = Over 1.0 + Over 1.5
-    // 0 gol: entrambi persi
-    const profit0 = -stakeTot;
-
-    // 1 gol: Over inferiore (1.0) push -> rimborso stakeA, Over superiore (1.5) perde
-    const ritorno1 = stakeA; // rimborso stakeA
-    const profit1 = roundBook(ritorno1 - stakeTot);
-
-    // 2+ gol: entrambi vincenti
-    const ritorno2 = stakeA * qA + stakeB * qB;
-    const profit2 = roundBook(ritorno2 - stakeTot);
-
-    text += '<u>Esiti tipici (es. Over 1.25):</u><br>';
-    text += '· 0 gol: ' + profit0.toFixed(2) + '€ (perdi tutto)<br>';
-    text += '· 1 gol: ' + (profit1>=0?'+':'') + profit1.toFixed(2) + '€ (metà rimborsata, metà persa)<br>';
-    text += '· 2+ gol: ' + (profit2>=0?'+':'') + profit2.toFixed(2) + '€ (vinte entrambe)';
-  } else {
-    // tipo === '0.75'
-    // es. Over 1.75 = Over 1.5 + Over 2.0
-    // 0-1 gol: entrambi persi
-    const profit01 = -stakeTot;
-
-    // 2 gol: Over 1.5 vinto, Over 2.0 push
-    const ritorno2 = stakeA * qA + stakeB; // stakeB rimborsata
-    const profit2 = roundBook(ritorno2 - stakeTot);
-
-    // 3+ gol: entrambi vincenti
-    const ritorno3 = stakeA * qA + stakeB * qB;
-    const profit3 = roundBook(ritorno3 - stakeTot);
-
-    text += '<u>Esiti tipici (es. Over 1.75):</u><br>';
-    text += '· 0-1 gol: ' + profit01.toFixed(2) + '€ (perdi tutto)<br>';
-    text += '· 2 gol: ' + (profit2>=0?'+':'') + profit2.toFixed(2) + '€ (metà vinta, metà rimborsata)<br>';
-    text += '· 3+ gol: ' + (profit3>=0?'+':'') + profit3.toFixed(2) + '€ (vinte entrambe)';
-  }
-
-  out.innerHTML = text;
-  lastCalc = { quotaA: qA, quotaB: qB, stakeA, stakeB };
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${m}-${day}`;
 }
 
+/* ==========================================
+   STORAGE STORICO
+========================================== */
 
-  // 4) Link statistiche
-  function updateMatchInfo() {
-    const name = document.getElementById('match_name').value || '';
-    const info = document.getElementById('match_info');
-    if (!name.trim()) {
-      info.textContent = '';
-      return;
-    }
-    info.textContent = 'Partita: ' + name.trim() + ' · Data: ' + todayStr();
-  }
-  document.getElementById('match_name').addEventListener('input', updateMatchInfo);
-
- /* ============================================================
-   BLOCCO 6 — APERTURA GOALOO / SOCCERSTATS CON FILTRO GOOGLE
-   ============================================================ */
-
-function normalizzaNomeSquadra(s) {
-  return s
-    .replace(/[^a-zA-Z0-9\s]/g, " ") // rimuove caratteri strani
-    .replace(/\s+/g, " ") // comprime spazi
-    .trim();
-}
-
-function apriGoaloo() {
-  let squadraA = document.getElementById("teamA").value.trim();
-  let squadraB = document.getElementById("teamB").value.trim();
-
-  if (!squadraA || !squadraB) {
-    alert("Inserisci nome squadra casa e trasferta.");
-    return;
-  }
-
-  squadraA = normalizzaNomeSquadra(squadraA);
-  squadraB = normalizzaNomeSquadra(squadraB);
-
-  const query = encodeURIComponent(`${squadraA} ${squadraB} site:goaloo.com`);
-  const url = `https://www.google.com/search?q=${query}`;
-
-  window.open(url, "_blank");
-}
-
-function apriSoccerStats() {
-  let squadraA = document.getElementById("teamA").value.trim();
-  let squadraB = document.getElementById("teamB").value.trim();
-
-  if (!squadraA || !squadraB) {
-    alert("Inserisci nome squadra casa e trasferta.");
-    return;
-  }
-
-  squadraA = normalizzaNomeSquadra(squadraA);
-  squadraB = normalizzaNomeSquadra(squadraB);
-
-  const query = encodeURIComponent(`${squadraA} ${squadraB} site:soccerstats.com`);
-  const url = `https://www.google.com/search?q=${query}`;
-
-  window.open(url, "_blank");
-}
-
-
-  /* ==== STORICO ==== */
-  const LS_KEY = 'bettools_history';
-  const LS_BANKROLL = 'bettools_bankroll_start';
-  
-  function (){
-  const raw = localStorage.getItem(LS_BANKROLL);
-  const v = safeNum(raw);
-  return v > 0 ? v : 0;
-}
-
-function saveBankrollStart(v){
-  if (!isFinite(v) || v <= 0){
-    localStorage.removeItem(LS_BANKROLL);
-  } else {
-    localStorage.setItem(LS_BANKROLL, v.toString());
-  }
-}
-
-function updateBankrollStart(){
-  const v = safeNum(document.getElementById('br_start').value);
-  saveBankrollStart(v);
-  aggiornaDashboard();
-}
-
-
-  function loadStorico() {
+function loadStorico() {
     try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (!raw) return [];
-      const arr = JSON.parse(raw);
-      return Array.isArray(arr) ? arr : [];
-    } catch(e) {
-      console.error(e);
-      return [];
+        const raw = localStorage.getItem(LS_KEY);
+        if (!raw) return [];
+        const arr = JSON.parse(raw);
+        if (!Array.isArray(arr)) return [];
+        return arr;
+    } catch (e) {
+        return [];
     }
-  }
-  function saveStoricoArray(arr) {
+}
+
+function saveStorico(arr) {
     localStorage.setItem(LS_KEY, JSON.stringify(arr));
-  }
+}
 
-  function resetFormStorico() {
-    document.getElementById('h_data').value = todayStr();
-    document.getElementById('h_tipo').value = '';
-    document.getElementById('h_partita').value = '';
-    document.getElementById('h_quotaA').value = '';
-    document.getElementById('h_quotaB').value = '';
-    document.getElementById('h_stakeA').value = '';
-    document.getElementById('h_stakeB').value = '';
-    document.getElementById('h_esito').value = '';
-    document.getElementById('h_profitPreview').textContent = '';
-  }
-
-  function aggiungiStoricoDaCalc(tipoPredef) {
-    showTab('storico');
-    document.getElementById('h_data').value = todayStr();
-    if (tipoPredef) document.getElementById('h_tipo').value = tipoPredef;
-
-    if (lastCalc) {
-      document.getElementById('h_quotaA').value = lastCalc.quotaA || '';
-      document.getElementById('h_quotaB').value = lastCalc.quotaB || 0;
-      document.getElementById('h_stakeA').value = lastCalc.stakeA != null ? lastCalc.stakeA.toFixed(1) : '';
-      document.getElementById('h_stakeB').value = lastCalc.stakeB != null ? lastCalc.stakeB.toFixed(1) : '';
-    }
-  }
-
-  function calcolaProfitSingola(quotaA, quotaB, stakeA, stakeB, esito) {
-    const tStake = stakeA + stakeB;
-    let ritorno = 0;
-    switch (esito) {
-      case 'Vinte entrambe':
-        ritorno = stakeA * quotaA + stakeB * quotaB;
-        break;
-      case 'Solo A vinta':
-        ritorno = stakeA * quotaA;
-        break;
-      case 'Solo B vinta':
-        ritorno = stakeB * quotaB;
-        break;
-      case 'Perse entrambe':
-        ritorno = 0;
-        break;
-      case 'Non giocata':
-        ritorno = tStake;
-        break;
-      default:
-        ritorno = tStake;
-    }
-    return ritorno - tStake;
-  }
-
-  function aggiornaProfitPreview() {
-    const quotaA = safeNum(document.getElementById('h_quotaA').value);
-    const quotaB = safeNum(document.getElementById('h_quotaB').value);
-    const stakeA = safeNum(document.getElementById('h_stakeA').value);
-    const stakeB = safeNum(document.getElementById('h_stakeB').value);
-    const esito = document.getElementById('h_esito').value;
-    const el = document.getElementById('h_profitPreview');
-
-    if (!esito || (stakeA+stakeB)<=0 || quotaA<=1) {
-      el.textContent = '';
-      return;
-    }
-    const profit = calcolaProfitSingola(quotaA, quotaB, stakeA, stakeB, esito);
-    el.textContent = 'Profitto stimato: ' + (profit>=0?'+':'') + profit.toFixed(2) + '€';
-  }
-
-  function salvaStorico() {
-    const data   = document.getElementById('h_data').value || todayStr();
-    const tipo   = document.getElementById('h_tipo').value || '';
-    const partita = document.getElementById('h_partita').value || '';
-    const quotaA = safeNum(document.getElementById('h_quotaA').value);
-    const quotaB = safeNum(document.getElementById('h_quotaB').value);
-    const stakeA = safeNum(document.getElementById('h_stakeA').value);
-    const stakeB = safeNum(document.getElementById('h_stakeB').value);
-    const esito  = document.getElementById('h_esito').value;
-
-    if (!data || !esito || (stakeA+stakeB)<=0 || quotaA<=1) {
-      alert('Compila almeno data, esito, Quota A e le puntate.');
-      return;
-    }
-
-    const profit = calcolaProfitSingola(quotaA, quotaB, stakeA, stakeB, esito);
-    const arr = loadStorico();
-    arr.push({
-      id: Date.now(),
-      data,
-      tipo,
-      partita,
-      quotaA,
-      quotaB,
-      stakeA,
-      stakeB,
-      esito,
-      profit
-    });
-    saveStoricoArray(arr);
-    renderStorico();
-    resetFormStorico();
-  }
-
-  function renderStorico() {
-    const arr = loadStorico().sort((a,b)=> new Date(a.data) - new Date(b.data) || a.id - b.id);
-    const tbody = document.querySelector('#h_table tbody');
-    tbody.innerHTML = '';
-    let totProfit = 0;
-    let count = 0;
-    arr.forEach(r => {
-      const tr = document.createElement('tr');
-      const cells = [
-        r.data,
-        r.tipo || '',
-        r.partita || '',
-        r.quotaA.toFixed(2),
-        r.quotaB ? r.quotaB.toFixed(2) : '0.00',
-        r.stakeA.toFixed(1),
-        r.stakeB.toFixed(1),
-        r.esito,
-        (r.profit>=0?'+':'') + r.profit.toFixed(2)
-      ];
-      cells.forEach(c => {
-        const td = document.createElement('td');
-        td.textContent = c;
-        tr.appendChild(td);
-      });
-      tbody.appendChild(tr);
-      totProfit += r.profit;
-      count++;
-    });
-    document.getElementById('h_summary').textContent =
-      'Righe: ' + count + ' · Profitto totale: ' + (totProfit>=0?'+':'') + totProfit.toFixed(2) + '€';
-  }
-
-  function cancellaStorico() {
-    if (!confirm('Vuoi cancellare tutto lo storico?')) return;
+function resetStorico() {
+    if (!confirm("Sei sicuro di voler cancellare tutto lo storico?")) return;
     localStorage.removeItem(LS_KEY);
     renderStorico();
     aggiornaDashboard();
-  }
+}
 
-  /* ==== DASHBOARD ==== */
-  function filtraStorico() {
-    const arr = loadStorico().sort((a,b)=> new Date(a.data) - new Date(b.data) || a.id - b.id);
-    const tipo = document.getElementById('f_tipo').value;
-    const periodo = document.getElementById('f_periodo').value;
-    const esito = document.getElementById('f_esito').value;
+/* ==========================================
+   STORAGE BANKROLL
+========================================== */
 
-    const now = new Date();
-    let startDate = null;
-    if (periodo === 'week') {
-      startDate = new Date(now.getTime() - 7*24*60*60*1000);
-    } else if (periodo === 'month') {
-      startDate = new Date(now.getTime() - 30*24*60*60*1000);
-    } else if (periodo === '6month') {
-      startDate = new Date(now.getTime() - 182*24*60*60*1000);
+function loadBankrollStart() {
+    const raw = localStorage.getItem(LS_BANKROLL);
+    const v = safeNum(raw);
+    return v > 0 ? v : 0;
+}
+
+function saveBankrollStart() {
+    const v = safeNum(document.getElementById('br_start').value);
+    if (v > 0) {
+        localStorage.setItem(LS_BANKROLL, v.toString());
+    } else {
+        localStorage.removeItem(LS_BANKROLL);
     }
+}
 
-    const filtered = arr.filter(r => {
-      if (tipo && r.tipo !== tipo) return false;
-      if (esito && r.esito !== esito) return false;
-      if (startDate) {
-        const d = new Date(r.data);
-        if (d < startDate) return false;
-      }
-      return true;
+/* ==========================================
+   TABS
+========================================== */
+function showTab(name) {
+    const tabs = ['calc', 'storico', 'dash'];
+
+    tabs.forEach(t => {
+        document.getElementById('page_' + t).style.display = (t === name) ? '' : 'none';
     });
 
-    let baseline = 0;
-    if (startDate) {
-      arr.forEach(r => {
-        const d = new Date(r.data);
-        if (d < startDate) baseline += r.profit;
-      });
+    document.getElementById('tab_calc').classList.remove('active');
+    document.getElementById('tab_storico').classList.remove('active');
+    document.getElementById('tab_dash').classList.remove('active');
+
+    if (name === 'calc') document.getElementById('tab_calc').classList.add('active');
+    if (name === 'storico') document.getElementById('tab_storico').classList.add('active');
+    if (name === 'dash') document.getElementById('tab_dash').classList.add('active');
+
+    if (name === 'storico' || name === 'dash') {
+        renderStorico();
+        aggiornaDashboard();
+    }
+}
+
+/* ==========================================
+   CALCOLATORI
+========================================== */
+
+let lastCalc = null; // usato da aggiungiStoricoDaCalc
+
+// 1) Asian Line Intera
+function calcolaAsianIntera() {
+    const S = safeNum(document.getElementById('al_tot').value);
+    const qA = safeNum(document.getElementById('al_qA').value);
+    const qB = safeNum(document.getElementById('al_qB').value);
+    const out = document.getElementById('al_out');
+
+    if (S <= 0 || qA <= 1 || qB <= 1) {
+        out.style.display = 'block';
+        out.innerHTML = '<span style="color:#ff3b30;">Inserisci puntata e quote valide (&gt;1.00).</span>';
+        return;
     }
 
-    return { filtered, baseline };
-  }
+    // StakeA circa S / qA (in modo che sulla linea "void" il risultato sia circa 0)
+    let stakeA = S / qA;
+    let stakeB = S - stakeA;
+
+    stakeA = roundBook(stakeA);
+    stakeB = roundBook(stakeB);
+    const stakeTot = stakeA + stakeB;
+
+    // Profitti
+    const ritornoVoid = stakeA * qA;        // Over minore vinto, Over maggiore perso
+    const profitVoid = ritornoVoid - stakeTot;
+
+    const ritornoBoth = stakeA * qA + stakeB * qB; // entrambi vincenti
+    const profitBoth = ritornoBoth - stakeTot;
+
+    out.style.display = 'block';
+    out.innerHTML =
+        `<p><strong>Punta su Over Minore:</strong> ${stakeA.toFixed(1)}€ @ ${qA.toFixed(2)}<br>` +
+        `<strong>Punta su Over Maggiore:</strong> ${stakeB.toFixed(1)}€ @ ${qB.toFixed(2)}</p>` +
+        `<p><strong>Entrambe Vinte:</strong> ${(profitBoth >= 0 ? '+' : '') + profitBoth.toFixed(2)}€</p>` +
+        `<p><strong>Solo Over Minore vinto:</strong> ${(profitVoid >= 0 ? '+' : '') + profitVoid.toFixed(2)}€</p>`;
+
+    lastCalc = {
+        tipo: 'asian',
+        quotaA: qA,
+        quotaB: qB,
+        stakeA,
+        stakeB
+    };
+}
+
+// 2) Protezione (Principale + Secondaria)
+function calcolaProtezione() {
+    const S = safeNum(document.getElementById('pv_tot').value);
+    const qA = safeNum(document.getElementById('pv_qA').value);
+    const qB = safeNum(document.getElementById('pv_qB').value);
+    const out = document.getElementById('pv_out');
+
+    if (S <= 0 || qA <= 1 || qB <= 1) {
+        out.style.display = 'block';
+        out.innerHTML = '<span style="color:#ff3b30;">Inserisci puntata e quote valide (&gt;1.00).</span>';
+        return;
+    }
+
+    // Obiettivo: se A perde ma B vince → quasi void
+    // stakeB * (qB - 1) ≈ S  → stakeB ≈ S / (qB - 1), ma non > S
+    let stakeB = S / (qB - 1);
+    if (stakeB > S) stakeB = S;
+    let stakeA = S - stakeB;
+
+    stakeA = roundBook(stakeA);
+    stakeB = roundBook(stakeB);
+    const stakeTot = stakeA + stakeB;
+
+    const profitSoloA = (stakeA * qA) - stakeTot;
+    const profitSoloB = (stakeB * qB) - stakeTot;
+    const profitEntrambe = (stakeA * qA + stakeB * qB) - stakeTot;
+
+    out.style.display = 'block';
+    out.innerHTML =
+        `<p><strong>Punta su A (principale):</strong> ${stakeA.toFixed(1)}€ @ ${qA.toFixed(2)}<br>` +
+        `<strong>Punta su B (copertura):</strong> ${stakeB.toFixed(1)}€ @ ${qB.toFixed(2)}</p>` +
+        `<p><strong>Solo A vinta:</strong> ${(profitSoloA >= 0 ? '+' : '') + profitSoloA.toFixed(2)}€</p>` +
+        `<p><strong>Solo B vinta:</strong> ${(profitSoloB >= 0 ? '+' : '') + profitSoloB.toFixed(2)}€ (quasi void)</p>` +
+        `<p><strong>Entrambe Vinte:</strong> ${(profitEntrambe >= 0 ? '+' : '') + profitEntrambe.toFixed(2)}€</p>`;
+
+    lastCalc = {
+        tipo: 'protezione',
+        quotaA: qA,
+        quotaB: qB,
+        stakeA,
+        stakeB
+    };
+}
+
+/* ==========================================
+   AGGIUNTA ALLO STORICO DAL CALCOLATORE
+========================================== */
+
+function aggiungiStoricoDaCalc(tipo) {
+    if (!lastCalc || lastCalc.tipo !== tipo) {
+        alert("Prima effettua un calcolo per questo tipo.");
+        return;
+    }
+    const partita = prompt("Inserisci nome partita (es: Inter - Milan):", "");
+    const partitaClean = partita ? partita.trim() : "";
+
+    const arr = loadStorico();
+    const newId = arr.length ? (Math.max(...arr.map(r => r.id || 0)) + 1) : 1;
+
+    const rec = {
+        id: newId,
+        tipo: tipo,
+        data: todayISO(),
+        partita: partitaClean,
+        quotaA: lastCalc.quotaA,
+        quotaB: lastCalc.quotaB,
+        stakeA: lastCalc.stakeA,
+        stakeB: lastCalc.stakeB,
+        esito: 'Non giocata',
+        profit: 0
+    };
+
+    arr.push(rec);
+    saveStorico(arr);
+    renderStorico();
+    aggiornaDashboard();
+    alert("Giocata aggiunta allo storico con esito 'Non giocata'.");
+}
+
+/* ==========================================
+   FILTRI STORICO PER DASH E LISTA
+========================================== */
+function getFilteredHistory() {
+    const arr = loadStorico();
+    const tipo = document.getElementById('f_tipo').value;
+    const d = document.getElementById('f_data').value;
+
+    return arr.filter(r => {
+        if (tipo !== 'all' && r.tipo !== tipo) return false;
+        if (d && r.data < d) return false;
+        return true;
+    });
+}
+
+/* ==========================================
+   RENDER STORICO LISTA
+========================================== */
+function renderStorico() {
+    const list = document.getElementById('storicoList');
+    if (!list) return;
+    const arr = getFilteredHistory();
+
+    // ordina per data desc + id desc
+    arr.sort((a, b) => {
+        if (a.data === b.data) return (b.id || 0) - (a.id || 0);
+        return (a.data > b.data) ? -1 : 1;
+    });
+
+    if (!arr.length) {
+        list.innerHTML = '<p style="opacity:0.7;">Nessuna giocata registrata per i filtri selezionati.</p>';
+        return;
+    }
+
+    let html = '';
+    arr.forEach(r => {
+        const profitStr = (r.profit >= 0 ? '+' : '') + r.profit.toFixed(2) + '€';
+        html += `
+        <div class="stRow">
+            <strong>${r.data} – ${r.partita || '(nessuna partita)'}</strong><br>
+            <span style="font-size:13px; opacity:0.8;">
+                Tipo: ${r.tipo} – QuotaA ${r.quotaA.toFixed(2)}${r.quotaB ? ' / QuotaB ' + r.quotaB.toFixed(2) : ''}
+            </span><br>
+            <span style="font-size:13px;">
+                Stake A: ${r.stakeA.toFixed(2)}€ · Stake B: ${r.stakeB.toFixed(2)}€
+            </span><br>
+            <span style="font-size:13px;">
+                Esito: ${r.esito} – Profitto: ${profitStr}
+            </span><br>
+            <button class="btn" style="margin-top:6px; background:#8e8e93;" onclick="openEdit(${r.id})">
+                Modifica
+            </button>
+        </div>`;
+    });
+
+    list.innerHTML = html;
+}
+
+/* ==========================================
+   MODALE EDIT STORICO
+========================================== */
+
+function openEdit(id) {
+    const arr = loadStorico();
+    const rec = arr.find(r => r.id === id);
+    if (!rec) return;
+
+    document.getElementById('em_id').value = rec.id;
+    document.getElementById('em_tipo').value = rec.tipo;
+    document.getElementById('em_data').value = rec.data;
+    document.getElementById('em_partita').value = rec.partita || '';
+    document.getElementById('em_qA').value = rec.quotaA.toFixed(2);
+    document.getElementById('em_qB').value = rec.quotaB ? rec.quotaB.toFixed(2) : '';
+    document.getElementById('em_sA').value = rec.stakeA.toFixed(2);
+    document.getElementById('em_sB').value = rec.stakeB.toFixed(2);
+    document.getElementById('em_esito').value = rec.esito;
+
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEdit() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+function saveEdit() {
+    const id = parseInt(document.getElementById('em_id').value, 10);
+    const arr = loadStorico();
+    const idx = arr.findIndex(r => r.id === id);
+    if (idx === -1) return;
+
+    const tipo = document.getElementById('em_tipo').value;
+    const data = document.getElementById('em_data').value || todayISO();
+    const partita = document.getElementById('em_partita').value || '';
+    const qA = safeNum(document.getElementById('em_qA').value);
+    const qB = safeNum(document.getElementById('em_qB').value);
+    const sA = safeNum(document.getElementById('em_sA').value);
+    const sB = safeNum(document.getElementById('em_sB').value);
+    const esito = document.getElementById('em_esito').value;
+
+    let profit = 0;
+    const stakeTot = sA + sB;
+
+    switch (esito) {
+        case 'Vinte entrambe':
+            profit = (sA * qA + sB * qB) - stakeTot;
+            break;
+        case 'Solo A vinta':
+            profit = (sA * qA) - stakeTot;
+            break;
+        case 'Solo B vinta':
+            profit = (sB * qB) - stakeTot;
+            break;
+        case 'Perse entrambe':
+            profit = -stakeTot;
+            break;
+        case 'Non giocata':
+        default:
+            profit = 0;
+    }
+
+    arr[idx] = {
+        id,
+        tipo,
+        data,
+        partita,
+        quotaA: qA,
+        quotaB: qB || 0,
+        stakeA: sA,
+        stakeB: sB,
+        esito,
+        profit
+    };
+
+    saveStorico(arr);
+    closeEdit();
+    renderStorico();
+    aggiornaDashboard();
+}
+
+/* ==========================================
+   DASHBOARD + GRAFICO
+========================================== */
 
 function aggiornaDashboard() {
-  const { filtered, baseline } = filtraStorico();
-  const fullArr = loadStorico();
+    const arrAll = loadStorico();
+    const arr = getFilteredHistory();
 
-  let totProfit = 0, totStake = 0;
-  let quotaMediaSum = 0, quotaMediaCount = 0;
-  let countAll = filtered.length;
-  let winCount = 0, onlyA = 0, onlyB = 0;
+    let totProfit = 0, totStake = 0;
+    let quotaMediaSum = 0, quotaMediaCount = 0;
+    let countAll = arr.length;
+    let winA = 0, winB = 0, winAny = 0;
 
-  filtered.forEach(r => {
-    totProfit += r.profit;
-    const stakeTot = r.stakeA + r.stakeB;
-    totStake += stakeTot;
+    arr.forEach(r => {
+        totProfit += r.profit;
+        const st = r.stakeA + r.stakeB;
+        totStake += st;
+        const qMed = r.quotaB ? (r.quotaA + r.quotaB) / 2 : r.quotaA;
+        quotaMediaSum += qMed;
+        quotaMediaCount++;
 
-    const qMed = r.quotaB ? (r.quotaA + r.quotaB) / 2 : r.quotaA;
-    quotaMediaSum += qMed;
-    quotaMediaCount++;
+        const aWin = (r.esito === 'Vinte entrambe' || r.esito === 'Solo A vinta');
+        const bWin = (r.esito === 'Vinte entrambe' || r.esito === 'Solo B vinta');
 
-    if (
-      r.esito === "Vinte entrambe" ||
-      r.esito === "Solo A vinta" ||
-      r.esito === "Solo B vinta"
-    ) {
-      winCount++;
+        if (aWin) winA++;
+        if (bWin) winB++;
+        if (aWin || bWin) winAny++;
+    });
+
+    const d_profit = document.getElementById('d_profit');
+    const d_roi = document.getElementById('d_roi');
+    const d_count = document.getElementById('d_count');
+    const d_quotaMedia = document.getElementById('d_quotaMedia');
+    const d_winrate = document.getElementById('d_winrate');
+    const d_ab = document.getElementById('d_ab');
+
+    d_profit.textContent = (totProfit >= 0 ? '+' : '') + totProfit.toFixed(2) + '€';
+
+    const roi = totStake > 0 ? (totProfit / totStake) * 100 : 0;
+    d_roi.textContent = totStake > 0 ? roi.toFixed(2) + '%' : '-';
+
+    d_count.textContent = countAll;
+    d_quotaMedia.textContent = quotaMediaCount > 0 ? (quotaMediaSum / quotaMediaCount).toFixed(2) : '-';
+
+    const wrA = countAll > 0 ? (winA / countAll) * 100 : 0;
+    const wrB = countAll > 0 ? (winB / countAll) * 100 : 0;
+    const wrAny = countAll > 0 ? (winAny / countAll) * 100 : 0;
+
+    d_ab.textContent = countAll > 0
+        ? `A: ${wrA.toFixed(1)}% · B: ${wrB.toFixed(1)}%`
+        : '-';
+
+    d_winrate.textContent = countAll > 0 ? wrAny.toFixed(1) + '%' : '-';
+
+    // equity chart
+    renderEquityChart(arr);
+
+    // ===== BANKROLL & STAKE =====
+    const brStart = loadBankrollStart();
+    const brStartInput = document.getElementById('br_start');
+    const brCurrentEl = document.getElementById('br_current');
+    const brDeltaEl = document.getElementById('br_delta');
+    const stkStdEl = document.getElementById('stk_std');
+    const stkHighEl = document.getElementById('stk_high');
+    const stkNoteEl = document.getElementById('stk_note');
+
+    if (brStart > 0 && !brStartInput.value) {
+        brStartInput.value = brStart.toFixed(2);
     }
-    if (r.esito === "Solo A vinta") onlyA++;
-    if (r.esito === "Solo B vinta") onlyB++;
-  });
 
-  // Aggiorna UI standard
-  document.getElementById("d_profit").textContent =
-    (totProfit >= 0 ? "+" : "") + totProfit.toFixed(2) + "€";
-
-  const roi = totStake > 0 ? (totProfit / totStake) * 100 : 0;
-  document.getElementById("d_roi").textContent =
-    totStake > 0 ? roi.toFixed(2) + "%" : "-";
-
-  document.getElementById("d_count").textContent = countAll;
-
-  document.getElementById("d_quotaMedia").textContent =
-    quotaMediaCount > 0 ? (quotaMediaSum / quotaMediaCount).toFixed(2) : "-";
-
-  const winRate = countAll > 0 ? (winCount / countAll) * 100 : 0;
-  document.getElementById("d_winrate").textContent =
-    countAll > 0 ? winRate.toFixed(2) + "%" : "-";
-
-  const percA = countAll > 0 ? (onlyA / countAll) * 100 : 0;
-  const percB = countAll > 0 ? (onlyB / countAll) * 100 : 0;
-
-  document.getElementById("d_ab").textContent =
-    countAll > 0
-      ? `A: ${percA.toFixed(1)}% · B: ${percB.toFixed(1)}%`
-      : "-";
-
-  // Ridisegna grafico
-  renderEquityChart(filtered, baseline);
-
-  // ======== SEZIONE STAKE ========
-  const brStart = loadBankrollStart();
-  const brStartInput = document.getElementById("br_start");
-  const brCurrentEl = document.getElementById("br_current");
-  const brDeltaEl = document.getElementById("br_delta");
-  const stkStdEl = document.getElementById("stk_std");
-  const stkHighEl = document.getElementById("stk_high");
-  const stkNoteEl = document.getElementById("stk_note");
-
-  if (brStart > 0 && !brStartInput.value) {
-    brStartInput.value = brStart.toFixed(2);
-  }
-
-  if (brStart <= 0) {
-    brCurrentEl.textContent = "-";
-    brDeltaEl.textContent =
-      "Imposta un bankroll iniziale per vedere stake consigliate.";
-    stkStdEl.textContent = "-";
-    stkHighEl.textContent = "-";
-    stkNoteEl.textContent = "";
-    return;
-  }
-
-  // Calcolo bankroll attuale
-  let totProfitAll = 0;
-  fullArr.forEach((r) => (totProfitAll += r.profit));
-
-  const brCurrent = brStart + totProfitAll;
-  brCurrentEl.textContent = `${brCurrent.toFixed(2)}€`;
-
-  const delta = brCurrent - brStart;
-  brDeltaEl.textContent =
-    "Δ vs iniziale: " + (delta >= 0 ? "+" : "") + delta.toFixed(2) + "€";
-
-  // SEZIONE LIMITE STAKE
-  const STAKE_MIN = Math.max(1, brCurrent * 0.02);
-  const STAKE_BASE = brCurrent * 0.05;
-  const STAKE_MAX = brCurrent * 0.10;
-
-  // Fattore rischio f
-  let f = 0.6;
-  if (countAll > 0) {
-    if (roi <= 0) f = 0.6;
-    else if (roi <= 2) f = 0.7;
-    else if (roi <= 5) f = 0.8;
-    else if (roi <= 10) f = 0.9;
-    else f = 1.0;
-  } else {
-    f = 0.5;
-  }
-
-  // Calcolo stake
-  let stakeStd = STAKE_BASE * f;
-  let stakeHigh = STAKE_MAX * f;
-
-  if (stakeStd < STAKE_MIN) stakeStd = STAKE_MIN;
-  if (stakeStd > STAKE_MAX) stakeStd = STAKE_MAX;
-
-  if (stakeHigh < STAKE_MIN) stakeHigh = STAKE_MIN;
-  if (stakeHigh > STAKE_MAX) stakeHigh = STAKE_MAX;
-
-  stakeStd = roundBook(stakeStd);
-  stakeHigh = roundBook(stakeHigh);
-
-  stkStdEl.textContent = `${stakeStd.toFixed(2)}€`;
-  stkHighEl.textContent = `${stakeHigh.toFixed(2)}€`;
-
-  stkNoteEl.textContent =
-    `Stake base (5% BR): ${STAKE_BASE.toFixed(2)}€. ` +
-    `Min: ${roundBook(STAKE_MIN).toFixed(2)}€, Max: ${STAKE_MAX.toFixed(2)}€. ` +
-    `Fattore rischio f=${f.toFixed(2)}.`;
-}
-
-
-  // Equity chart
-  /* ============================================================
-   BLOCCO 4 — EQUITY CHART CON AREA ROSSA O VERDE
-   ============================================================ */
-
-function renderEquityChart(filtered, baseline) {
-  const ctx = document.getElementById('equityChart').getContext('2d');
-
-  // distruggi il grafico precedente se esiste
-  if (window.equityChartObj) {
-    window.equityChartObj.destroy();
-  }
-
-  // Calcolo equity cumulata
-  let eq = [];
-  let total = baseline || 0;
-
-  filtered.forEach(r => {
-    total += r.profit;
-    eq.push(total);
-  });
-
-  // Determina colore in base al risultato finale
-  const finale = eq.length > 0 ? eq[eq.length - 1] : 0;
-
-  let areaColor = 'rgba(0, 200, 0, 0.25)';   // verde chiaro
-  let lineColor = 'rgb(0, 180, 0)';
-
-  if (finale < 0) {
-    areaColor = 'rgba(255, 0, 0, 0.25)';     // rosso chiaro
-    lineColor = 'rgb(220, 0, 0)';
-  }
-
-  const labels = filtered.map(r => r.data);
-
-  window.equityChartObj = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Equity',
-        data: eq,
-        fill: true,
-        borderColor: lineColor,
-        backgroundColor: areaColor,
-        tension: 0.25,
-        borderWidth: 2,
-        pointRadius: 0
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false } },
-      scales: {
-        x: {
-          ticks: { display: false },
-          grid: { display: false }
-        },
-        y: {
-          ticks: { color: '#888' },
-          grid: { color: 'rgba(200,200,200,0.2)' }
-        }
-      }
+    if (brStart <= 0) {
+        brCurrentEl.textContent = '-';
+        brDeltaEl.textContent = 'Imposta un bankroll iniziale per ottenere uno stake suggerito.';
+        stkStdEl.textContent = '-';
+        stkHighEl.textContent = '-';
+        stkNoteEl.textContent = '';
+        return;
     }
-  });
-}
-    return;
-  }
 
-  // bankroll attuale = iniziale + profitto totale su tutto lo storico
-  let totProfitAll = 0;
-  fullArr.forEach(r => { totProfitAll += r.profit; });
-  const brCurrent = brStart + totProfitAll;
-  brCurrentEl.textContent = brCurrent.toFixed(2) + '€';
+    // bankroll attuale = iniziale + profitto TOTALE su tutto lo storico
+    let totProfitAll = 0;
+    arrAll.forEach(r => totProfitAll += r.profit);
+    const brCurrent = brStart + totProfitAll;
+    brCurrentEl.textContent = brCurrent.toFixed(2) + '€';
 
-  const delta = brCurrent - brStart;
-  brDeltaEl.textContent = 'Δ vs iniziale: ' + (delta>=0?'+':'') + delta.toFixed(2) + '€';
+    const delta = brCurrent - brStart;
+    brDeltaEl.textContent = 'Δ vs iniziale: ' + (delta >= 0 ? '+' : '') + delta.toFixed(2) + '€';
 
-  if (fullArr.length === 0) {
-    stkStdEl.textContent = '-';
-    stkHighEl.textContent = '-';
-    stkNoteEl.textContent = 'Registra almeno qualche giocata per avere uno stake suggerito.';
-    return;
-  }
+    // stake boundaries
+    const STAKE_MIN = Math.max(1, brCurrent * 0.02);
+    const STAKE_BASE = brCurrent * 0.05;
+    const STAKE_MAX = brCurrent * 0.10;
 
-  // Cap 5% / 10%
-  const capStd = brCurrent * 0.05;
-  const capHigh = brCurrent * 0.10;
-
-  // Fattore f (0–1) modulato da ROI locale e n° giocate filtrate
-  const noteParts = [];
-
-  if (countAll === 0) {
-    // Nessuna giocata con il filtro attuale: stake ultra prudente
-    f = 0.3;
-    noteParts.push('Nessuna giocata nel filtro selezionato: stake prudente basata solo sul bankroll.');
-  } else if (countAll < 30) {
-    // Storico locale corto
-    if (roi <= 0) {
-      f = 0.3;
-      noteParts.push('Storico locale corto e non brillante: stake prudente; ti basi comunque su filtri esterni già validati.');
+    let f = 0.6; // fattore rischio base
+    if (countAll === 0) {
+        f = 0.5;
     } else {
-      f = 0.4;
-      noteParts.push('Storico locale ancora corto: stake ridotta rispetto al massimo.');
+        if (roi <= 0) f = 0.6;
+        else if (roi <= 2) f = 0.7;
+        else if (roi <= 5) f = 0.8;
+        else if (roi <= 10) f = 0.9;
+        else f = 1.0;
     }
-  } else {
-    // Storico locale più robusto
-    if (roi <= 0) {
-      // qui NON azzeriamo lo stake perché i filtri livepick sono già affidabili
-      f = 0.4;
-      noteParts.push('Storico locale negativo, ma il filtro di origine è già testato: stake ridotta ma non azzerata.');
-    } else if (roi <= 2) {
-      f = 0.5;
-    } else if (roi <= 5) {
-      f = 0.7;
-    } else if (roi <= 10) {
-      f = 0.9;
-    } else {
-      f = 1.0;
-    }
-  }
 
-  /* ============================
-   NUOVA LOGICA STAKE 2%–5%–10%
-   ============================ */
+    let stakeStd = STAKE_BASE * f;
+    let stakeHigh = STAKE_MAX * f;
 
-const BR = brCurrent;
+    if (stakeStd < STAKE_MIN) stakeStd = STAKE_MIN;
+    if (stakeStd > STAKE_MAX) stakeStd = STAKE_MAX;
 
-// limiti assoluti
-const STAKE_MIN = Math.max(1, BR * 0.02);  // minimo fra 1€ e 2% BR
-const STAKE_BASE = BR * 0.05;              // stake standard = 5% BR
-const STAKE_MAX = BR * 0.10;               // stake high-edge = 10% BR
+    if (stakeHigh < STAKE_MIN) stakeHigh = STAKE_MIN;
+    if (stakeHigh > STAKE_MAX) stakeHigh = STAKE_MAX;
 
-/* Calcolo fattore rischio f (0.4 → 1.0)
-   NON azzeriamo lo stake mai: i filtri livepick sono già affidabili. */
-let f = 0.6; // base default
+    stakeStd = roundBook(stakeStd);
+    stakeHigh = roundBook(stakeHigh);
 
-if (countAll === 0) {
-  // nessuna giocata nel filtro → prudenza
-  f = 0.5;
+    stkStdEl.textContent = stakeStd.toFixed(2) + '€';
+    stkHighEl.textContent = stakeHigh.toFixed(2) + '€';
 
-} else {
-  if (roi <= 0) {
-    // storico locale negativo → ma NON riduciamo troppo
-    f = 0.6;
-
-  } else if (roi > 0 && roi <= 2) {
-    f = 0.7;
-
-  } else if (roi > 2 && roi <= 5) {
-    f = 0.8;
-
-  } else if (roi > 5 && roi <= 10) {
-    f = 0.9;
-
-  } else if (roi > 10) {
-    f = 1.0;
-  }
+    stkNoteEl.textContent =
+        `Stake base (5% BR): ${STAKE_BASE.toFixed(2)}€. ` +
+        `Min: ${roundBook(STAKE_MIN).toFixed(2)}€, Max: ${STAKE_MAX.toFixed(2)}€. ` +
+        `Fattore rischio f = ${f.toFixed(2)} (basato su ROI & n° giocate).`;
 }
 
-/* Calcolo stake consigliate */
-let stakeStd = STAKE_BASE * f;
-let stakeHigh = STAKE_MAX * f;
+/* ==========================================
+   EQUITY CHART (CANVAS)
+========================================== */
+function renderEquityChart(arr) {
+    const canvas = document.getElementById('equityChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
 
-/* Rispettiamo i limiti min/max */
-if (stakeStd < STAKE_MIN) stakeStd = STAKE_MIN;
-if (stakeStd > STAKE_MAX) stakeStd = STAKE_MAX;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
-if (stakeHigh < STAKE_MIN) stakeHigh = STAKE_MIN;
-if (stakeHigh > STAKE_MAX) stakeHigh = STAKE_MAX;
+    // ordiniamo per data crescente
+    const entries = arr.slice().sort((a,b) => {
+        if (a.data === b.data) return (a.id||0) - (b.id||0);
+        return a.data < b.data ? -1 : 1;
+    });
 
-/* Arrotondamento bookmaker (1 decimale) */
-stakeStd = roundBook(stakeStd);
-stakeHigh = roundBook(stakeHigh);
+    if (!entries.length) {
+        ctx.fillStyle = '#9ca3af';
+        ctx.font = '13px -apple-system, system-ui, sans-serif';
+        ctx.fillText('Nessuna giocata per il filtro selezionato.', 10, canvas.height/2);
+        return;
+    }
 
-/* Output UI */
-stkStdEl.textContent = stakeStd.toFixed(2) + "€";
-stkHighEl.textContent = stakeHigh.toFixed(2) + "€";
+    let cum = 0;
+    const points = [];
+    entries.forEach((r, idx) => {
+        cum += r.profit;
+        points.push({ x: idx, y: cum });
+    });
 
-stkNoteEl.textContent =
-  `Stake base (5% BR): ${STAKE_BASE.toFixed(2)}€. ` +
-  `Minimo: ${roundBook(STAKE_MIN).toFixed(2)}€, Massimo: ${STAKE_MAX.toFixed(2)}€. ` +
-  `Fattore rischio f=${f.toFixed(2)} (basato su ROI e n° giocate).`;
+    const ys = points.map(p => p.y);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const padX = 24, padY = 16;
+    const w = canvas.width - padX*2;
+    const h = canvas.height - padY*2;
 
-  function exportCSV() {
-    const arr = loadStorico().sort((a,b)=> new Date(a.data) - new Date(b.data) || a.id - b.id);
+    function mapX(i) {
+        if (points.length === 1) return padX + w/2;
+        return padX + (i / (points.length - 1)) * w;
+    }
+    function mapY(val) {
+        if (maxY === minY) return padY + h/2;
+        return padY + h - ((val - minY) / (maxY - minY)) * h;
+    }
+
+    // linea zero se attraversa lo 0
+    const zeroY = (minY <= 0 && maxY >= 0) ? mapY(0) : null;
+    if (zeroY !== null) {
+        ctx.strokeStyle = '#d1d5db';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4,3]);
+        ctx.beginPath();
+        ctx.moveTo(padX, zeroY);
+        ctx.lineTo(padX + w, zeroY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    const finale = points[points.length - 1].y;
+    const areaColor = finale >= 0 ? 'rgba(16,185,129,0.20)' : 'rgba(248,113,113,0.25)';
+    const lineColor = finale >= 0 ? '#10b981' : '#ef4444';
+
+    // area
+    ctx.beginPath();
+    points.forEach((p, i) => {
+        const x = mapX(i);
+        const y = mapY(p.y);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    });
+    // chiudi verso basso
+    const lastX = mapX(points.length - 1);
+    const firstX = mapX(0);
+    ctx.lineTo(lastX, padY + h);
+    ctx.lineTo(firstX, padY + h);
+    ctx.closePath();
+    ctx.fillStyle = areaColor;
+    ctx.fill();
+
+    // linea
+    ctx.beginPath();
+    points.forEach((p, i) => {
+        const x = mapX(i);
+        const y = mapY(p.y);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = lineColor;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+/* ==========================================
+   EXPORT CSV
+========================================== */
+function exportCSV() {
+    const arr = loadStorico().sort((a,b) => {
+        if (a.data === b.data) return (a.id||0) - (b.id||0);
+        return a.data < b.data ? -1 : 1;
+    });
+
     if (!arr.length) {
-      alert('Nessuna riga da esportare.');
-      return;
+        alert('Nessuna riga da esportare.');
+        return;
     }
+
     const header = ['Data','Tipo','Partita','QuotaA','QuotaB','StakeA','StakeB','Esito','Profitto'];
     const rows = [header.join(';')];
-    arr.forEach(r=>{
-      rows.push([
-        r.data,
-        r.tipo || '',
-        (r.partita || '').replace(/;/g, ','),
-        r.quotaA.toFixed(2),
-        r.quotaB ? r.quotaB.toFixed(2) : '0.00',
-        r.stakeA.toFixed(2),
-        r.stakeB.toFixed(2),
-        r.esito,
-        r.profit.toFixed(2)
-      ].join(';'));
+
+    arr.forEach(r => {
+        rows.push([
+            r.data,
+            r.tipo,
+            (r.partita || '').replace(/;/g, ','),
+            r.quotaA.toFixed(2),
+            r.quotaB ? r.quotaB.toFixed(2) : '0.00',
+            r.stakeA.toFixed(2),
+            r.stakeB.toFixed(2),
+            r.esito,
+            r.profit.toFixed(2)
+        ].join(';'));
     });
+
     const blob = new Blob([rows.join('\n')], {type:'text/csv;charset=utf-8;'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1600,17 +942,20 @@ stkNoteEl.textContent =
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }
+}
 
-  /* ==== INIT ==== */
-  resetFormStorico();
-  updateMatchInfo();
-  renderStorico();
-  aggiornaDashboard();
+/* ==========================================
+   INIT
+========================================== */
+document.addEventListener('DOMContentLoaded', () => {
+    showTab('calc');
+    renderStorico();
+    aggiornaDashboard();
 
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
-  }
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+    }
+});
 </script>
 </body>
 </html>
