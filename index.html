@@ -188,7 +188,6 @@
         </button>
     </div>
 
-
     <!-- === PROTEZIONE VOID === -->
     <div class="card">
         <h2>Protezione Void (Giocata Principale + Copertura)</h2>
@@ -214,7 +213,6 @@
             + Aggiungi allo storico
         </button>
     </div>
-
 
     <!-- === ASIAN FRAZIONARI (0.25 / 0.75) === -->
     <div class="card">
@@ -251,8 +249,6 @@
     </div>
 
 </div> <!-- fine page_calc -->
-
-
 <!-- ======================== -->
 <!--        STORICO           -->
 <!-- ======================== -->
@@ -294,6 +290,26 @@
     <!-- KPI -->
     <div class="card">
         <h2>Statistiche Generali</h2>
+
+        <!-- Nuovi filtri dashboard -->
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+            <select id="d_tipo" onchange="aggiornaDashboard()" style="flex:1; min-width:140px;">
+                <option value="all">Tutti i tipi</option>
+                <option value="asian_intera">Asian Line Intera</option>
+                <option value="protezione">Protezione</option>
+                <option value="asian_fraz">Asian Frazionari</option>
+            </select>
+            <select id="d_periodo" onchange="aggiornaDashboard()" style="flex:1; min-width:140px;">
+                <option value="oggi">Oggi</option>
+                <option value="ieri">Ieri</option>
+                <option value="settimana_corrente">Settimana in corso</option>
+                <option value="settimana_precedente">Settimana precedente</option>
+                <option value="mese_corrente">Mese in corso</option>
+                <option value="mese_precedente">Mese precedente</option>
+                <option value="tutto">Tutto</option>
+            </select>
+        </div>
+
         <div class="kpiGrid">
             <div class="kpiBox">
                 <div class="kpiValue" id="kpi_profit">0€</div>
@@ -314,6 +330,18 @@
             <div class="kpiBox">
                 <div class="kpiValue" id="kpi_matches">0</div>
                 <div class="kpiLabel">Total Matches</div>
+            </div>
+            <div class="kpiBox">
+                <div class="kpiValue" id="kpi_win_any">0%</div>
+                <div class="kpiLabel">Winrate Totale</div>
+            </div>
+            <div class="kpiBox">
+                <div class="kpiValue" id="kpi_win_A">0%</div>
+                <div class="kpiLabel">Winrate Quota A</div>
+            </div>
+            <div class="kpiBox">
+                <div class="kpiValue" id="kpi_win_B">0%</div>
+                <div class="kpiLabel">Winrate Quota B</div>
             </div>
         </div>
     </div>
@@ -422,8 +450,6 @@
         <button class="btn" style="background:#ccc; color:#222;" onclick="closeEdit()">Chiudi</button>
     </div>
 </div>
-
-
 <script>
 /* ===========================
    COSTANTI & UTILITY
@@ -450,6 +476,12 @@ function todayISO() {
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${d.getFullYear()}-${m}-${day}`;
+}
+
+function dateFromISO(s) {
+    if (!s) return null;
+    const [y,m,d] = s.split('-').map(Number);
+    return new Date(y, m-1, d);
 }
 
 /* ===========================
@@ -616,7 +648,6 @@ function calcolaProtezione() {
     lastCalc = { tipo: 'protezione', quotaA: qA, quotaB: qB, stakeA, stakeB };
 }
 
-
 /* ===========================
    ASIAN FRAZIONARI (0.25 / 0.75)
 =========================== */
@@ -772,7 +803,6 @@ function renderStorico() {
 
     list.innerHTML = html;
 }
-
 /* ===========================
    MODALE EDIT
 =========================== */
@@ -921,14 +951,76 @@ function renderProfitChart(arr) {
     });
 }
 
+function buildPeriodoRange(periodo) {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    let start = null, end = null;
+
+    const clone = d => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
+
+    if (periodo === 'oggi') {
+        start = clone(today);
+        end   = clone(today);
+    } else if (periodo === 'ieri') {
+        start = clone(today);
+        start.setDate(start.getDate() - 1);
+        end = clone(start);
+    } else if (periodo === 'settimana_corrente' || periodo === 'settimana_precedente') {
+        const day = today.getDay() || 7; // lun=1..dom=7
+        const monday = clone(today);
+        monday.setDate(monday.getDate() - (day - 1));
+        let startWeek = monday;
+        if (periodo === 'settimana_precedente') {
+            startWeek = clone(monday);
+            startWeek.setDate(startWeek.getDate() - 7);
+        }
+        start = startWeek;
+        end = clone(startWeek);
+        end.setDate(end.getDate() + 6);
+    } else if (periodo === 'mese_corrente' || periodo === 'mese_precedente') {
+        let year = today.getFullYear();
+        let month = today.getMonth(); // 0-based
+        if (periodo === 'mese_precedente') {
+            month -= 1;
+            if (month < 0) { month = 11; year -= 1; }
+        }
+        start = new Date(year, month, 1);
+        start.setHours(0,0,0,0);
+        end = new Date(year, month + 1, 0);
+        end.setHours(0,0,0,0);
+    } else {
+        // tutto
+        start = null;
+        end = null;
+    }
+    return { start, end };
+}
+
 function aggiornaDashboard() {
     const arrAll = loadStorico();
-    const arrBase = getFilteredHistory();
-    const today = new Date();
+    const tipoDash = document.getElementById('d_tipo') ? document.getElementById('d_tipo').value : 'all';
+    const periodo  = document.getElementById('d_periodo') ? document.getElementById('d_periodo').value : 'tutto';
 
-    const arr = arrBase.filter(r => {
+    const { start, end } = buildPeriodoRange(periodo);
+
+    const base = arrAll.filter(r => {
+        if (tipoDash !== 'all' && r.tipo !== tipoDash) return false;
         if (!r.data) return true;
-        const d = new Date(r.data);
+        const d = dateFromISO(r.data);
+        if (!d) return true;
+        d.setHours(0,0,0,0);
+        if (start && d < start) return false;
+        if (end && d > end) return false;
+        return true;
+    });
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    const arr = base.filter(r => {
+        if (!r.data) return true;
+        const d = dateFromISO(r.data);
+        if (!d) return true;
         const diffDays = (today - d)/(1000*60*60*24);
         if (equityRange === '1m')  return diffDays <= 30;
         if (equityRange === '6m')  return diffDays <= 180;
@@ -939,7 +1031,7 @@ function aggiornaDashboard() {
     let totProfit = 0, totStake = 0, stakeCount = 0;
     let quotaMediaSum = 0, quotaMediaCount = 0;
     let countAll = arr.length;
-    let wonAny = 0, lostBoth = 0;
+    let wonAny = 0, lostBoth = 0, winA = 0, winB = 0;
 
     arr.forEach(r => {
         totProfit += r.profit;
@@ -955,6 +1047,8 @@ function aggiornaDashboard() {
         const bWin = (r.esito === 'Vinte entrambe' || r.esito === 'Solo B vinta');
         const lost = (r.esito === 'Perse entrambe');
 
+        if (aWin) winA++;
+        if (bWin) winB++;
         if (aWin || bWin) wonAny++;
         if (lost) lostBoth++;
     });
@@ -966,6 +1060,9 @@ function aggiornaDashboard() {
     const kpi_odd     = document.getElementById('kpi_odd');
     const kpi_stake   = document.getElementById('kpi_stake');
     const kpi_matches = document.getElementById('kpi_matches');
+    const kpi_win_any = document.getElementById('kpi_win_any');
+    const kpi_win_A   = document.getElementById('kpi_win_A');
+    const kpi_win_B   = document.getElementById('kpi_win_B');
 
     kpi_profit.textContent = (totProfit >= 0 ? '+' : '') + totProfit.toFixed(1) + '€';
 
@@ -982,6 +1079,14 @@ function aggiornaDashboard() {
     kpi_stake.textContent = stakeCount > 0
         ? avgStake.toFixed(2) + '€'
         : '-';
+
+    const wrAny = countAll > 0 ? (wonAny / countAll * 100).toFixed(1) + '%' : '-';
+    const wrA   = countAll > 0 ? (winA   / countAll * 100).toFixed(1) + '%' : '-';
+    const wrB   = countAll > 0 ? (winB   / countAll * 100).toFixed(1) + '%' : '-';
+
+    kpi_win_any.textContent = wrAny;
+    kpi_win_A.textContent   = wrA;
+    kpi_win_B.textContent   = wrB;
 
     renderWinRateChart(wonAny, lostBoth, other);
     renderProfitChart(arr);
@@ -1109,4 +1214,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
-
