@@ -669,6 +669,7 @@
   </div>
 
 </div>
+
 <!-- ============== MODALE AGGIUNTA ============== -->
 <div id="addModal">
   <div class="modalCard">
@@ -790,6 +791,7 @@
     <button class="btn secondary" onclick="closeEdit()">Chiudi</button>
   </div>
 </div>
+
 <script>
 /* ========= Stato globale ========= */
 const LS_KEY = 'bettools_storico';
@@ -888,14 +890,27 @@ function calcolaAsianIntera() {
     sB = S - sA;
   }
 
+  // arrotondiamo al decimale
   sA = roundBook(sA);
   sB = roundBook(sB);
 
+  // enforcement stake minimo 1€ se S >= 2
+  if (S >= 2) {
+    if (sA > 0 && sA < 1) {
+      sA = 1;
+      sB = roundBook(S - sA);
+    }
+    if (sB > 0 && sB < 1) {
+      sB = 1;
+      sA = roundBook(S - sB);
+    }
+  }
+
   const stakeTot = sA + sB;
 
-  const profitLose = -stakeTot;
-  const profitAonly = (sA * qA) - stakeTot;
-  const profitBoth = (qB > 1 && sB > 0)
+  const profitLose   = -stakeTot;
+  const profitAonly  = (sA * qA) - stakeTot;
+  const profitBoth   = (qB > 1 && sB > 0)
     ? (sA * qA + sB * qB - stakeTot)
     : (sA * qA - sA); // solo A
 
@@ -945,17 +960,30 @@ function calcolaProtezione() {
     sA = S - sB;
   }
 
+  // arrotondiamo
   sA = roundBook(sA);
   sB = roundBook(sB);
 
+  // stake min 1€ se S>=2
+  if (S >= 2) {
+    if (sA > 0 && sA < 1) {
+      sA = 1;
+      sB = roundBook(S - sA);
+    }
+    if (sB > 0 && sB < 1) {
+      sB = 1;
+      sA = roundBook(S - sB);
+    }
+  }
+
   const stakeTot = sA + sB;
 
-  const profitLose = -stakeTot;
-  const profitAonly = (sA * qA) - stakeTot;
-  const profitBonly = (qB > 1 && sB > 0)
+  const profitLose   = -stakeTot;
+  const profitAonly  = (sA * qA) - stakeTot;
+  const profitBonly  = (qB > 1 && sB > 0)
     ? (sB * qB - stakeTot)
     : -stakeTot;
-  const profitBoth = (qB > 1 && sB > 0)
+  const profitBoth   = (qB > 1 && sB > 0)
     ? (sA * qA + sB * qB - stakeTot)
     : (sA * qA - sA);
 
@@ -999,39 +1027,47 @@ function calcolaAsianOverLive() {
   // split standard 50/50
   let sA = S / 2;
   let sB = S - sA;
+
   sA = roundBook(sA);
   sB = roundBook(sB);
-  const stakeTot = sA + sB;
 
-  const base = g0;      // gol al momento della giocata
+  // stake minimo 1€ se S>=2
+  if (S >= 2) {
+    if (sA > 0 && sA < 1) {
+      sA = 1;
+      sB = roundBook(S - sA);
+    }
+    if (sB > 0 && sB < 1) {
+      sB = 1;
+      sA = roundBook(S - sB);
+    }
+  }
+
+  const stakeTot = sA + sB;
+  const base = g0;
   const linea = base + tipo;
 
-  // helper per profit in base ai gol finali totali T
   function profitPerGoals(T) {
-    // standard asian using over base & over base+0.5 (0.25)
-    // o over base+0.5 & base+1.0 (0.75)
     let profit = 0;
     if (tipo === 0.25) {
-      // L = base+0.25 = combo Over base (qLow) & Over base+0.5 (qHigh)
+      // Over base (qLow) + Over base+0.5 (qHigh)
       if (T <= base - 1) {
-        // entrambe perse
         profit = -stakeTot;
       } else if (T === base) {
-        // Over base push, Over base+0.5 perde -> -sB
-        profit = -sB;
-      } else { // T >= base+1
-        // entrambe vincenti
+        profit = -sB; // low push, high lose
+      } else {
+        // T >= base+1 → entrambe vincenti
         profit = sA * qLow + sB * qHigh - stakeTot;
       }
     } else {
-      // tipo 0.75: L = base+0.75 = combo Over base+0.5 (qLow) & Over base+1.0 (qHigh)
+      // tipo 0.75: Over base+0.5 (qLow) + Over base+1.0 (qHigh)
       if (T <= base) {
-        // entrambe perse
         profit = -stakeTot;
       } else if (T === base + 1) {
-        // over base+0.5 vince, over base+1 push
-        profit = sA * qLow - stakeTot + sB; // sB rimborsata
-      } else { // T >= base+2
+        // low vinta, high push
+        profit = sA * qLow - stakeTot + sB;
+      } else {
+        // T >= base+2
         profit = sA * qLow + sB * qHigh - stakeTot;
       }
     }
@@ -1064,21 +1100,29 @@ function calcolaAsianOverLive() {
 }
 
 /* ========= Link statistiche ========= */
-function openGoaloo() {
-  const m = document.getElementById('match_name').value.trim();
-  if (!m) return;
-  const q = encodeURIComponent(m + ' site:goaloo.com');
-  window.open('https://www.google.com/search?q=' + q, '_blank');
-  document.getElementById('match_info').textContent =
-    'Ricerca Goaloo per: "' + m + '"';
+function normalizeMatchName(m) {
+  // "Inter - Liverpool" -> "Inter vs Liverpool"
+  return m.replace('-', ' vs ').replace(/\s+/g, ' ').trim();
 }
-function openSoccerStats() {
-  const m = document.getElementById('match_name').value.trim();
-  if (!m) return;
-  const q = encodeURIComponent(m + ' site:soccerstats.com');
+
+function openGoaloo() {
+  const raw = document.getElementById('match_name').value.trim();
+  if (!raw) return;
+  const norm = normalizeMatchName(raw);
+  const q = encodeURIComponent(norm + ' site:goaloo.com');
   window.open('https://www.google.com/search?q=' + q, '_blank');
   document.getElementById('match_info').textContent =
-    'Ricerca SoccerStats per: "' + m + '"';
+    'Ricerca Goaloo per: "' + norm + '"';
+}
+
+function openSoccerStats() {
+  const raw = document.getElementById('match_name').value.trim();
+  if (!raw) return;
+  const norm = normalizeMatchName(raw);
+  const q = encodeURIComponent(norm + ' site:soccerstats.com');
+  window.open('https://www.google.com/search?q=' + q, '_blank');
+  document.getElementById('match_info').textContent =
+    'Ricerca SoccerStats per: "' + norm + '"';
 }
 
 /* ========= MODALE ADD ========= */
