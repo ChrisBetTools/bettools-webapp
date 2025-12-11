@@ -1,1821 +1,1012 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BetTools</title>
 
-  <title>BetTools</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a84ff">
 
-  <!-- PWA / iOS -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+body {
+    margin: 0;
+    font-family: -apple-system, system-ui, sans-serif;
+    background: #f5f5f7;
+    color: #111;
+}
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+/* ====== DARK MODE FIX ====== */
+@media (prefers-color-scheme: dark) {
+    body { background: #000; color: #fff; }
+    input, select { background: #222 !important; color: #fff !important; }
+}
 
-  <style>
-    :root {
-      color-scheme: light dark;
-    }
+/* ====== Hamburger ====== */
+#hamburgerBar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #0a84ff;
+    color: #fff;
+    font-size: 20px;
+}
+#hamburgerBar #hamBtn { font-size: 26px; cursor: pointer; }
 
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      -webkit-font-smoothing: antialiased;
-    }
+/* ===== Sidebar ===== */
+#sideMenu {
+    position: fixed;
+    top: 0; left: -260px;
+    width: 260px;
+    height: 100vh;
+    background: #111;
+    color: #fff;
+    padding: 20px;
+    transition: left .25s ease;
+    z-index: 9999;
+}
 
-    body {
-      margin: 0;
-      font-family: -apple-system, system-ui, sans-serif;
-      background: #f3f4f6;
-      color: #111827;
-    }
+#sideMenu a {
+    display: block;
+    padding: 12px 0;
+    font-size: 18px;
+    border-bottom: 1px solid #333;
+    color: #fff;
+    text-decoration: none;
+}
 
-    /* Tabs in alto */
-    .topTabs {
-      display: flex;
-      background: #e5e7eb;
-      border-bottom: 1px solid #d1d5db;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    .topTabs button {
-      flex: 1;
-      padding: 11px 4px;
-      border: 0;
-      background: transparent;
-      font-size: 15px;
-      font-weight: 600;
-      color: #6b7280;
-      cursor: pointer;
-    }
-    .topTabs button.active {
-      background: #ffffff;
-      color: #111827;
-      border-bottom: 3px solid #2563eb;
-    }
+#sideMenu a:hover { color: #0a84ff; }
 
-    /* Pagine */
-    .page {
-      display: none;
-      padding: 12px;
-      padding-bottom: 80px;
-    }
+/* ==== containers ==== */
+.container {
+    padding: 18px;
+}
 
-    /* Cards */
-    .card {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 14px;
-      box-shadow: 0 4px 10px rgba(15,23,42,0.06);
-    }
-    h2 {
-      margin: 0 0 8px 0;
-      font-size: 18px;
-    }
-    p.desc {
-      margin: 0 0 10px 0;
-      font-size: 13px;
-      color: #6b7280;
-    }
+.card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+@media (prefers-color-scheme: dark) {
+    .card { background: #1c1c1e; }
+}
 
-    /* Banner target / stop */
-    .banner {
-      padding: 10px 12px;
-      border-radius: 10px;
-      font-size: 13px;
-      margin-bottom: 10px;
-      font-weight: 600;
-    }
-    .banner.green {
-      background: #d1fae5;
-      color: #065f46;
-      border: 1px solid #6ee7b7;
-    }
-    .banner.red {
-      background: #fee2e2;
-      color: #b91c1c;
-      border: 1px solid #fecaca;
-    }
+/* Dashboard chart sizing */
+#winRateChart {
+    max-width: 280px;
+    margin: 0 auto 18px auto;
+}
+#equityChart {
+    width: 100%;
+    height: 240px;
+}
 
-    /* Inputs */
-    label {
-      font-size: 13px;
-      font-weight: 600;
-      display: block;
-      margin: 6px 0 2px;
-    }
-    input,
-    select {
-      width: 100%;
-      padding: 9px;
-      font-size: 14px;
-      border-radius: 8px;
-      border: 1px solid #d1d5db;
-      box-sizing: border-box;
-      background: #f9fafb;
-      color: #111827;
-    }
-    input:focus,
-    select:focus {
-      outline: 2px solid #2563eb;
-      outline-offset: 0;
-      background: #ffffff;
-    }
+/* Hidden tabs (replaced by menu) */
+.tab-container { display: none; }
 
-    .row {
-      display: flex;
-      gap: 8px;
-    }
-    .row > div {
-      flex: 1;
-    }
+/* Inputs */
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+button {
+    width: 100%;
+    padding: 12px;
+    background: #0a84ff;
+    color: #fff;
+    border: none;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+button:hover { opacity: 0.9; }
 
-    /* Buttons */
-    .btn {
-      width: 100%;
-      padding: 11px;
-      margin-top: 10px;
-      border-radius: 9px;
-      border: none;
-      font-size: 15px;
-      font-weight: 600;
-      color: #ffffff;
-      background: #2563eb;
-      cursor: pointer;
-      transition: background 0.18s ease, transform 0.06s ease;
-    }
-    .btn:active {
-      transform: scale(0.97);
-    }
-    .btn.secondary {
-      background: #6b7280;
-    }
-    .btn.danger {
-      background: #ef4444;
-    }
-    .btn.small {
-      padding: 6px 10px;
-      font-size: 12px;
-      width: auto;
-    }
+.resultBox {
+    padding: 12px;
+    margin-top: 12px;
+    background: #e9eefc;
+    border-radius: 8px;
+    font-size: 17px;
+}
+@media (prefers-color-scheme: dark) {
+    .resultBox { background: #141a2c; }
+}
 
-    .muted {
-      font-size: 13px;
-      color: #6b7280;
-    }
+/* Storico */
+.stRow {
+    padding: 12px;
+    border-bottom: 1px solid #ccc;
+}
+.esitoPending { color: #ff4444; font-weight: 600; }
+.esitoDone { color: #0a84ff; }
 
-    .resultBox {
-      margin-top: 10px;
-      font-size: 13px;
-      background: #f9fafb;
-      border-radius: 8px;
-      padding: 10px;
-      border: 1px solid #e5e7eb;
-    }
+/* Asian Live outcome colors */
+.pos { color: #00b300; }
+.neg { color: #ff3333; }
+.half { color: #ff9900; }
 
-    .text-red { color: #ef4444; }
-    .text-green { color: #10b981; }
-    .text-blue { color: #2563eb; }
-    .text-gray { color: #6b7280; }
-
-    /* Storico */
-    table.storico {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-    }
-    table.storico th,
-    table.storico td {
-      border-bottom: 1px solid #e5e7eb;
-      padding: 6px 4px;
-      text-align: left;
-      vertical-align: middle;
-    }
-    table.storico th {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: .03em;
-      color: #6b7280;
-    }
-
-    /* Filters */
-    .filtersRow {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .filtersRow select {
-      flex: 1 1 130px;
-    }
-
-    /* KPI */
-    .kpiGrid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .kpiItem {
-      flex: 1 1 140px;
-      min-width: 130px;
-    }
-    .kpiValue {
-      font-size: 20px;
-      font-weight: 700;
-    }
-    .kpiLabel {
-      font-size: 12px;
-      color: #6b7280;
-    }
-
-    /* WinRate */
-    .winRateWrap {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .winRateSide {
-      width: 25%;
-      text-align: center;
-    }
-    .winRateSide .value {
-      font-size: 20px;
-      font-weight: 700;
-    }
-    .winRateSide .label {
-      font-size: 13px;
-      color: #6b7280;
-    }
-    .winRateCenter {
-      width: 120px;
-      height: 120px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* Range bottoni */
-    .rangeRow {
-      display: flex;
-      justify-content: flex-end;
-      gap: 6px;
-      margin-bottom: 6px;
-      margin-top: 4px;
-    }
-    .rangeBtn {
-      padding: 3px 8px;
-      font-size: 11px;
-      border-radius: 6px;
-      border: 1px solid #d1d5db;
-      background: #f3f4f6;
-      cursor: pointer;
-    }
-    .rangeBtn.active {
-      background: #2563eb;
-      color: white;
-      border-color: #2563eb;
-    }
-
-    /* Modali */
-    #addModal,
-    #editModal {
-      position: fixed;
-      inset: 0;
-      background: rgba(15,23,42,0.55);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 50;
-    }
-    .modalCard {
-      background: white;
-      border-radius: 14px;
-      padding: 16px;
-      width: 92%;
-      max-width: 420px;
-      box-shadow: 0 20px 40px rgba(15,23,42,0.4);
-    }
-
-    /* Riepilogo giornaliero */
-    table.daily {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-    }
-    table.daily th,
-    table.daily td {
-      border-bottom: 1px solid #e5e7eb;
-      padding: 6px 4px;
-      text-align: left;
-    }
-    table.daily th {
-      font-size: 11px;
-      text-transform: uppercase;
-      color: #6b7280;
-    }
-
-    /* Dark mode */
-    @media (prefers-color-scheme: dark) {
-      body {
-        background: #111827;
-        color: #f9fafb;
-      }
-      .topTabs {
-        background: #1f2937;
-        border-bottom-color: #374151;
-      }
-      .topTabs button {
-        color: #9ca3af;
-      }
-      .topTabs button.active {
-        background: #111827;
-        color: #f9fafb;
-      }
-      .card {
-        background: #1f2937;
-        box-shadow: none;
-      }
-      input,
-      select {
-        background: #111827;
-        color: #f9fafb;
-        border-color: #374151;
-      }
-      input:focus,
-      select:focus {
-        background: #111827;
-      }
-      .resultBox {
-        background: #111827;
-        border-color: #374151;
-      }
-      table.storico th,
-      table.storico td {
-        border-bottom-color: #374151;
-      }
-      table.daily th,
-      table.daily td {
-        border-bottom-color: #374151;
-      }
-      .modalCard {
-        background: #111827;
-      }
-      .banner.green {
-        background: rgba(16,185,129,0.2);
-        border-color: rgba(16,185,129,0.6);
-        color: #6ee7b7;
-      }
-      .banner.red {
-        background: rgba(239,68,68,0.2);
-        border-color: rgba(239,68,68,0.6);
-        color: #fecaca;
-      }
-    }
-  </style>
+</style>
 </head>
 <body>
 
-<!-- TABS -->
-<div class="topTabs">
-  <button id="tab_calc" class="active" onclick="showTab('calc')">Calcolatori</button>
-  <button id="tab_storico" onclick="showTab('storico')">Storico</button>
-  <button id="tab_dash" onclick="showTab('dash')">Dashboard</button>
-  <button id="tab_daily" onclick="showTab('daily')">Riepilogo</button>
+<!-- ========== HAMBURGER BAR ========== -->
+<div id="hamburgerBar">
+    <span id="hamBtn">☰</span>
+    <strong>BetTools</strong>
 </div>
 
-<!-- ============== PAGINA CALCOLATORI ============== -->
-<div id="page_calc" class="page" style="display:block;">
-
-  <!-- Banner target / stop -->
-  <div id="dayBanner" style="display:none;"></div>
-
-  <!-- Asian Line Intera -->
-  <div class="card">
-    <h2>Asian Line Intera</h2>
-    <p class="desc">
-      Simula una linea asiatica intera con due Over. Se <b>Quota B = 0</b>, tutta la puntata va su Quota A.
-    </p>
-
-    <label>Puntata Totale (€)</label>
-    <input id="al_tot" type="number" step="0.1">
-
-    <label>Quota A – Over Minore</label>
-    <input id="al_qA" type="number" step="0.01">
-
-    <label>Quota B – Over Maggiore (0 se non giocata)</label>
-    <input id="al_qB" type="number" step="0.01" value="0">
-
-    <button class="btn" onclick="calcolaAsianIntera()">Calcola</button>
-    <div id="al_out" class="resultBox" style="display:none;"></div>
-    <button class="btn secondary" onclick="apriAddModalFromCalc('Asian Line Intera')">
-      + Aggiungi allo storico
-    </button>
-  </div>
-
-  <!-- Protezione Void -->
-  <div class="card">
-    <h2>Protezione Void (Giocata Principale + Copertura)</h2>
-    <p class="desc">
-      Usa una seconda giocata a quota bassa per coprire (quasi) la perdita della principale.
-      Se <b>Quota B = 0</b>, tutta la puntata va su Quota A.
-    </p>
-
-    <label>Puntata Totale (€)</label>
-    <input id="pv_tot" type="number" step="0.1">
-
-    <label>Quota A (Giocata principale)</label>
-    <input id="pv_qA" type="number" step="0.01">
-
-    <label>Quota B (Copertura – 0 se non giocata)</label>
-    <input id="pv_qB" type="number" step="0.01" value="0">
-
-    <button class="btn" onclick="calcolaProtezione()">Calcola</button>
-    <div id="pv_out" class="resultBox" style="display:none;"></div>
-    <button class="btn secondary" onclick="apriAddModalFromCalc('Protezione Void')">
-      + Aggiungi allo storico
-    </button>
-  </div>
-
-  <!-- Asian Over Live (0.25 / 0.75) -->
-  <div class="card">
-    <h2>Asian Over Live (0.25 / 0.75)</h2>
-    <p class="desc">
-      Dividi la puntata su due Over per simulare una linea <b>X.25</b> o <b>X.75</b> durante il live.<br>
-      Inserisci i gol già segnati al momento della giocata, la puntata totale e le due quote.
-    </p>
-
-    <label>Tipo linea</label>
-    <select id="ao_tipo">
-      <option value="0.25">Over X.25</option>
-      <option value="0.75">Over X.75</option>
-    </select>
-
-    <label>Gol già segnati al momento della giocata (totali)</label>
-    <input id="ao_g0" type="number" step="1" min="0">
-
-    <label>Puntata Totale (€)</label>
-    <input id="ao_tot" type="number" step="0.1">
-
-    <label>Quota Over Minore</label>
-    <input id="ao_qLow" type="number" step="0.01">
-
-    <label>Quota Over Maggiore</label>
-    <input id="ao_qHigh" type="number" step="0.01">
-
-    <button class="btn" onclick="calcolaAsianOverLive()">Calcola</button>
-    <div id="ao_out" class="resultBox" style="display:none;"></div>
-
-    <button class="btn secondary" onclick="apriAddModalFromCalc('Asian Over Live')">
-      + Aggiungi allo storico
-    </button>
-  </div>
-
-  <!-- Link Statistiche -->
-  <div class="card">
-    <h2>Link Statistiche (Goaloo / SoccerStats)</h2>
-    <p class="desc">
-      Inserisci la partita (es. <b>Inter - Liverpool</b>). Verrà proposta una ricerca Google con filtro sito.
-    </p>
-
-    <label>Partita</label>
-    <input id="match_name" type="text" placeholder="Inter - Liverpool">
-
-    <button class="btn" onclick="openGoaloo()">Apri Goaloo (Google)</button>
-    <button class="btn secondary" onclick="openSoccerStats()">Apri SoccerStats (Google)</button>
-
-    <p id="match_info" class="muted"></p>
-  </div>
-
-</div> <!-- fine page_calc -->
-
-
-<!-- ============== PAGINA STORICO ============== -->
-<div id="page_storico" class="page">
-
-  <div class="card">
-    <h2>Storico Giocate</h2>
-
-    <div class="filtersRow" style="margin-top:6px;">
-      <select id="f_tipo" onchange="renderStorico(); aggiornaDashboard(); buildDailySummary();">
-        <option value="all">Tutti i tipi</option>
-        <option value="Asian Line Intera">Asian Line Intera</option>
-        <option value="Protezione Void">Protezione Void</option>
-        <option value="Asian Over Live">Asian Over Live</option>
-        <option value="2 More Corner FT">2 More Corner FT</option>
-        <option value="Next Goal Home - Pari">Next Goal Home - Pari</option>
-        <option value="New Neigh Casa">New Neigh Casa</option>
-        <option value="New Dominio Home">New Dominio Home</option>
-        <option value="Secondo Goal HT Lite">Secondo Goal HT Lite</option>
-      </select>
-
-      <select id="f_periodo" onchange="renderStorico(); aggiornaDashboard(); buildDailySummary();">
-        <option value="tutto">Tutto</option>
-        <option value="oggi">Oggi</option>
-        <option value="ieri">Ieri</option>
-        <option value="sett_corr">Settimana in corso</option>
-        <option value="sett_prev">Settimana precedente</option>
-        <option value="mese_corr">Mese in corso</option>
-        <option value="mese_prev">Mese precedente</option>
-      </select>
-    </div>
-
-    <div style="margin-bottom:8px;">
-      <button class="btn small" onclick="apriAddModalManuale()">+ Nuova riga manuale</button>
-      <button class="btn small secondary" onclick="exportCSV()">Esporta CSV</button>
-      <button class="btn small danger" onclick="resetStorico()">Cancella storico</button>
-    </div>
-
-    <div id="storicoBox" style="margin-top:8px;"></div>
-
-  </div>
-
-</div> <!-- fine storico -->
-
-
-<!-- ============== PAGINA DASHBOARD ============== -->
-<div id="page_dash" class="page">
-
-  <div class="card">
-    <h2>Dashboard</h2>
-
-    <div class="filtersRow" style="margin-top:6px;">
-      <select id="d_tipo" onchange="aggiornaDashboard();">
-        <option value="all">Tutti i tipi</option>
-        <option value="Asian Line Intera">Asian Line Intera</option>
-        <option value="Protezione Void">Protezione Void</option>
-        <option value="Asian Over Live">Asian Over Live</option>
-        <option value="2 More Corner FT">2 More Corner FT</option>
-        <option value="Next Goal Home - Pari">Next Goal Home - Pari</option>
-        <option value="New Neigh Casa">New Neigh Casa</option>
-        <option value="New Dominio Home">New Dominio Home</option>
-        <option value="Secondo Goal HT Lite">Secondo Goal HT Lite</option>
-      </select>
-
-      <select id="d_periodo" onchange="aggiornaDashboard();">
-        <option value="tutto">Tutto</option>
-        <option value="oggi">Oggi</option>
-        <option value="ieri">Ieri</option>
-        <option value="sett_corr">Settimana in corso</option>
-        <option value="sett_prev">Settimana precedente</option>
-        <option value="mese_corr">Mese in corso</option>
-        <option value="mese_prev">Mese precedente</option>
-      </select>
-    </div>
-
-    <div class="kpiGrid">
-      <div class="kpiItem">
-        <div id="kpi_profit" class="kpiValue">0€</div>
-        <div class="kpiLabel">Total Profit</div>
-      </div>
-      <div class="kpiItem">
-        <div id="kpi_yield" class="kpiValue">0%</div>
-        <div class="kpiLabel">Yield</div>
-      </div>
-      <div class="kpiItem">
-        <div id="kpi_odd" class="kpiValue">0</div>
-        <div class="kpiLabel">Avg. Odd</div>
-      </div>
-      <div class="kpiItem">
-        <div id="kpi_stake" class="kpiValue">0€</div>
-        <div class="kpiLabel">Avg. Stake (match)</div>
-      </div>
-      <div class="kpiItem">
-        <div id="kpi_matches" class="kpiValue">0</div>
-        <div class="kpiLabel">Total Matches</div>
-      </div>
-      <div class="kpiItem">
-        <div id="kpi_bets" class="kpiValue">0</div>
-        <div class="kpiLabel">Total Bets (A+B)</div>
-      </div>
-      <div class="kpiItem">
-        <div id="kpi_wr_total" class="kpiValue">0%</div>
-        <div class="kpiLabel">Winrate Totale (bets)</div>
-      </div>
-      <div class="kpiItem">
-        <div id="kpi_wr_A" class="kpiValue">0%</div>
-        <div class="kpiLabel">Winrate Quota A</div>
-      </div>
-      <div class="kpiItem">
-        <div id="kpi_wr_B" class="kpiValue">0%</div>
-        <div class="kpiLabel">Winrate Quota B</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Win Rate donut -->
-  <div class="card">
-    <h2 style="text-align:center;">Win Rate</h2>
-    <div class="winRateWrap">
-      <div class="winRateSide">
-        <div id="wr_win" class="value" style="color:#16a34a;">0%</div>
-        <div class="label">Won</div>
-      </div>
-      <div class="winRateCenter">
-        <canvas id="chartWinRate" width="120" height="120"></canvas>
-      </div>
-      <div class="winRateSide">
-        <div id="wr_lost" class="value" style="color:#ef4444;">0%</div>
-        <div class="label">Lost</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Profit Chart -->
-  <div class="card">
-    <h2>Profit Chart</h2>
-    <div class="rangeRow">
-      <button class="rangeBtn active" data-range="all" onclick="setRange('all')">all</button>
-      <button class="rangeBtn" data-range="1m" onclick="setRange('1m')">1m</button>
-      <button class="rangeBtn" data-range="6m" onclick="setRange('6m')">6m</button>
-      <button class="rangeBtn" data-range="12m" onclick="setRange('12m')">12m</button>
-    </div>
-    <canvas id="chartProfit" height="220"></canvas>
-  </div>
-
-  <!-- Stake Engine -->
-  <div class="card">
-    <h2>Stake consigliato</h2>
-
-    <label>Bankroll iniziale (€)</label>
-    <input id="br_start" type="number" step="0.1" oninput="saveBankrollStart(); aggiornaDashboard(); buildDailySummary();">
-
-    <p><strong>Bankroll attuale:</strong> <span id="br_current">-</span></p>
-    <p><strong>Δ vs iniziale:</strong> <span id="br_delta">-</span></p>
-
-    <p><strong>Stake Standard:</strong> <span id="stk_std">-</span></p>
-    <p><strong>Stake High-Edge:</strong> <span id="stk_high">-</span></p>
-
-    <p id="stk_note" class="text-gray" style="font-size:13px;"></p>
-  </div>
-
-</div> <!-- fine dashboard -->
-
-
-<!-- ============== PAGINA RIEPILOGO GIORNALIERO ============== -->
-<div id="page_daily" class="page">
-
-  <div class="card">
-    <h2>Riepilogo Giornaliero</h2>
-    <p class="desc">
-      Per ogni giorno vedi profitto, numero di bets, winrate e stato rispetto a <b>target +3%</b> e <b>stop loss -10%</b>
-      del bankroll a inizio giornata.
-    </p>
-    <div id="dailyBox"></div>
-  </div>
-
+<!-- ========== SIDEBAR MENU ========== -->
+<div id="sideMenu">
+    <a href="#" onclick="openTab('calc')">Calcolatori</a>
+    <a href="#" onclick="openTab('storico')">Storico</a>
+    <a href="#" onclick="openTab('dash')">Dashboard</a>
+    <a href="#" onclick="openTab('daily')">Riepilogo Giornaliero</a>
+    <a href="#" onclick="closeMenu()">Chiudi</a>
 </div>
 
-<!-- ============== MODALE AGGIUNTA ============== -->
-<div id="addModal">
-  <div class="modalCard">
-    <h2 id="am_title">Aggiungi allo storico</h2>
+<!-- ========== MAIN AREA ========== -->
+<div id="mainContent" class="container">
 
-    <input type="hidden" id="am_mode" value="calc">
+<!-- ==========================
+     TAB CALCOLATORI
+========================== -->
+<div id="tab_calc">
 
-    <label>Data</label>
-    <input id="am_data" type="date">
+    <!-- ==== CALCOLATORE ASIAN INTERA ==== -->
+    <div class="card">
+        <h2>Asian Line Intera</h2>
 
-    <label>Partita</label>
-    <input id="am_partita" placeholder="Es: Inter - Liverpool">
+        <label>Stake Totale</label>
+        <input id="ai_stake" type="number" step="0.1">
 
-    <label>Tipo scommessa</label>
-    <select id="am_tipo">
-      <option value="Asian Line Intera">Asian Line Intera</option>
-      <option value="Protezione Void">Protezione Void</option>
-      <option value="Asian Over Live">Asian Over Live</option>
-      <option value="2 More Corner FT">2 More Corner FT</option>
-      <option value="Next Goal Home - Pari">Next Goal Home - Pari</option>
-      <option value="New Neigh Casa">New Neigh Casa</option>
-      <option value="New Dominio Home">New Dominio Home</option>
-      <option value="Secondo Goal HT Lite">Secondo Goal HT Lite</option>
-    </select>
+        <label>Quota Under</label>
+        <input id="ai_qUnder" type="number" step="0.01">
 
-    <div class="row">
-      <div>
+        <label>Quota Over</label>
+        <input id="ai_qOver" type="number" step="0.01">
+
+        <button onclick="calcolaAsianIntera()">Calcola</button>
+
+        <div id="ai_res" class="resultBox" style="display:none"></div>
+    </div>
+
+    <!-- ==== CALCOLATORE PROTEZIONE ==== -->
+    <div class="card">
+        <h2>Protezione</h2>
+
+        <label>Stake Totale</label>
+        <input id="pr_stake" type="number" step="0.1">
+
         <label>Quota A</label>
-        <input id="am_qA" type="number" step="0.01">
-      </div>
-      <div>
-        <label>Quota B (0 se non giocata)</label>
-        <input id="am_qB" type="number" step="0.01" value="0">
-      </div>
+        <input id="pr_qA" type="number" step="0.01">
+
+        <label>Quota B</label>
+        <input id="pr_qB" type="number" step="0.01">
+
+        <button onclick="calcolaProtezione()">Calcola</button>
+
+        <div id="pr_res" class="resultBox" style="display:none"></div>
     </div>
 
-    <div class="row">
-      <div>
-        <label>Stake A (€)</label>
-        <input id="am_sA" type="number" step="0.1">
-      </div>
-      <div>
-        <label>Stake B (€)</label>
-        <input id="am_sB" type="number" step="0.1">
-      </div>
+    <!-- ==== CALCOLATORE ASIAN OVER LIVE ==== -->
+    <div class="card">
+        <h2>Asian Over Live</h2>
+
+        <label>Goal già segnati</label>
+        <input id="al_g" type="number">
+
+        <label>Linea asiatica (es. 1.75)</label>
+        <input id="al_line" type="number" step="0.25">
+
+        <label>Stake Totale</label>
+        <input id="al_stake" type="number" step="0.1">
+
+        <label>Quota A (linea bassa)</label>
+        <input id="al_qA" type="number" step="0.01">
+
+        <label>Quota B (linea alta)</label>
+        <input id="al_qB" type="number" step="0.01">
+
+        <button onclick="calcolaAsianLive()">Calcola</button>
+
+        <div id="al_res" class="resultBox" style="display:none"></div>
     </div>
 
-    <label>Esito</label>
-    <select id="am_esito">
-      <option value="Non giocata">Non giocata</option>
-      <option value="Vinte entrambe">Vinte entrambe</option>
-      <option value="Solo A vinta">Solo A vinta</option>
-      <option value="Solo B vinta">Solo B vinta</option>
-      <option value="Perse entrambe">Perse entrambe</option>
-    </select>
+    <!-- ====== GOALOO / SOCCERSTATS ====== -->
+    <div class="card">
+        <h3>Ricerca Partita</h3>
 
-    <button class="btn" onclick="confermaAddModal()">Salva</button>
-    <button class="btn secondary" onclick="chiudiAddModal()">Chiudi</button>
-  </div>
-</div>
+        <label>Home Team</label>
+        <input id="t_home">
 
-<!-- ============== MODALE EDIT ============== -->
-<div id="editModal">
-  <div class="modalCard">
-    <h2>Modifica Giocata</h2>
+        <label>Away Team</label>
+        <input id="t_away">
 
-    <input type="hidden" id="em_id">
+        <label>Data (AAAA-MM-GG)</label>
+        <input id="t_date" type="date">
 
-    <label>Data</label>
-    <input id="em_data" type="date">
+        <button onclick="openGoaloo()">Apri su Goaloo</button>
+        <button onclick="openSoccerstats()">Apri su SoccerStats</button>
+    </div>
 
-    <label>Partita</label>
-    <input id="em_partita" type="text">
+</div> <!-- Fine tab_calc -->
 
-    <label>Tipo scommessa</label>
-    <select id="em_tipo">
-      <option value="Asian Line Intera">Asian Line Intera</option>
-      <option value="Protezione Void">Protezione Void</option>
-      <option value="Asian Over Live">Asian Over Live</option>
-      <option value="2 More Corner FT">2 More Corner FT</option>
-      <option value="Next Goal Home - Pari">Next Goal Home - Pari</option>
-      <option value="New Neigh Casa">New Neigh Casa</option>
-      <option value="New Dominio Home">New Dominio Home</option>
-      <option value="Secondo Goal HT Lite">Secondo Goal HT Lite</option>
-    </select>
+<!-- =====================================
+     TAB STORICO
+===================================== -->
+<div id="tab_storico" style="display:none">
 
-    <div class="row">
-      <div>
+    <div class="card">
+        <h2>Aggiungi allo storico</h2>
+
+        <label>Data</label>
+        <input id="st_data" type="date">
+
+        <label>Tipo Scommessa</label>
+        <select id="st_tipo">
+            <option value="">Seleziona...</option>
+            <option>Asian Line Intera</option>
+            <option>Protezione</option>
+            <option>Asian Over Live</option>
+            <option>2 More Corner FT</option>
+            <option>Next Goal Home - Pari</option>
+            <option>New Neigh Casa</option>
+            <option>New Dominio Home</option>
+            <option>Secondo Goal HT Lite</option>
+        </select>
+
+        <label>Partita</label>
+        <input id="st_partita" placeholder="Es. Inter - Liverpool">
+
         <label>Quota A</label>
-        <input id="em_qA" type="number" step="0.01">
-      </div>
-      <div>
-        <label>Quota B (0 se non giocata)</label>
-        <input id="em_qB" type="number" step="0.01">
-      </div>
+        <input id="st_qA" type="number" step="0.01">
+
+        <label>Quota B</label>
+        <input id="st_qB" type="number" step="0.01">
+
+        <label>Stake A</label>
+        <input id="st_sA" type="number" step="0.1">
+
+        <label>Stake B</label>
+        <input id="st_sB" type="number" step="0.1">
+
+        <label>Esito</label>
+        <select id="st_esito">
+            <option>Non giocata</option>
+            <option>Vinte entrambe</option>
+            <option>Perse entrambe</option>
+            <option>Solo A vinta</option>
+            <option>Solo B vinta</option>
+        </select>
+
+        <button onclick="addStorico()">Aggiungi</button>
     </div>
 
-    <div class="row">
-      <div>
-        <label>Stake A (€)</label>
-        <input id="em_sA" type="number" step="0.1">
-      </div>
-      <div>
-        <label>Stake B (€)</label>
-        <input id="em_sB" type="number" step="0.1">
-      </div>
-    </div>
+    <div id="storicoList"></div>
 
-    <label>Esito</label>
-    <select id="em_esito">
-      <option value="Non giocata">Non giocata</option>
-      <option value="Vinte entrambe">Vinte entrambe</option>
-      <option value="Solo A vinta">Solo A vinta</option>
-      <option value="Solo B vinta">Solo B vinta</option>
-      <option value="Perse entrambe">Perse entrambe</option>
-    </select>
-
-    <button class="btn" onclick="saveEdit()">Salva</button>
-    <button class="btn secondary" onclick="closeEdit()">Chiudi</button>
-  </div>
 </div>
 
+<!-- =====================================
+     TAB DASHBOARD
+===================================== -->
+<div id="tab_dash" style="display:none">
+    <div class="card">
+        <h2>Dashboard</h2>
+
+        <canvas id="winRateChart"></canvas>
+
+        <p><strong>Totale Bet:</strong> <span id="d_bet"></span></p>
+        <p><strong>Win totale:</strong> <span id="d_win"></span></p>
+        <p><strong>Win %:</strong> <span id="d_winp"></span></p>
+
+        <p><strong>Quota A win %:</strong> <span id="d_wA"></span></p>
+        <p><strong>Quota B win %:</strong> <span id="d_wB"></span></p>
+
+        <p><strong>Profitto:</strong> <span id="d_profit"></span></p>
+
+        <h3>Equity</h3>
+        <canvas id="equityChart"></canvas>
+    </div>
+</div>
+
+<!-- =====================================
+     TAB RIEPILOGO GIORNALIERO
+===================================== -->
+<div id="tab_daily" style="display:none">
+    <div class="card">
+        <h2>Riepilogo Giornaliero</h2>
+
+        <p><strong>Profitto del giorno:</strong> <span id="dy_profit"></span></p>
+        <p><strong>Bet giocate oggi:</strong> <span id="dy_bet"></span></p>
+        <p><strong>Win % oggi:</strong> <span id="dy_wp"></span></p>
+        <p><strong>Stato:</strong> <span id="dy_state"></span></p>
+
+    </div>
+</div>
+
+</div><!-- end main content -->
 <script>
-/* ========= Stato globale ========= */
-const LS_KEY = 'bettools_storico';
-const LS_BR  = 'bettools_bankroll';
+// ===============================
+// MENU HAMBURGER
+// ===============================
+const sideMenu = document.getElementById("sideMenu");
+const hamBtn = document.getElementById("hamBtn");
 
-let lastCalc = null;      // {quotaA, quotaB, stakeA, stakeB}
-let equityRange = 'all';
-let winChartObj = null;
-let profitChartObj = null;
+hamBtn.onclick = () => {
+    sideMenu.style.left = "0px";
+};
+function closeMenu() {
+    sideMenu.style.left = "-260px";
+}
 
-/* ========= Utility ========= */
-function safeNum(v) {
-  const n = parseFloat(v);
-  return isNaN(n) ? 0 : n;
+function openTab(tab) {
+    closeMenu();
+    document.getElementById("tab_calc").style.display = "none";
+    document.getElementById("tab_storico").style.display = "none";
+    document.getElementById("tab_dash").style.display = "none";
+    document.getElementById("tab_daily").style.display = "none";
+
+    document.getElementById("tab_"+tab).style.display = "block";
 }
-function todayISO() {
-  return new Date().toISOString().slice(0, 10);
-}
-function cloneDate(d) {
-  const x = new Date(d);
-  x.setHours(0,0,0,0);
-  return x;
-}
+
+
+
+// ===============================
+// ROUND PER BOOKMAKER (UNA CIFRA)
+// ===============================
 function roundBook(x) {
-  // arrotonda a 1 decimale
-  return Math.round(x * 10) / 10;
+    return Math.round(x * 10) / 10;
 }
 
-/* ========= Tabs ========= */
-function showTab(name) {
-  ['calc','storico','dash','daily'].forEach(p => {
-    document.getElementById('page_'+p).style.display = (p === name ? 'block' : 'none');
-    const tabBtn = document.getElementById('tab_'+p);
-    if (tabBtn) tabBtn.classList.toggle('active', p === name);
-  });
-  if (name === 'storico') renderStorico();
-  if (name === 'dash')    aggiornaDashboard();
-  if (name === 'daily')   buildDailySummary();
+
+
+// ===============================
+// FUNZIONE CENTRALE:
+// Stake minimo 1€ per tutti i calcolatori
+// ===============================
+function adjustStakeMin(stA, stB, total) {
+
+    // Caso semplice: stake totali sotto 2€
+    if (total < 2) {
+        return {
+            a: roundBook(total),
+            b: 0,
+            note: "Stake totale troppo basso per due puntate. Tutto su A."
+        };
+    }
+
+    let A = stA;
+    let B = stB;
+
+    // Se entrambi ≥1 → ok
+    if (A >= 1 && B >= 1) {
+        return { a: roundBook(A), b: roundBook(B), note: "" };
+    }
+
+    // Se uno dei due è <1 → portalo a 1 e correggi l’altro
+    if (A < 1) {
+        A = 1;
+        B = total - 1;
+    }
+    if (B < 1) {
+        B = 1;
+        A = total - 1;
+    }
+
+    // Se ancora il correttivo crea problemi (B <0), fallback
+    if (A < 0) A = 0;
+    if (B < 0) B = 0;
+
+    return {
+        a: roundBook(A),
+        b: roundBook(B),
+        note: ""
+    };
 }
 
-/* ========= Storage ========= */
-function loadStorico() {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return [];
-    const arr = JSON.parse(raw);
-    return Array.isArray(arr) ? arr : [];
-  } catch {
-    return [];
-  }
-}
-function saveStorico(arr) {
-  localStorage.setItem(LS_KEY, JSON.stringify(arr));
-}
-function resetStorico() {
-  if (!confirm('Vuoi cancellare tutto lo storico?')) return;
-  localStorage.removeItem(LS_KEY);
-  renderStorico();
-  aggiornaDashboard();
-  buildDailySummary();
-}
 
-function loadBankrollStart() {
-  return safeNum(localStorage.getItem(LS_BR));
-}
-function saveBankrollStart() {
-  const v = safeNum(document.getElementById('br_start').value);
-  if (v > 0) localStorage.setItem(LS_BR, v.toString());
-}
 
-/* ========= Calcolatore Asian Line Intera ========= */
+// ============================================
+// CALCOLATORE 1 — ASIAN INTERA
+// ============================================
 function calcolaAsianIntera() {
-  const S = safeNum(document.getElementById('al_tot').value);
-  const qA = safeNum(document.getElementById('al_qA').value);
-  const qB = safeNum(document.getElementById('al_qB').value);
-  const out = document.getElementById('al_out');
+    const stake = parseFloat(document.getElementById("ai_stake").value);
+    const qU = parseFloat(document.getElementById("ai_qUnder").value);
+    const qO = parseFloat(document.getElementById("ai_qOver").value);
 
-  if (S <= 0 || qA <= 1) {
-    out.style.display = 'block';
-    out.innerHTML = '<span class="text-red">Inserisci puntata > 0 e Quota A > 1.</span>';
-    lastCalc = null;
-    return;
-  }
+    if (!stake || !qU || !qO) return;
 
-  let sA, sB;
+    // Formula base: split proporzionale
+    let stA = stake * (qO / (qU + qO));
+    let stB = stake - stA;
 
-  if (qB <= 1) {
-    // solo A
-    sA = S;
-    sB = 0;
-  } else {
-    // vogliamo void (profit ~0) quando vince solo A
-    // sA*qA - (sA+sB) = 0  →  sA*qA = S  → sA = S/qA
-    sA = S / qA;
-    if (sA > S) sA = S;
-    sB = S - sA;
-  }
+    // Correggi stake minimi
+    const fixed = adjustStakeMin(stA, stB, stake);
 
-  // arrotondiamo al decimale
-  sA = roundBook(sA);
-  sB = roundBook(sB);
-
-  // enforcement stake minimo 1€ se S >= 2
-  if (S >= 2) {
-    if (sA > 0 && sA < 1) {
-      sA = 1;
-      sB = roundBook(S - sA);
-    }
-    if (sB > 0 && sB < 1) {
-      sB = 1;
-      sA = roundBook(S - sB);
-    }
-  }
-
-  const stakeTot = sA + sB;
-
-  const profitLose   = -stakeTot;
-  const profitAonly  = (sA * qA) - stakeTot;
-  const profitBoth   = (qB > 1 && sB > 0)
-    ? (sA * qA + sB * qB - stakeTot)
-    : (sA * qA - sA); // solo A
-
-  out.style.display = 'block';
-  out.innerHTML =
-    `<b>Punta su Over Minore (A):</b> ${sA.toFixed(2)}€ @ ${qA.toFixed(2)}<br>` +
-    `<b>Punta su Over Maggiore (B):</b> ${sB.toFixed(2)}€ @ ${qB.toFixed(2)}<br><br>` +
-    `<b>Meno gol della linea:</b> <span class="${profitLose>=0?'text-green':'text-red'}">` +
-    `${(profitLose>=0?'+':'') + profitLose.toFixed(2)}€</span><br>` +
-    `<b>Solo Over Minore vinto:</b> <span class="${profitAonly>=0?'text-green':'text-red'}">` +
-    `${(profitAonly>=0?'+':'') + profitAonly.toFixed(2)}€</span><br>` +
-    `<b>Entrambe Vinte:</b> <span class="${profitBoth>=0?'text-green':'text-red'}">` +
-    `${(profitBoth>=0?'+':'') + profitBoth.toFixed(2)}€</span>`;
-
-  lastCalc = {
-    quotaA: qA,
-    quotaB: qB,
-    stakeA: sA,
-    stakeB: sB
-  };
+    // Mostra risultato
+    const box = document.getElementById("ai_res");
+    box.style.display = "block";
+    box.innerHTML = `
+        Stake Under: <b>${fixed.a}</b><br>
+        Stake Over: <b>${fixed.b}</b><br>
+        ${fixed.note ? "<br><i>"+fixed.note+"</i>" : ""}
+    `;
 }
 
-/* ========= Calcolatore Protezione Void ========= */
+
+
+// ============================================
+// CALCOLATORE 2 — PROTEZIONE
+// ============================================
 function calcolaProtezione() {
-  const S  = safeNum(document.getElementById('pv_tot').value);
-  const qA = safeNum(document.getElementById('pv_qA').value);
-  const qB = safeNum(document.getElementById('pv_qB').value);
-  const out = document.getElementById('pv_out');
+    const stake = parseFloat(document.getElementById("pr_stake").value);
+    const qA = parseFloat(document.getElementById("pr_qA").value);
+    const qB = parseFloat(document.getElementById("pr_qB").value);
 
-  if (S <= 0 || qA <= 1) {
-    out.style.display = 'block';
-    out.innerHTML = '<span class="text-red">Inserisci puntata > 0 e Quota A > 1.</span>';
-    lastCalc = null;
-    return;
-  }
+    if (!stake || !qA || !qB) return;
 
-  let sA, sB;
+    // Formula base:
+    let stA = stake * (qB / (qA + qB));
+    let stB = stake - stA;
 
-  if (qB <= 1) {
-    sA = S;
-    sB = 0;
-  } else {
-    // vogliamo quasi void quando vince solo B
-    // profitB = sB*qB - (sA+sB) ≈ 0 → sB*qB ≈ S → sB ≈ S/qB
-    sB = S / qB;
-    if (sB > S) sB = S;
-    sA = S - sB;
-  }
+    // Correggi stake minimi
+    const fixed = adjustStakeMin(stA, stB, stake);
 
-  // arrotondiamo
-  sA = roundBook(sA);
-  sB = roundBook(sB);
-
-  // stake min 1€ se S>=2
-  if (S >= 2) {
-    if (sA > 0 && sA < 1) {
-      sA = 1;
-      sB = roundBook(S - sA);
-    }
-    if (sB > 0 && sB < 1) {
-      sB = 1;
-      sA = roundBook(S - sB);
-    }
-  }
-
-  const stakeTot = sA + sB;
-
-  const profitLose   = -stakeTot;
-  const profitAonly  = (sA * qA) - stakeTot;
-  const profitBonly  = (qB > 1 && sB > 0)
-    ? (sB * qB - stakeTot)
-    : -stakeTot;
-  const profitBoth   = (qB > 1 && sB > 0)
-    ? (sA * qA + sB * qB - stakeTot)
-    : (sA * qA - sA);
-
-  out.style.display = 'block';
-  out.innerHTML =
-    `<b>Punta su A (principale):</b> ${sA.toFixed(2)}€ @ ${qA.toFixed(2)}<br>` +
-    `<b>Punta su B (copertura):</b> ${sB.toFixed(2)}€ @ ${qB.toFixed(2)}<br><br>` +
-    `<b>Perse entrambe:</b> <span class="${profitLose>=0?'text-green':'text-red'}">` +
-    `${(profitLose>=0?'+':'') + profitLose.toFixed(2)}€</span><br>` +
-    `<b>Solo A vinta:</b> <span class="${profitAonly>=0?'text-green':'text-red'}">` +
-    `${(profitAonly>=0?'+':'') + profitAonly.toFixed(2)}€</span><br>` +
-    `<b>Solo B vinta (quasi void):</b> <span class="${profitBonly>=0?'text-green':'text-red'}">` +
-    `${(profitBonly>=0?'+':'') + profitBonly.toFixed(2)}€</span><br>` +
-    `<b>Entrambe Vinte:</b> <span class="${profitBoth>=0?'text-green':'text-red'}">` +
-    `${(profitBoth>=0?'+':'') + profitBoth.toFixed(2)}€</span>`;
-
-  lastCalc = {
-    quotaA: qA,
-    quotaB: qB,
-    stakeA: sA,
-    stakeB: sB
-  };
+    const box = document.getElementById("pr_res");
+    box.style.display = "block";
+    box.innerHTML = `
+        Stake A: <b>${fixed.a}</b><br>
+        Stake B: <b>${fixed.b}</b><br>
+        ${fixed.note ? "<br><i>"+fixed.note+"</i>" : ""}
+    `;
 }
 
-/* ========= Asian Over Live ========= */
-function calcolaAsianOverLive() {
-  const tipo = safeNum(document.getElementById('ao_tipo').value); // 0.25 o 0.75
-  const g0   = safeNum(document.getElementById('ao_g0').value);
-  const S    = safeNum(document.getElementById('ao_tot').value);
-  const qLow = safeNum(document.getElementById('ao_qLow').value);
-  const qHigh= safeNum(document.getElementById('ao_qHigh').value);
-  const out  = document.getElementById('ao_out');
 
-  if (S <= 0 || qLow <= 1 || qHigh <= 1 || (tipo !== 0.25 && tipo !== 0.75)) {
-    out.style.display = 'block';
-    out.innerHTML = '<span class="text-red">Inserisci puntata > 0, quote > 1 e scegli 0.25 / 0.75.</span>';
-    lastCalc = null;
-    return;
-  }
 
-  // split standard 50/50
-  let sA = S / 2;
-  let sB = S - sA;
+// ============================================
+// CALCOLATORE 3 — ASIAN OVER LIVE
+// Logica completamente asiatica
+// ============================================
+function calcolaAsianLive() {
 
-  sA = roundBook(sA);
-  sB = roundBook(sB);
+    const g = parseInt(document.getElementById("al_g").value);
+    const line = parseFloat(document.getElementById("al_line").value);
+    const stake = parseFloat(document.getElementById("al_stake").value);
+    const qA = parseFloat(document.getElementById("al_qA").value);
+    const qB = parseFloat(document.getElementById("al_qB").value);
 
-  // stake minimo 1€ se S>=2
-  if (S >= 2) {
-    if (sA > 0 && sA < 1) {
-      sA = 1;
-      sB = roundBook(S - sA);
+    if (isNaN(g) || !line || !stake || !qA || !qB) return;
+
+    // LINEA → identifica parte bassa e parte alta
+    const base = Math.floor(line);
+    const frac = line - base; // .25 o .75
+
+    let stA = stake / 2;
+    let stB = stake / 2;
+
+    // correggi stake minimi
+    const fixed = adjustStakeMin(stA, stB, stake);
+    stA = fixed.a;
+    stB = fixed.b;
+
+    // Risultati possibili:
+    // +0 goal, +1 goal, +2 goal
+    let out0, out1, out2;
+
+    if (frac === 0.75) {
+        // esempio 1.75:
+        // +0 → persa (full lose)
+        // +1 → mezza win + mezza void
+        // +2 → full win
+        out0 = `<span class='neg'>Persa</span>`;
+        out1 = `<span class='half'>Mezza Vinta / Mezza Void</span>`;
+        out2 = `<span class='pos'>Vinta</span>`;
     }
-    if (sB > 0 && sB < 1) {
-      sB = 1;
-      sA = roundBook(S - sB);
+    else if (frac === 0.25) {
+        // esempio 1.25:
+        // +0 → mezza persa
+        // +1 → full win
+        // +2 → full win
+        out0 = `<span class='half'>Mezza Persa</span>`;
+        out1 = `<span class='pos'>Vinta</span>`;
+        out2 = `<span class='pos'>Vinta</span>`;
     }
-  }
-
-  const stakeTot = sA + sB;
-  const base = g0;
-  const linea = base + tipo;
-
-  function profitPerGoals(T) {
-    let profit = 0;
-    if (tipo === 0.25) {
-      // Over base (qLow) + Over base+0.5 (qHigh)
-      if (T <= base - 1) {
-        profit = -stakeTot;
-      } else if (T === base) {
-        profit = -sB; // low push, high lose
-      } else {
-        // T >= base+1 → entrambe vincenti
-        profit = sA * qLow + sB * qHigh - stakeTot;
-      }
-    } else {
-      // tipo 0.75: Over base+0.5 (qLow) + Over base+1.0 (qHigh)
-      if (T <= base) {
-        profit = -stakeTot;
-      } else if (T === base + 1) {
-        // low vinta, high push
-        profit = sA * qLow - stakeTot + sB;
-      } else {
-        // T >= base+2
-        profit = sA * qLow + sB * qHigh - stakeTot;
-      }
+    else {
+        out0 = "Linea non valida (non .25/.75)";
+        out1 = "-";
+        out2 = "-";
     }
-    return roundBook(profit);
-  }
 
-  let html = '';
-  html += `<b>Linea:</b> Over ${linea.toFixed(2)}<br>`;
-  html += `<b>Punta su Over inferiore:</b> ${sA.toFixed(2)}€ @ ${qLow.toFixed(2)}<br>`;
-  html += `<b>Punta su Over superiore:</b> ${sB.toFixed(2)}€ @ ${qHigh.toFixed(2)}<br><br>`;
-  html += `<b>Risultati (gol aggiuntivi rispetto ai ${g0} attuali):</b><br><ul>`;
+    const box = document.getElementById("al_res");
+    box.style.display = "block";
 
-  for (let add = 0; add <= 3; add++) {
-    const T = g0 + add;
-    const profit = profitPerGoals(T);
-    const cls = profit >= 0 ? 'text-green' : 'text-red';
-    html += `<li>+${add} gol → <span class="${cls}">${(profit>=0?'+':'') + profit.toFixed(2)}€</span></li>`;
-  }
-  html += '</ul>';
+    box.innerHTML = `
+        Stake A (bassa): <b>${stA}</b><br>
+        Stake B (alta): <b>${stB}</b><br><br>
 
-  out.style.display = 'block';
-  out.innerHTML = html;
-
-  lastCalc = {
-    quotaA: qLow,
-    quotaB: qHigh,
-    stakeA: sA,
-    stakeB: sB
-  };
+        +0 goal: ${out0}<br>
+        +1 goal: ${out1}<br>
+        +2 goal: ${out2}<br>
+    `;
 }
 
-/* ========= Link statistiche ========= */
-function normalizeMatchName(m) {
-  // "Inter - Liverpool" -> "Inter vs Liverpool"
-  return m.replace('-', ' vs ').replace(/\s+/g, ' ').trim();
+
+
+// ============================================
+// GOALOO / SOCCERSTATS SEARCH
+// ============================================
+
+function buildQuery() {
+    let h = document.getElementById("t_home").value.trim();
+    let a = document.getElementById("t_away").value.trim();
+    let d = document.getElementById("t_date").value.trim();
+    if (!h || !a) return "";
+    let q = encodeURIComponent(h + " " + a + (d ? " " + d : ""));
+    return q;
 }
 
 function openGoaloo() {
-  const raw = document.getElementById('match_name').value.trim();
-  if (!raw) return;
-  const norm = normalizeMatchName(raw);
-  const q = encodeURIComponent(norm + ' site:goaloo.com');
-  window.open('https://www.google.com/search?q=' + q, '_blank');
-  document.getElementById('match_info').textContent =
-    'Ricerca Goaloo per: "' + norm + '"';
+    const q = buildQuery();
+    if (!q) return;
+    window.open("https://www.goaloo.com/search?kw=" + q, "_blank");
 }
 
-function openSoccerStats() {
-  const raw = document.getElementById('match_name').value.trim();
-  if (!raw) return;
-  const norm = normalizeMatchName(raw);
-  const q = encodeURIComponent(norm + ' site:soccerstats.com');
-  window.open('https://www.google.com/search?q=' + q, '_blank');
-  document.getElementById('match_info').textContent =
-    'Ricerca SoccerStats per: "' + norm + '"';
+function openSoccerstats() {
+    const q = buildQuery();
+    if (!q) return;
+    window.open("https://www.soccerstats.com/search.asp?match=" + q, "_blank");
 }
 
-/* ========= MODALE ADD ========= */
-function apriAddModalFromCalc(tipoLabel) {
-  const arr = lastCalc;
-  document.getElementById('am_mode').value = 'calc';
-  document.getElementById('am_title').textContent = 'Aggiungi allo storico';
-
-  document.getElementById('am_data').value = todayISO();
-  document.getElementById('am_partita').value = '';
-  document.getElementById('am_tipo').value = tipoLabel;
-
-  if (arr) {
-    document.getElementById('am_qA').value = arr.quotaA.toFixed(2);
-    document.getElementById('am_qB').value = arr.quotaB ? arr.quotaB.toFixed(2) : '0.00';
-    document.getElementById('am_sA').value = arr.stakeA.toFixed(1);
-    document.getElementById('am_sB').value = arr.stakeB.toFixed(1);
-  } else {
-    document.getElementById('am_qA').value = '';
-    document.getElementById('am_qB').value = '0.00';
-    document.getElementById('am_sA').value = '';
-    document.getElementById('am_sB').value = '';
-  }
-
-  document.getElementById('am_esito').value = 'Non giocata';
-
-  document.getElementById('addModal').style.display = 'flex';
+</script>
+<script>
+// =============================================
+// STORAGE
+// =============================================
+function loadStorico() {
+    return JSON.parse(localStorage.getItem("storico") || "[]");
+}
+function saveStorico(arr) {
+    localStorage.setItem("storico", JSON.stringify(arr));
 }
 
-function apriAddModalManuale() {
-  document.getElementById('am_mode').value = 'manuale';
-  document.getElementById('am_title').textContent = 'Nuova riga storico';
 
-  document.getElementById('am_data').value = todayISO();
-  document.getElementById('am_partita').value = '';
-  document.getElementById('am_tipo').value = 'Asian Line Intera';
-  document.getElementById('am_qA').value = '';
-  document.getElementById('am_qB').value = '0.00';
-  document.getElementById('am_sA').value = '';
-  document.getElementById('am_sB').value = '';
-  document.getElementById('am_esito').value = 'Non giocata';
 
-  document.getElementById('addModal').style.display = 'flex';
-}
+// =============================================
+// CALCOLO PROFITTO IN BASE AL TIPO DI BET
+// =============================================
+function computeProfit(row) {
 
-function chiudiAddModal() {
-  document.getElementById('addModal').style.display = 'none';
-}
+    // ========= CASO SPECIALE: ASIAN OVER LIVE =========
+    if (row.tipo === "Asian Over Live") {
 
-function calcolaProfitDaRecord(rec) {
-  const qA = rec.quotaA;
-  const qB = rec.quotaB;
-  const sA = rec.stakeA;
-  const sB = rec.stakeB;
-  const esito = rec.esito;
-  const S = sA + sB;
+        const stake = row.stakeA + row.stakeB; // stake totale unico
+        const qA = row.quotaA;
+        const qB = row.quotaB;
 
-  if (esito === 'Non giocata') return 0;
+        let profit = 0;
 
-  // caso speciale: "Solo B vinta" ma stakeB=0 → in realtà hai perso A
-  if (esito === 'Solo B vinta' && sB <= 0) {
-    return -sA;
-  }
+        switch (row.esito) {
 
-  let profit = 0;
-  switch (esito) {
-    case 'Vinte entrambe':
-      profit = (sA * qA + sB * qB) - S;
-      break;
-    case 'Solo A vinta':
-      if (sB > 0 && qB > 1) {
-        profit = (sA * qA) - S;
-      } else {
-        // solo A giocata
-        profit = (sA * qA) - sA;
-      }
-      break;
-    case 'Solo B vinta':
-      if (sB > 0 && qB > 1 && sA > 0 && qA > 1) {
-        profit = (sB * qB) - S;
-      } else {
-        // solo B giocata
-        profit = (sB * qB) - sB;
-      }
-      break;
-    case 'Perse entrambe':
-    default:
-      profit = -S;
-      break;
-  }
-  return roundBook(profit);
-}
+            case "Vinte entrambe":
+                // full win → stake * quota media?
+                profit = stake * ((qA + qB) / 2) - stake;
+                break;
 
-function confermaAddModal() {
-  const data    = document.getElementById('am_data').value || todayISO();
-  const partita = document.getElementById('am_partita').value || '';
-  const tipo    = document.getElementById('am_tipo').value;
-  const qA      = safeNum(document.getElementById('am_qA').value);
-  const qB      = safeNum(document.getElementById('am_qB').value);
-  const sA      = safeNum(document.getElementById('am_sA').value);
-  const sB      = safeNum(document.getElementById('am_sB').value);
-  const esito   = document.getElementById('am_esito').value;
+            case "Perse entrambe":
+                profit = -stake;
+                break;
 
-  if (qA <= 0 || (sA + sB) <= 0) {
-    alert('Inserisci almeno Quota A e uno stake > 0.');
-    return;
-  }
+            case "Solo A vinta":
+                // mezza vinta / mezza persa
+                // A vince → stake/2 * (qA-1)
+                // B perde → - stake/2
+                const half = stake / 2;
+                profit = half * (qA - 1) - half;
+                break;
 
-  const rec = {
-    id: Date.now(),
-    data,
-    partita,
-    tipo,
-    quotaA: qA,
-    quotaB: qB,
-    stakeA: sA,
-    stakeB: sB,
-    esito,
-    profit: 0
-  };
-  rec.profit = calcolaProfitDaRecord(rec);
+            case "Solo B vinta":
+                // mezza persa / mezza void
+                const h = stake / 2;
+                profit = -h + 0; // B viene voidata
+                break;
 
-  const arr = loadStorico();
-  arr.push(rec);
-  saveStorico(arr);
-
-  chiudiAddModal();
-  renderStorico();
-  aggiornaDashboard();
-  buildDailySummary();
-}
-
-/* ========= MODALE EDIT ========= */
-function apriEditModal(id) {
-  const arr = loadStorico();
-  const rec = arr.find(r => r.id === id);
-  if (!rec) return;
-
-  document.getElementById('em_id').value = rec.id;
-  document.getElementById('em_data').value = rec.data;
-  document.getElementById('em_partita').value = rec.partita || '';
-  document.getElementById('em_tipo').value = rec.tipo;
-  document.getElementById('em_qA').value = rec.quotaA.toFixed(2);
-  document.getElementById('em_qB').value = rec.quotaB ? rec.quotaB.toFixed(2) : '0.00';
-  document.getElementById('em_sA').value = rec.stakeA.toFixed(1);
-  document.getElementById('em_sB').value = rec.stakeB.toFixed(1);
-  document.getElementById('em_esito').value = rec.esito;
-
-  document.getElementById('editModal').style.display = 'flex';
-}
-function closeEdit() {
-  document.getElementById('editModal').style.display = 'none';
-}
-
-function saveEdit() {
-  const id   = parseInt(document.getElementById('em_id').value, 10);
-  const data = document.getElementById('em_data').value || todayISO();
-  const partita = document.getElementById('em_partita').value || '';
-  const tipo = document.getElementById('em_tipo').value;
-  const qA = safeNum(document.getElementById('em_qA').value);
-  const qB = safeNum(document.getElementById('em_qB').value);
-  const sA = safeNum(document.getElementById('em_sA').value);
-  const sB = safeNum(document.getElementById('em_sB').value);
-  const esito = document.getElementById('em_esito').value;
-
-  const arr = loadStorico();
-  const idx = arr.findIndex(r => r.id === id);
-  if (idx === -1) return;
-
-  const rec = {
-    id,
-    data,
-    partita,
-    tipo,
-    quotaA: qA,
-    quotaB: qB,
-    stakeA: sA,
-    stakeB: sB,
-    esito,
-    profit: 0
-  };
-  rec.profit = calcolaProfitDaRecord(rec);
-  arr[idx] = rec;
-  saveStorico(arr);
-
-  closeEdit();
-  renderStorico();
-  aggiornaDashboard();
-  buildDailySummary();
-}
-
-/* ========= Filtri periodo ========= */
-function applyPeriodo(arr, periodo) {
-  if (periodo === 'tutto') return arr;
-  const today = cloneDate(new Date());
-
-  function match(r) {
-    if (!r.data) return true;
-    const d = cloneDate(new Date(r.data));
-
-    if (periodo === 'oggi') {
-      return d.getTime() === today.getTime();
-    }
-    if (periodo === 'ieri') {
-      const y = cloneDate(today);
-      y.setDate(y.getDate() - 1);
-      return d.getTime() === y.getTime();
-    }
-    if (periodo === 'sett_corr') {
-      const day = today.getDay() || 7;
-      const start = cloneDate(today);
-      start.setDate(start.getDate() - (day - 1));
-      return d >= start;
-    }
-    if (periodo === 'sett_prev') {
-      const day = today.getDay() || 7;
-      const monday = cloneDate(today);
-      monday.setDate(monday.getDate() - (day - 1));
-      const start = cloneDate(monday);
-      start.setDate(start.getDate() - 7);
-      const end = cloneDate(start);
-      end.setDate(end.getDate() + 6);
-      return d >= start && d <= end;
-    }
-    if (periodo === 'mese_corr') {
-      return r.data.slice(0,7) === today.toISOString().slice(0,7);
-    }
-    if (periodo === 'mese_prev') {
-      const tmp = cloneDate(today);
-      tmp.setMonth(tmp.getMonth() - 1);
-      return r.data.slice(0,7) === tmp.toISOString().slice(0,7);
-    }
-    return true;
-  }
-
-  return arr.filter(match);
-}
-
-/* ========= Render Storico ========= */
-function renderStorico() {
-  const box = document.getElementById('storicoBox');
-  const all = loadStorico();
-  let arr = all.slice();
-
-  const tipo   = document.getElementById('f_tipo').value || 'all';
-  const periodo= document.getElementById('f_periodo').value || 'tutto';
-
-  if (tipo !== 'all') arr = arr.filter(r => r.tipo === tipo);
-  arr = applyPeriodo(arr, periodo);
-
-  if (!arr.length) {
-    box.innerHTML = '<p class="text-gray">Nessuna giocata per i filtri selezionati.</p>';
-    return;
-  }
-
-  arr.sort((a,b) => (a.data === b.data ? a.id - b.id : (a.data > b.data ? 1 : -1)));
-
-  let html = '<table class="storico"><tr>' +
-    '<th>Data</th><th>Partita</th><th>Tipo</th>' +
-    '<th>QuotaA</th><th>QuotaB</th><th>StakeA</th><th>StakeB</th>' +
-    '<th>Esito</th><th>Profitto</th><th></th></tr>';
-
-  arr.forEach(r => {
-    const colEsito = (r.esito === 'Non giocata') ? 'text-red' : 'text-blue';
-    const colProf  = r.profit >= 0 ? 'text-green' : 'text-red';
-
-    html += `<tr>
-      <td>${r.data}</td>
-      <td>${r.partita || '-'}</td>
-      <td>${r.tipo}</td>
-      <td>${r.quotaA.toFixed(2)}</td>
-      <td>${r.quotaB ? r.quotaB.toFixed(2) : '0.00'}</td>
-      <td>${r.stakeA.toFixed(1)}</td>
-      <td>${r.stakeB.toFixed(1)}</td>
-      <td class="${colEsito}">${r.esito}</td>
-      <td class="${colProf}">${(r.profit>=0?'+':'') + r.profit.toFixed(2)}€</td>
-      <td><button class="btn small secondary" onclick="apriEditModal(${r.id})">✏️</button></td>
-    </tr>`;
-  });
-
-  html += '</table>';
-  box.innerHTML = html;
-}
-
-/* ========= Range Profit Chart ========= */
-function setRange(r) {
-  equityRange = r;
-  document.querySelectorAll('.rangeBtn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.range === r);
-  });
-  aggiornaDashboard();
-}
-
-/* ========= Dashboard ========= */
-function getDashboardFiltered() {
-  const all = loadStorico();
-  const tipo   = document.getElementById('d_tipo').value || 'all';
-  const periodo= document.getElementById('d_periodo').value || 'tutto';
-
-  let arr = all.slice();
-  if (tipo !== 'all') arr = arr.filter(r => r.tipo === tipo);
-  arr = applyPeriodo(arr, periodo);
-
-  // escludi Non giocata
-  arr = arr.filter(r => r.esito !== 'Non giocata');
-
-  // range equity
-  const today = cloneDate(new Date());
-  arr = arr.filter(r => {
-    if (!r.data) return true;
-    const d = cloneDate(new Date(r.data));
-    const diff = (today - d) / (1000*60*60*24);
-    if (equityRange === '1m')  return diff <= 30;
-    if (equityRange === '6m')  return diff <= 180;
-    if (equityRange === '12m') return diff <= 365;
-    return true;
-  });
-
-  return { arr, all }; // all = per stake engine
-}
-
-function aggiornaDashboard() {
-  const {arr, all} = getDashboardFiltered();
-
-  let profit = 0, stakeTot = 0;
-  let oddSum = 0, oddCount = 0;
-  let matches = arr.length;
-  let countA = 0, countB = 0;
-  let winA = 0, winB = 0;
-
-  arr.forEach(r => {
-    profit += r.profit;
-    const stake = r.stakeA + r.stakeB;
-    stakeTot += stake;
-
-    if (r.quotaA > 0 && r.stakeA > 0) {
-      oddSum += r.quotaA;
-      oddCount++;
-      countA++;
-    }
-    if (r.quotaB > 0 && r.stakeB > 0) {
-      oddSum += r.quotaB;
-      oddCount++;
-      countB++;
-    }
-
-    const aWin = (r.esito === 'Solo A vinta' || r.esito === 'Vinte entrambe');
-    const bWin = (r.esito === 'Solo B vinta' || r.esito === 'Vinte entrambe') && (r.stakeB > 0);
-
-    if (aWin) winA++;
-    if (bWin) winB++;
-  });
-
-  const totalBets = countA + countB;
-  const winsBets  = winA + winB;
-  const lostBets  = totalBets - winsBets;
-
-  // KPI
-  document.getElementById('kpi_profit').textContent =
-    (profit>=0?'+':'') + profit.toFixed(2) + '€';
-  document.getElementById('kpi_yield').textContent =
-    stakeTot>0 ? ((profit/stakeTot)*100).toFixed(1) + '%' : '-';
-  document.getElementById('kpi_odd').textContent =
-    oddCount>0 ? (oddSum/oddCount).toFixed(2) : '-';
-  document.getElementById('kpi_stake').textContent =
-    matches>0 ? (stakeTot/matches).toFixed(2) + '€' : '-';
-  document.getElementById('kpi_matches').textContent = matches;
-  document.getElementById('kpi_bets').textContent = totalBets;
-
-  const wrTotal = totalBets>0 ? (winsBets/totalBets*100).toFixed(1) : '0.0';
-  const wrA = countA>0 ? (winA/countA*100).toFixed(1) : '0.0';
-  const wrB = countB>0 ? (winB/countB*100).toFixed(1) : '0.0';
-
-  document.getElementById('kpi_wr_total').textContent = wrTotal + '%';
-  document.getElementById('kpi_wr_A').textContent = wrA + '%';
-  document.getElementById('kpi_wr_B').textContent = wrB + '%';
-
-  // Donut WinRate
-  const won = winsBets;
-  const lost = lostBets < 0 ? 0 : lostBets;
-  renderWinRateChart(won, lost);
-
-  // Profit chart
-  renderProfitChart(arr);
-
-  // Stake engine su TUTTO lo storico (escludendo Non giocata)
-  aggiornaStakeEngine(all.filter(r => r.esito !== 'Non giocata'));
-}
-
-function renderWinRateChart(won, lost) {
-  const tot = won + lost;
-  const pWin  = tot ? (won / tot * 100) : 0;
-  const pLost = tot ? (lost / tot * 100) : 0;
-
-  document.getElementById('wr_win').textContent  = pWin.toFixed(1) + '%';
-  document.getElementById('wr_lost').textContent = pLost.toFixed(1) + '%';
-
-  const ctx = document.getElementById('chartWinRate').getContext('2d');
-  if (winChartObj) winChartObj.destroy();
-
-  winChartObj = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Won','Lost'],
-      datasets: [{
-        data: [won, lost],
-        backgroundColor: ['#22c55e', '#ef4444'],
-        borderWidth: 0
-      }]
-    },
-    options: {
-      cutout: '65%',
-      plugins: {
-        legend: { display: false },
-        tooltip: { enabled: false }
-      }
-    }
-  });
-}
-
-function renderProfitChart(arr) {
-  const ctx = document.getElementById('chartProfit').getContext('2d');
-  if (profitChartObj) profitChartObj.destroy();
-
-  if (!arr.length) {
-    profitChartObj = null;
-    ctx.clearRect(0,0,ctx.canvas.width, ctx.canvas.height);
-    return;
-  }
-
-  const sorted = arr.slice().sort((a,b) => (a.data === b.data ? a.id - b.id : (a.data > b.data ? 1 : -1)));
-
-  const labels = [];
-  const values = [];
-  let cum = 0;
-  sorted.forEach(r => {
-    cum += r.profit;
-    labels.push(r.data);
-    values.push(cum);
-  });
-
-  // colore area: verde se equity finale >=0, rosso se <0
-  const finale = values[values.length-1];
-  const areaColor = finale >= 0 ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)';
-  const lineColor = finale >= 0 ? '#22c55e' : '#ef4444';
-
-  profitChartObj = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        data: values,
-        fill: true,
-        backgroundColor: areaColor,
-        borderColor: lineColor,
-        borderWidth: 2,
-        pointRadius: 0,
-        tension: 0.25
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false } },
-      scales: {
-        x: {
-          ticks: { display: false },
-          grid: { display: false }
-        },
-        y: {
-          ticks: { color: '#6b7280', font: { size: 10 } },
-          grid: { color: 'rgba(148,163,184,0.3)' }
+            default:
+                profit = 0;
         }
-      }
+
+        return roundBook(profit);
     }
-  });
+
+
+    // ========= TUTTI GLI ALTRI TIPI (LOGICA NORMALE) =========
+    let profit = 0;
+
+    switch (row.esito) {
+
+        case "Vinte entrambe":
+            profit = row.stakeA * (row.quotaA - 1) + row.stakeB * (row.quotaB - 1);
+            break;
+
+        case "Perse entrambe":
+            profit = -(row.stakeA + row.stakeB);
+            break;
+
+        case "Solo A vinta":
+            // A vinta, B persa
+            profit = row.stakeA * (row.quotaA - 1) - row.stakeB;
+            break;
+
+        case "Solo B vinta":
+            profit = row.stakeB * (row.quotaB - 1) - row.stakeA;
+            break;
+
+        default:
+            profit = 0;
+    }
+
+    return roundBook(profit);
 }
 
-/* ========= Stake Engine ========= */
-function aggiornaStakeEngine(all) {
-  const brStartInput = document.getElementById('br_start');
-  const brCurEl = document.getElementById('br_current');
-  const brDelEl = document.getElementById('br_delta');
-  const stkStdEl = document.getElementById('stk_std');
-  const stkHighEl = document.getElementById('stk_high');
-  const stkNoteEl = document.getElementById('stk_note');
 
-  const brStart = loadBankrollStart();
-  if (brStart > 0 && !brStartInput.value) {
-    brStartInput.value = brStart.toFixed(2);
-  }
 
-  if (brStart <= 0) {
-    brCurEl.textContent = '-';
-    brDelEl.textContent = 'Imposta un bankroll iniziale per vedere stake consigliate.';
-    stkStdEl.textContent = '-';
-    stkHighEl.textContent = '-';
-    stkNoteEl.textContent = '';
-    return;
-  }
+// =============================================
+// AGGIUNGI ALLO STORICO
+// =============================================
+function addStorico() {
 
-  let totProfitAll = 0, totStakeAll = 0;
-  all.forEach(r => {
-    totProfitAll += r.profit;
-    totStakeAll += (r.stakeA + r.stakeB);
-  });
+    let arr = loadStorico();
 
-  const brCurrent = brStart + totProfitAll;
-  brCurEl.textContent = brCurrent.toFixed(2) + '€';
+    const data = document.getElementById("st_data").value;
+    const tipo = document.getElementById("st_tipo").value;
+    const partita = document.getElementById("st_partita").value;
+    const qA = parseFloat(document.getElementById("st_qA").value);
+    const qB = parseFloat(document.getElementById("st_qB").value);
+    const sA = parseFloat(document.getElementById("st_sA").value);
+    const sB = parseFloat(document.getElementById("st_sB").value);
+    const esito = document.getElementById("st_esito").value;
 
-  const delta = brCurrent - brStart;
-  brDelEl.textContent = (delta>=0?'+':'') + delta.toFixed(2) + '€';
+    let row = {
+        id: Date.now(),
+        data,
+        tipo,
+        partita,
+        quotaA: isNaN(qA) ? 0 : qA,
+        quotaB: isNaN(qB) ? 0 : qB,
+        stakeA: isNaN(sA) ? 0 : sA,
+        stakeB: isNaN(sB) ? 0 : sB,
+        esito
+    };
 
-  const STAKE_MIN = Math.max(1, brCurrent * 0.02);
-  const STAKE_BASE = brCurrent * 0.05;
-  const STAKE_MAX  = brCurrent * 0.10;
-  const roiAll = totStakeAll>0 ? (totProfitAll/totStakeAll*100) : 0;
+    row.profit = computeProfit(row);
 
-  let f = 0.6;
-  if (all.length === 0) {
-    f = 0.5;
-  } else {
-    if (roiAll <= 0) f = 0.6;
-    else if (roiAll <= 2) f = 0.7;
-    else if (roiAll <= 5) f = 0.8;
-    else if (roiAll <= 10) f = 0.9;
-    else f = 1.0;
-  }
+    arr.push(row);
+    saveStorico(arr);
 
-  let stakeStd  = Math.min(Math.max(STAKE_BASE * f, STAKE_MIN), STAKE_MAX);
-  let stakeHigh = Math.min(Math.max(STAKE_MAX * f, STAKE_MIN), STAKE_MAX);
-
-  stakeStd  = roundBook(stakeStd);
-  stakeHigh = roundBook(stakeHigh);
-
-  stkStdEl.textContent  = stakeStd.toFixed(2) + '€';
-  stkHighEl.textContent = stakeHigh.toFixed(2) + '€';
-
-  stkNoteEl.textContent =
-    `Stake base teorico (5% BR): ${STAKE_BASE.toFixed(2)}€. ` +
-    `Min: ${STAKE_MIN.toFixed(2)}€, Max: ${STAKE_MAX.toFixed(2)}€. ` +
-    `Fattore rischio f=${f.toFixed(2)} (basato su ROI & n° giocate).`;
+    renderStorico();
+    alert("Aggiunto allo storico.");
 }
 
-/* ========= Riepilogo Giornaliero + Banner ========= */
-function buildDailySummary() {
-  const box = document.getElementById('dailyBox');
-  if (!box) return;
 
-  const arrAll = loadStorico().filter(r => r.esito !== 'Non giocata');
-  if (!arrAll.length) {
-    box.innerHTML = '<p class="text-gray">Nessuna giocata registrata.</p>';
-    document.getElementById('dayBanner').style.display = 'none';
-    return;
-  }
 
-  arrAll.sort((a,b) => (a.data === b.data ? a.id - b.id : (a.data > b.data ? 1 : -1)));
+// =============================================
+// RENDER STORICO IN LISTA
+// =============================================
+function renderStorico() {
 
-  const byDate = {};
-  arrAll.forEach(r => {
-    if (!byDate[r.data]) byDate[r.data] = [];
-    byDate[r.data].push(r);
-  });
+    let arr = loadStorico();
+    const box = document.getElementById("storicoList");
+    box.innerHTML = "";
 
-  const dates = Object.keys(byDate).sort();
-  const brStart = loadBankrollStart();
-  let cumProfitBefore = 0;
+    if (!arr.length) {
+        box.innerHTML = "<i>Nessuna giocata registrata.</i>";
+        return;
+    }
 
-  let html = '<table class="daily"><tr>' +
-    '<th>Data</th><th>Profitto</th><th>Bets</th><th>Winrate</th><th>Stato</th></tr>';
+    arr.sort((a,b)=> b.id - a.id);
 
-  const todayStr = todayISO();
-  let todayStatus = null;
+    arr.forEach(r => {
 
-  dates.forEach(d => {
-    const list = byDate[d];
-    let pDay = 0;
-    let betsDay = 0;
-    let winsDay = 0;
+        const esitoClass = (r.esito === "Non giocata") ? "esitoPending" : "esitoDone";
 
-    list.forEach(r => {
-      pDay += r.profit;
-      // conta bets a livello A/B
-      if (r.stakeA > 0 && r.quotaA > 0) {
-        betsDay++;
-        if (r.esito === 'Solo A vinta' || r.esito === 'Vinte entrambe') winsDay++;
-      }
-      if (r.stakeB > 0 && r.quotaB > 0) {
-        betsDay++;
-        if (r.esito === 'Solo B vinta' || r.esito === 'Vinte entrambe') winsDay++;
-      }
+        const row = document.createElement("div");
+        row.className = "stRow";
+
+        row.innerHTML = `
+            <b>${r.data}</b> — ${r.partita} <br>
+            <small>${r.tipo}</small><br>
+
+            Quote: A ${r.quotaA} — B ${r.quotaB}<br>
+            Stake: A ${r.stakeA} — B ${r.stakeB}<br>
+
+            Esito: <span class='${esitoClass}'>${r.esito}</span><br>
+            Profitto: <b style="color:${r.profit>=0 ? '#00b300':'#ff3333'}">
+                ${r.profit}
+            </b>
+            <br>
+            <button onclick="editStorico(${r.id})">Modifica</button>
+            <button onclick="deleteStorico(${r.id})" style="margin-top:6px;background:#ff4444">Elimina</button>
+        `;
+
+        box.appendChild(row);
+    });
+}
+
+
+
+// =============================================
+// DELETE RIGA
+// =============================================
+function deleteStorico(id) {
+    if (!confirm("Confermi eliminazione?")) return;
+    let arr = loadStorico();
+    arr = arr.filter(r => r.id !== id);
+    saveStorico(arr);
+    renderStorico();
+}
+
+
+
+// =============================================
+// EDIT RIGA
+// =============================================
+function editStorico(id) {
+
+    let arr = loadStorico();
+    let r = arr.find(x => x.id === id);
+    if (!r) return;
+
+    let newPartita = prompt("Partita:", r.partita);
+    let newEsito = prompt(
+        "Esito (Vinte entrambe / Perse entrambe / Solo A vinta / Solo B vinta / Non giocata):",
+        r.esito
+    );
+    let newQA = parseFloat(prompt("Quota A:", r.quotaA));
+    let newQB = parseFloat(prompt("Quota B:", r.quotaB));
+    let newSA = parseFloat(prompt("Stake A:", r.stakeA));
+    let newSB = parseFloat(prompt("Stake B:", r.stakeB));
+
+    r.partita = newPartita || r.partita;
+    r.esito = newEsito || r.esito;
+
+    r.quotaA = isNaN(newQA) ? r.quotaA : newQA;
+    r.quotaB = isNaN(newQB) ? r.quotaB : newQB;
+    r.stakeA = isNaN(newSA) ? r.stakeA : newSA;
+    r.stakeB = isNaN(newSB) ? r.stakeB : newSB;
+
+    // Ricalcolo corretto del profitto
+    r.profit = computeProfit(r);
+
+    saveStorico(arr);
+    renderStorico();
+}
+
+</script>
+<script>
+// ===================================================
+// DASHBOARD: WINRATE + PROFIT + EQUITY
+// ===================================================
+function updateDashboard() {
+    const arr = loadStorico();
+    const finished = arr.filter(r => r.esito !== "Non giocata");
+
+    let betsA = 0, betsB = 0, winA = 0, winB = 0;
+    let profit = 0;
+
+    finished.forEach(r => {
+        profit += (typeof r.profit === "number" ? r.profit : 0);
+
+        if (r.stakeA > 0 && r.quotaA > 0) {
+            betsA++;
+            if (r.esito === "Vinte entrambe" || r.esito === "Solo A vinta") {
+                winA++;
+            }
+        }
+        if (r.stakeB > 0 && r.quotaB > 0) {
+            betsB++;
+            if (r.esito === "Vinte entrambe" || r.esito === "Solo B vinta") {
+                winB++;
+            }
+        }
     });
 
-    let stato = '';
-    if (brStart > 0) {
-      const brDayStart = brStart + cumProfitBefore;
-      const target = brDayStart * 0.03;
-      const stop   = brDayStart * 0.10;
+    const totalBets = betsA + betsB;
+    const totalWins = winA + winB;
+    const winRate = totalBets > 0 ? (totalWins / totalBets * 100) : 0;
+    const wrA = betsA > 0 ? (winA / betsA * 100) : 0;
+    const wrB = betsB > 0 ? (winB / betsB * 100) : 0;
 
-      if (pDay >= target) stato = 'target profit raggiunto';
-      else if (pDay <= -stop) stato = 'stop loss raggiunto';
+    document.getElementById("d_bet").textContent = totalBets;
+    document.getElementById("d_win").textContent = totalWins;
+    document.getElementById("d_winp").textContent = winRate.toFixed(1) + "%";
 
-      if (d === todayStr && stato) {
-        todayStatus = stato;
-      }
-    }
+    document.getElementById("d_wA").textContent = wrA.toFixed(1) + "%";
+    document.getElementById("d_wB").textContent = wrB.toFixed(1) + "%";
 
-    const wrDay = betsDay>0 ? (winsDay/betsDay*100).toFixed(1) + '%' : '-';
+    document.getElementById("d_profit").textContent =
+        (profit >= 0 ? "+" : "") + profit.toFixed(2);
 
-    html += `<tr>
-      <td>${d}</td>
-      <td class="${pDay>=0?'text-green':'text-red'}">${(pDay>=0?'+':'') + pDay.toFixed(2)}€</td>
-      <td>${betsDay}</td>
-      <td>${wrDay}</td>
-      <td>${stato}</td>
-    </tr>`;
-
-    cumProfitBefore += pDay;
-  });
-
-  html += '</table>';
-  box.innerHTML = html;
-
-  // Banner nel tab Calcolatori per oggi
-  const banner = document.getElementById('dayBanner');
-  if (!todayStatus) {
-    banner.style.display = 'none';
-  } else {
-    banner.style.display = 'block';
-    if (todayStatus.indexOf('target') >= 0) {
-      banner.className = 'banner green';
-      banner.textContent = 'Oggi: ' + todayStatus + '.';
-    } else {
-      banner.className = 'banner red';
-      banner.textContent = 'Oggi: ' + todayStatus + '.';
-    }
-  }
+    drawWinRateChart(winRate);
+    drawEquityChart(arr);
 }
 
-/* ========= Export CSV ========= */
-function exportCSV() {
-  const arr = loadStorico().slice().sort((a,b) => {
-    if (a.data === b.data) return a.id - b.id;
-    return a.data < b.data ? -1 : 1;
-  });
+// Disegno Winrate "donut" a mano
+function drawWinRateChart(winRate) {
+    const canvas = document.getElementById("winRateChart");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const w = canvas.width = 220;
+    const h = canvas.height = 220;
+    ctx.clearRect(0,0,w,h);
 
-  if (!arr.length) {
-    alert('Nessuna riga da esportare.');
-    return;
-  }
+    const cx = w/2, cy = h/2;
+    const rOuter = 90;
+    const rInner = 55;
 
-  const header = ['Data','Tipo','Partita','QuotaA','QuotaB','StakeA','StakeB','Esito','Profitto'];
-  const rows = [header.join(';')];
+    const radWin = (Math.PI*2) * (winRate/100);
 
-  arr.forEach(r => {
-    rows.push([
-      r.data,
-      r.tipo,
-      (r.partita || '').replace(/;/g, ','),
-      r.quotaA.toFixed(2),
-      r.quotaB ? r.quotaB.toFixed(2) : '0.00',
-      r.stakeA.toFixed(2),
-      r.stakeB.toFixed(2),
-      r.esito,
-      r.profit.toFixed(2)
-    ].join(';'));
-  });
+    // anello base (rosso lose)
+    ctx.beginPath();
+    ctx.arc(cx, cy, rOuter, 0, Math.PI*2);
+    ctx.arc(cx, cy, rInner, Math.PI*2, 0, true);
+    ctx.closePath();
+    ctx.fillStyle = "#ff3333";
+    ctx.fill();
 
-  const blob = new Blob([rows.join('\n')], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'bettools_storico.csv';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+    // anello verde (win)
+    ctx.beginPath();
+    ctx.arc(cx, cy, rOuter, -Math.PI/2, -Math.PI/2 + radWin);
+    ctx.arc(cx, cy, rInner, -Math.PI/2 + radWin, -Math.PI/2, true);
+    ctx.closePath();
+    ctx.fillStyle = "#00b300";
+    ctx.fill();
+
+    // testo in centro
+    ctx.fillStyle = "#111";
+    ctx.font = "bold 24px -apple-system, system-ui";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(winRate.toFixed(1) + "%", cx, cy);
 }
 
-/* ========= INIT ========= */
-document.addEventListener('DOMContentLoaded', () => {
-  showTab('calc');
-  renderStorico();
-  aggiornaDashboard();
-  buildDailySummary();
+// Disegno Equity line
+function drawEquityChart(arr) {
+    const canvas = document.getElementById("equityChart");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const w = canvas.width = canvas.clientWidth || 320;
+    const h = canvas.height = 220;
+    ctx.clearRect(0,0,w,h);
 
-  const brStart = loadBankrollStart();
-  if (brStart > 0) {
-    const inp = document.getElementById('br_start');
-    if (inp && !inp.value) inp.value = brStart.toFixed(2);
-  }
+    if (!arr.length) {
+        ctx.fillStyle = "#999";
+        ctx.font = "14px -apple-system";
+        ctx.fillText("Nessuna giocata", 10, h/2);
+        return;
+    }
 
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
-  }
+    // ordino per data
+    let sorted = arr.slice().sort((a,b)=> a.data.localeCompare(b.data) || (a.id - b.id));
+
+    let xVals = [];
+    let yVals = [];
+    let cum = 0;
+
+    sorted.forEach((r, i)=>{
+        cum += (typeof r.profit === "number" ? r.profit : 0);
+        xVals.push(i);
+        yVals.push(cum);
+    });
+
+    const minY = Math.min.apply(null, yVals);
+    const maxY = Math.max.apply(null, yVals);
+
+    const pad = 20;
+    const innerW = w - pad*2;
+    const innerH = h - pad*2;
+
+    function mapX(i) {
+        if (xVals.length === 1) return pad + innerW/2;
+        return pad + (i / (xVals.length - 1)) * innerW;
+    }
+    function mapY(v) {
+        if (maxY === minY) return pad + innerH/2;
+        return pad + innerH - ((v - minY) / (maxY - minY)) * innerH;
+    }
+
+    // asse X
+    ctx.strokeStyle = "#ccc";
+    ctx.beginPath();
+    ctx.moveTo(pad, h - pad);
+    ctx.lineTo(w - pad, h - pad);
+    ctx.stroke();
+
+    // linea equity
+    ctx.strokeStyle = "#0a84ff";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    yVals.forEach((val, idx)=>{
+        const x = mapX(idx);
+        const y = mapY(val);
+        if (idx === 0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+
+    // ultimo punto
+    const lastX = mapX(yVals.length - 1);
+    const lastY = mapY(yVals[yVals.length - 1]);
+    ctx.fillStyle = "#0a84ff";
+    ctx.beginPath();
+    ctx.arc(lastX, lastY, 3.5, 0, Math.PI*2);
+    ctx.fill();
+}
+
+
+
+// ===================================================
+// RIEPILOGO GIORNALIERO
+// ===================================================
+function updateDaily() {
+    const arr = loadStorico();
+    const today = new Date().toISOString().slice(0,10);
+
+    const todayRows = arr.filter(r => r.data === today && r.esito !== "Non giocata");
+
+    let bets = 0, wins = 0, profit = 0;
+
+    todayRows.forEach(r => {
+        profit += (typeof r.profit === "number" ? r.profit : 0);
+
+        if (r.stakeA > 0 && r.quotaA > 0) {
+            bets++;
+            if (r.esito === "Vinte entrambe" || r.esito === "Solo A vinta") wins++;
+        }
+        if (r.stakeB > 0 && r.quotaB > 0) {
+            bets++;
+            if (r.esito === "Vinte entrambe" || r.esito === "Solo B vinta") wins++;
+        }
+    });
+
+    const wr = bets > 0 ? (wins / bets * 100) : 0;
+
+    document.getElementById("dy_profit").textContent =
+        (profit>=0?"+":"") + profit.toFixed(2);
+    document.getElementById("dy_bet").textContent = bets;
+    document.getElementById("dy_wp").textContent  = wr.toFixed(1) + "%";
+
+    // Stato target / stop non possiamo calcolarlo senza bankroll,
+    // quindi lasciamo un testo neutro.
+    let stato = "";
+    if (bets === 0) stato = "Nessuna bet completata oggi";
+    document.getElementById("dy_state").textContent = stato;
+}
+
+
+
+// ===================================================
+// INIT
+// ===================================================
+window.addEventListener("load", () => {
+
+    // default tab
+    openTab("calc");
+
+    // se non c'è data nello storico, setta oggi di default nel form
+    const d = document.getElementById("st_data");
+    if (d && !d.value) {
+        d.value = new Date().toISOString().slice(0,10);
+    }
+
+    renderStorico();
+    updateDashboard();
+    updateDaily();
 });
 </script>
 
