@@ -181,6 +181,7 @@
     .text-red { color: #ef4444; }
     .text-green { color: #10b981; }
     .text-blue { color: #2563eb; }
+    .text-amber { color: #f59e0b; }
     .text-gray { color: #6b7280; }
 
     /* Storico */
@@ -319,6 +320,50 @@
       color: #6b7280;
     }
 
+
+    /* Storico cards */
+    .storicoCard {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      border: 1px solid #e5e7eb;
+    }
+    .storicoCard .topLine {
+      display:flex;
+      justify-content: space-between;
+      gap:8px;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+    .storicoCard .meta {
+      font-size: 12px;
+      color: #6b7280;
+      font-weight: 600;
+    }
+    .storicoCard .title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .storicoCard .grid2 {
+      display:flex;
+      gap:10px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .storicoCard .grid2 > div {
+      flex: 1 1 160px;
+      min-width: 140px;
+    }
+    .storicoCard .actions {
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      margin-top: 6px;
+    }
+
     /* Dark mode */
     @media (prefers-color-scheme: dark) {
       body {
@@ -375,6 +420,9 @@
         border-color: rgba(239,68,68,0.6);
         color: #fecaca;
       }
+      .storicoCard { background:#111827; border-color:#374151; }
+      .storicoCard .meta { color:#9ca3af; }
+
     }
   </style>
 </head>
@@ -660,7 +708,14 @@
 <div id="page_daily" class="page">
 
   <div class="card">
-    <h2>Riepilogo Giornaliero</h2>
+    <h2>Riepilogo</h2>
+    <div class="filtersRow" style="margin-top:10px;">
+      <select id="sum_scope" onchange="buildDailySummary();">
+        <option value="day" selected>Giorno</option>
+        <option value="week">Settimana</option>
+        <option value="month">Mese</option>
+      </select>
+    </div>
     <p class="desc">
       Per ogni giorno vedi profitto, numero di bets, winrate e stato rispetto a <b>target +3%</b> e <b>stop loss -10%</b>
       del bankroll a inizio giornata.
@@ -813,6 +868,178 @@ function cloneDate(d) {
   x.setHours(0,0,0,0);
   return x;
 }
+
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+/* ========= Tipi scommessa custom ========= */
+const LS_TYPES = 'bettools_types';
+const DEFAULT_TYPES = [
+  'Asian Line Intera',
+  'Protezione Void',
+  'Asian Over Live',
+  '2 More Corner FT',
+  'Next Goal Home - Pari',
+  'New Neigh Casa',
+  'New Dominio Home',
+  'Secondo Goal HT Lite'
+];
+
+function loadTypes() {
+  try {
+    const raw = localStorage.getItem(LS_TYPES);
+    const arr = raw ? JSON.parse(raw) : [];
+    const clean = Array.isArray(arr) ? arr.filter(x => typeof x === 'string' && x.trim().length) : [];
+    const merged = Array.from(new Set([...DEFAULT_TYPES, ...clean.map(x => x.trim())]));
+    return merged;
+  } catch {
+    return DEFAULT_TYPES.slice();
+  }
+}
+function saveTypes(arr) {
+  const clean = Array.from(new Set(arr.map(x => (x||'').trim()).filter(x => x)));
+  localStorage.setItem(LS_TYPES, JSON.stringify(clean));
+}
+function populateSelectWithTypes(sel, includeAll) {
+  if (!sel) return;
+  const cur = sel.value;
+  const types = loadTypes();
+  sel.innerHTML = '';
+  if (includeAll) {
+    const optAll = document.createElement('option');
+    optAll.value = 'all';
+    optAll.textContent = 'Tutti i tipi';
+    sel.appendChild(optAll);
+  }
+  types.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = t;
+    sel.appendChild(opt);
+  });
+  const optAdd = document.createElement('option');
+  optAdd.value = '__add__';
+  optAdd.textContent = '➕ Aggiungi nuovo tipo';
+  sel.appendChild(optAdd);
+
+  // ripristina selezione se possibile
+  if (cur && Array.from(sel.options).some(o => o.value === cur)) sel.value = cur;
+  else if (includeAll) sel.value = 'all';
+}
+function initTipoSelects() {
+  populateSelectWithTypes(document.getElementById('f_tipo'), true);
+  populateSelectWithTypes(document.getElementById('d_tipo'), true);
+  populateSelectWithTypes(document.getElementById('am_tipo'), false);
+  populateSelectWithTypes(document.getElementById('em_tipo'), false);
+
+  // hook "add new" for all selects
+  ['f_tipo','d_tipo','am_tipo','em_tipo'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.addEventListener('change', () => {
+      if (sel.value !== '__add__') return;
+      const name = prompt('Nome nuovo tipo di scommessa:');
+      if (!name) { // ripristina
+        populateSelectWithTypes(sel, id==='f_tipo' || id==='d_tipo');
+        return;
+      }
+      const types = loadTypes();
+      types.push(name.trim());
+      saveTypes(types);
+      initTipoSelects();
+      sel.value = name.trim();
+      // trigger downstream refresh
+      if (id === 'f_tipo') { renderStorico(); aggiornaDashboard(); buildDailySummary(); }
+      if (id === 'd_tipo') { aggiornaDashboard(); }
+    });
+  });
+}
+
+/* ========= Target automatico (invisibile) + overconfidence ========= */
+function getStatsQuotaA(tipo, quotaA) {
+  // calcola winrate A su storico (per tipo) escludendo Non giocata
+  const all = loadStorico().filter(r => r.esito !== 'Non giocata');
+  let arr = all;
+  if (tipo) arr = arr.filter(r => r.tipo === tipo);
+
+  // conta solo quando stakeA > 0
+  let nA = 0, wA = 0;
+  arr.forEach(r => {
+    if (r.stakeA > 0 && r.quotaA > 0) {
+      nA++;
+      if (r.esito === 'Solo A vinta' || r.esito === 'Vinte entrambe') wA++;
+    }
+  });
+  const wrA = nA > 0 ? (wA / nA * 100) : 0;
+  return { nA, wrA };
+}
+
+function calcolaTargetAutomatico(qA, tipo) {
+  // default: se storico vuoto -> 5%
+  const allPlayed = loadStorico().filter(r => r.esito !== 'Non giocata');
+  if (!allPlayed.length) return 5;
+
+  const { nA, wrA } = getStatsQuotaA(tipo);
+
+  // base dalla quota
+  let target = clamp((qA - 1) * 10, 5, 15);
+
+  // aggiustamento winrate
+  if (nA === 0) {
+    target = 5;
+  } else if (wrA < 52) target *= 0.7;
+  else if (wrA < 56) target *= 0.85;
+  else if (wrA < 60) target *= 1.0;
+  else if (wrA < 65) target *= 1.15;
+  else target *= 1.3;
+
+  // affidabilità
+  if (nA < 20) target *= 0.7;
+  else if (nA < 50) target *= 0.85;
+
+  // overconfidence checks (silenziosi)
+  if (nA < 30 && target > 8) target = 8;
+  if (wrA > 65 && nA < 50) target *= 0.85;
+  if (qA < 1.45) target = Math.min(target, 7);
+
+  target = clamp(target, 4, 15);
+  return roundBook(target);
+}
+
+function splitStakePriorA(S, qA, qB, tipoLabel) {
+  // se B non giocata
+  if (qB <= 1) return { sA: roundBook(S), sB: 0, target: 0 };
+
+  const targetPerc = calcolaTargetAutomatico(qA, tipoLabel);
+  const t = targetPerc / 100;
+
+  let sA = (S * (1 + t)) / qA;
+  if (sA > S) sA = S;
+  let sB = S - sA;
+
+  // prima regola stake minimo 1 con somma preservata
+  let adj = adjustStakeMin(S, sA, sB);
+  sA = adj.sA;
+  sB = adj.sB;
+
+  // arrotonda bookmaker
+  sA = roundBook(sA);
+  sB = roundBook(S - sA);
+
+  // ri-applica min dopo arrotondamento
+  adj = adjustStakeMin(S, sA, sB);
+  sA = roundBook(adj.sA);
+  sB = roundBook(adj.sB);
+
+  // se ancora impossibile avere entrambi >=1 (S troppo basso) => tutto su A
+  if (S < 2 || (sA > 0 && sB > 0 && (sA < 1 || sB < 1))) {
+    sA = roundBook(S);
+    sB = 0;
+  }
+
+  return { sA, sB, target: targetPerc };
+}
+
+
 function roundBook(x) {
   // arrotonda a 1 decimale
   return Math.round(x * 10) / 10;
@@ -900,33 +1127,24 @@ function calcolaAsianIntera() {
     return;
   }
 
-  let sA, sB;
+  let sA = 0, sB = 0;
 
   if (qB <= 1) {
-    // solo A
-    sA = S;
+    sA = roundBook(S);
     sB = 0;
   } else {
-    // vogliamo void (profit ~0) quando vince solo A
-    // sA*qA - (sA+sB) = 0  →  sA*qA = S  → sA = S/qA
-    sA = S / qA;
-    if (sA > S) sA = S;
-    sB = S - sA;
-    const adj = adjustStakeMin(S, sA, sB);
-    sA = adj.sA;
-    sB = adj.sB;
+    const res = splitStakePriorA(S, qA, qB, 'Asian Line Intera');
+    sA = res.sA;
+    sB = res.sB;
   }
-
-  sA = roundBook(sA);
-  sB = roundBook(sB);
 
   const stakeTot = sA + sB;
 
   const profitLose = -stakeTot;
-  const profitAonly = (sA * qA) - stakeTot;
+  const profitAonly = (sA * qA) - stakeTot; // B persa
   const profitBoth = (qB > 1 && sB > 0)
     ? (sA * qA + sB * qB - stakeTot)
-    : (sA * qA - sA); // solo A
+    : (sA * qA - sA);
 
   out.style.display = 'block';
   out.innerHTML =
@@ -961,32 +1179,22 @@ function calcolaProtezione() {
     return;
   }
 
-  let sA, sB;
+  let sA = 0, sB = 0;
 
   if (qB <= 1) {
-    sA = S;
+    sA = roundBook(S);
     sB = 0;
   } else {
-    // vogliamo quasi void quando vince solo B
-    // profitB = sB*qB - (sA+sB) ≈ 0 → sB*qB ≈ S → sB ≈ S/qB
-    sB = S / qB;
-    if (sB > S) sB = S;
-    sA = S - sB;
-    const adj = adjustStakeMin(S, sA, sB);
-    sA = adj.sA;
-    sB = adj.sB;
+    const res = splitStakePriorA(S, qA, qB, 'Protezione Void');
+    sA = res.sA;
+    sB = res.sB;
   }
-
-  sA = roundBook(sA);
-  sB = roundBook(sB);
 
   const stakeTot = sA + sB;
 
   const profitLose = -stakeTot;
   const profitAonly = (sA * qA) - stakeTot;
-  const profitBonly = (qB > 1 && sB > 0)
-    ? (sB * qB - stakeTot)
-    : -stakeTot;
+  const profitBonly = (qB > 1 && sB > 0) ? (sB * qB - stakeTot) : -stakeTot;
   const profitBoth = (qB > 1 && sB > 0)
     ? (sA * qA + sB * qB - stakeTot)
     : (sA * qA - sA);
@@ -994,12 +1202,12 @@ function calcolaProtezione() {
   out.style.display = 'block';
   out.innerHTML =
     `<b>Punta su A (principale):</b> ${sA.toFixed(2)}€ @ ${qA.toFixed(2)}<br>` +
-    `<b>Punta su B (copertura):</b> ${sB.toFixed(2)}€ @ ${qB.toFixed(2)}<br><br>` +
+    `<b>Punta su B (secondaria):</b> ${sB.toFixed(2)}€ @ ${qB.toFixed(2)}<br><br>` +
     `<b>Perse entrambe:</b> <span class="${profitLose>=0?'text-green':'text-red'}">` +
     `${(profitLose>=0?'+':'') + profitLose.toFixed(2)}€</span><br>` +
     `<b>Solo A vinta:</b> <span class="${profitAonly>=0?'text-green':'text-red'}">` +
     `${(profitAonly>=0?'+':'') + profitAonly.toFixed(2)}€</span><br>` +
-    `<b>Solo B vinta (quasi void):</b> <span class="${profitBonly>=0?'text-green':'text-red'}">` +
+    `<b>Solo B vinta:</b> <span class="${profitBonly>=0?'text-green':'text-red'}">` +
     `${(profitBonly>=0?'+':'') + profitBonly.toFixed(2)}€</span><br>` +
     `<b>Entrambe Vinte:</b> <span class="${profitBoth>=0?'text-green':'text-red'}">` +
     `${(profitBoth>=0?'+':'') + profitBoth.toFixed(2)}€</span>`;
@@ -1028,43 +1236,36 @@ function calcolaAsianOverLive() {
     return;
   }
 
-  // split standard 50/50
-  let sA = S / 2;
-  let sB = S - sA;
-  const adj = adjustStakeMin(S, sA, sB);
-  sA = roundBook(adj.sA);
-  sB = roundBook(adj.sB);
-  const stakeTot = sA + sB;
+  // split stake orientato a quota A (Over Minore) per garantire profitto su scenario "solo A"
+  const res = splitStakePriorA(S, qLow, qHigh, 'Asian Over Live');
+  let sA = res.sA;
+  let sB = res.sB;
 
-  const base = g0;      // gol al momento della giocata
+  const stakeTot = sA + sB;
+  const base = g0;
   const linea = base + tipo;
 
-  // helper per profit in base ai gol finali totali T
   function profitPerGoals(T) {
-    // standard asian using over base & over base+0.5 (0.25)
-    // o over base+0.5 & base+1.0 (0.75)
     let profit = 0;
+
     if (tipo === 0.25) {
-      // L = base+0.25 = combo Over base (qLow) & Over base+0.5 (qHigh)
+      // combo Over base (qLow) & Over base+0.5 (qHigh)
       if (T <= base - 1) {
-        // entrambe perse
         profit = -stakeTot;
       } else if (T === base) {
-        // Over base push, Over base+0.5 perde -> -sB
+        // push su low, perde high
         profit = -sB;
-      } else { // T >= base+1
-        // entrambe vincenti
+      } else {
         profit = sA * qLow + sB * qHigh - stakeTot;
       }
     } else {
-      // tipo 0.75: L = base+0.75 = combo Over base+0.5 (qLow) & Over base+1.0 (qHigh)
+      // tipo 0.75: combo Over base+0.5 (qLow) & Over base+1.0 (qHigh)
       if (T <= base) {
-        // entrambe perse
         profit = -stakeTot;
       } else if (T === base + 1) {
-        // over base+0.5 vince, over base+1 push
-        profit = sA * qLow - stakeTot + sB; // sB rimborsata
-      } else { // T >= base+2
+        // low vince, high push
+        profit = (sA * qLow - stakeTot) + sB;
+      } else {
         profit = sA * qLow + sB * qHigh - stakeTot;
       }
     }
@@ -1077,6 +1278,7 @@ function calcolaAsianOverLive() {
   html += `<b>Punta su Over superiore:</b> ${sB.toFixed(2)}€ @ ${qHigh.toFixed(2)}<br><br>`;
   html += `<b>Risultati (gol aggiuntivi rispetto ai ${g0} attuali):</b><br><ul>`;
 
+  // 0..3 goals aggiuntivi
   for (let add = 0; add <= 3; add++) {
     const T = g0 + add;
     const profit = profitPerGoals(T);
@@ -1393,30 +1595,34 @@ function renderStorico() {
 
   arr.sort((a,b) => (a.data === b.data ? a.id - b.id : (a.data > b.data ? 1 : -1)));
 
-  let html = '<table class="storico"><tr>' +
-    '<th>Data</th><th>Partita</th><th>Tipo</th>' +
-    '<th>QuotaA</th><th>QuotaB</th><th>StakeA</th><th>StakeB</th>' +
-    '<th>Esito</th><th>Profitto</th><th></th></tr>';
-
+  let html = '';
   arr.forEach(r => {
-    const colEsito = (r.esito === 'Non giocata') ? 'text-red' : 'text-blue';
-    const colProf  = r.profit >= 0 ? 'text-green' : 'text-red';
+    const esitoClass = (r.esito === 'Non giocata') ? 'text-amber' : 'text-blue';
+    const profClass  = r.profit >= 0 ? 'text-green' : 'text-red';
 
-    html += `<tr>
-      <td>${r.data}</td>
-      <td>${r.partita || '-'}</td>
-      <td>${r.tipo}</td>
-      <td>${r.quotaA.toFixed(2)}</td>
-      <td>${r.quotaB ? r.quotaB.toFixed(2) : '0.00'}</td>
-      <td>${r.stakeA.toFixed(1)}</td>
-      <td>${r.stakeB.toFixed(1)}</td>
-      <td class="${colEsito}">${r.esito}</td>
-      <td class="${colProf}">${(r.profit>=0?'+':'') + r.profit.toFixed(2)}€</td>
-      <td><button class="btn small secondary" onclick="apriEditModal(${r.id})">✏️</button></td>
-    </tr>`;
+    const qB = (r.quotaB && r.stakeB > 0) ? r.quotaB.toFixed(2) : '0.00';
+    const sB = (r.stakeB && r.stakeB > 0) ? r.stakeB.toFixed(1) : '0.0';
+
+    html += `<div class="storicoCard">
+      <div class="topLine">
+        <div class="meta">${r.data} · ${r.tipo}</div>
+        <button class="btn small secondary" onclick="apriEditModal(${r.id})">✏️ Modifica</button>
+      </div>
+
+      <div class="title">${(r.partita && r.partita.trim()) ? r.partita : '-'}</div>
+
+      <div class="grid2">
+        <div><b>A</b>: @ ${r.quotaA.toFixed(2)} · ${r.stakeA.toFixed(1)}€</div>
+        <div><b>B</b>: @ ${qB} · ${sB}€</div>
+      </div>
+
+      <div class="grid2">
+        <div><b>Esito</b>: <span class="${esitoClass}">${r.esito}</span></div>
+        <div><b>Profitto</b>: <span class="${profClass}">${(r.profit>=0?'+':'') + r.profit.toFixed(2)}€</span></div>
+      </div>
+    </div>`;
   });
 
-  html += '</table>';
   box.innerHTML = html;
 }
 
@@ -1683,93 +1889,132 @@ function buildDailySummary() {
   const box = document.getElementById('dailyBox');
   if (!box) return;
 
+  const scopeSel = document.getElementById('sum_scope');
+  const scope = scopeSel ? scopeSel.value : 'day';
+
   const arrAll = loadStorico().filter(r => r.esito !== 'Non giocata');
   if (!arrAll.length) {
     box.innerHTML = '<p class="text-gray">Nessuna giocata registrata.</p>';
-    document.getElementById('dayBanner').style.display = 'none';
+    const banner = document.getElementById('dayBanner');
+    if (banner) banner.style.display = 'none';
     return;
   }
 
+  // ordina per data
   arrAll.sort((a,b) => (a.data === b.data ? a.id - b.id : (a.data > b.data ? 1 : -1)));
 
-  const byDate = {};
+  // helper key period
+  function weekKey(dateStr) {
+    // ISO week key: YYYY-Www
+    const d = new Date(dateStr);
+    d.setHours(0,0,0,0);
+    // Thursday in current week decides the year.
+    d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
+    const week1 = new Date(d.getFullYear(), 0, 4);
+    const weekNo = 1 + Math.round(((d - week1) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
+    const y = d.getFullYear();
+    return `${y}-W${String(weekNo).padStart(2,'0')}`;
+  }
+  function monthKey(dateStr) {
+    return dateStr.slice(0,7); // YYYY-MM
+  }
+
+  // raggruppa
+  const groups = {};
   arrAll.forEach(r => {
-    if (!byDate[r.data]) byDate[r.data] = [];
-    byDate[r.data].push(r);
+    const key = scope === 'week' ? weekKey(r.data) : (scope === 'month' ? monthKey(r.data) : r.data);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(r);
   });
 
-  const dates = Object.keys(byDate).sort();
+  const keys = Object.keys(groups).sort();
+
   const brStart = loadBankrollStart();
   let cumProfitBefore = 0;
-
-  let html = '<table class="daily"><tr>' +
-    '<th>Data</th><th>Profitto</th><th>Bets</th><th>Winrate</th><th>Stato</th></tr>';
-
   const todayStr = todayISO();
   let todayStatus = null;
 
-  dates.forEach(d => {
-    const list = byDate[d];
-    let pDay = 0;
-    let betsDay = 0;
-    let winsDay = 0;
+  let html = '<table class="daily"><tr>' +
+    `<th>${scope === 'day' ? 'Data' : (scope === 'week' ? 'Settimana' : 'Mese')}</th>` +
+    '<th>Profitto</th><th>Bets</th><th>Winrate</th>' +
+    (scope === 'day' ? '<th>Stato</th>' : '<th>ROI</th>') +
+    '</tr>';
+
+  keys.forEach(k => {
+    const list = groups[k];
+
+    let p = 0;
+    let bets = 0, wins = 0;
+    let stake = 0;
 
     list.forEach(r => {
-      pDay += r.profit;
-      // conta bets a livello A/B
+      p += r.profit;
+      const sTot = (r.stakeA + r.stakeB);
+      stake += sTot;
+
+      // conta bet A/B
       if (r.stakeA > 0 && r.quotaA > 0) {
-        betsDay++;
-        if (r.esito === 'Solo A vinta' || r.esito === 'Vinte entrambe') winsDay++;
+        bets++;
+        if (r.esito === 'Solo A vinta' || r.esito === 'Vinte entrambe') wins++;
       }
       if (r.stakeB > 0 && r.quotaB > 0) {
-        betsDay++;
-        if (r.esito === 'Solo B vinta' || r.esito === 'Vinte entrambe') winsDay++;
+        bets++;
+        if (r.esito === 'Solo B vinta' || r.esito === 'Vinte entrambe') wins++;
       }
     });
 
-    let stato = '';
-    if (brStart > 0) {
-      const brDayStart = brStart + cumProfitBefore;
-      const target = brDayStart * 0.03;
-      const stop   = brDayStart * 0.10;
+    const wr = bets>0 ? (wins/bets*100).toFixed(1) + '%' : '-';
 
-      if (pDay >= target) stato = 'target profit raggiunto';
-      else if (pDay <= -stop) stato = 'stop loss raggiunto';
+    let lastCol = '';
+    if (scope === 'day') {
+      let stato = '';
+      if (brStart > 0) {
+        const brDayStart = brStart + cumProfitBefore;
+        const target = brDayStart * 0.03;
+        const stop   = brDayStart * 0.10;
 
-      if (d === todayStr && stato) {
-        todayStatus = stato;
+        if (p >= target) stato = 'target profit raggiunto';
+        else if (p <= -stop) stato = 'stop loss raggiunto';
+
+        if (k === todayStr && stato) todayStatus = stato;
       }
+      lastCol = stato;
+    } else {
+      const roi = stake > 0 ? (p/stake*100) : 0;
+      lastCol = (stake>0 ? ((roi>=0?'+':'') + roi.toFixed(1) + '%') : '-');
     }
 
-    const wrDay = betsDay>0 ? (winsDay/betsDay*100).toFixed(1) + '%' : '-';
-
     html += `<tr>
-      <td>${d}</td>
-      <td class="${pDay>=0?'text-green':'text-red'}">${(pDay>=0?'+':'') + pDay.toFixed(2)}€</td>
-      <td>${betsDay}</td>
-      <td>${wrDay}</td>
-      <td>${stato}</td>
+      <td>${k}</td>
+      <td class="${p>=0?'text-green':'text-red'}">${(p>=0?'+':'') + p.toFixed(2)}€</td>
+      <td>${bets}</td>
+      <td>${wr}</td>
+      <td>${lastCol}</td>
     </tr>`;
 
-    cumProfitBefore += pDay;
+    // cum profit only makes sense for day
+    if (scope === 'day') cumProfitBefore += p;
   });
 
   html += '</table>';
   box.innerHTML = html;
 
-  // Banner nel tab Calcolatori per oggi
+  // Banner nel tab Calcolatori solo per scope=day
   const banner = document.getElementById('dayBanner');
-  if (!todayStatus) {
+  if (!banner) return;
+
+  if (scope !== 'day' || !todayStatus) {
     banner.style.display = 'none';
+    return;
+  }
+
+  banner.style.display = 'block';
+  if (todayStatus.indexOf('target') >= 0) {
+    banner.className = 'banner green';
+    banner.textContent = 'Oggi: ' + todayStatus + '.';
   } else {
-    banner.style.display = 'block';
-    if (todayStatus.indexOf('target') >= 0) {
-      banner.className = 'banner green';
-      banner.textContent = 'Oggi: ' + todayStatus + '.';
-    } else {
-      banner.className = 'banner red';
-      banner.textContent = 'Oggi: ' + todayStatus + '.';
-    }
+    banner.className = 'banner red';
+    banner.textContent = 'Oggi: ' + todayStatus + '.';
   }
 }
 
@@ -1815,6 +2060,7 @@ function exportCSV() {
 
 /* ========= INIT ========= */
 document.addEventListener('DOMContentLoaded', () => {
+    initTipoSelects();
   showTab('calc');
   renderStorico();
   aggiornaDashboard();
