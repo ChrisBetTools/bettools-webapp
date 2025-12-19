@@ -13,7 +13,116 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png">
 
   <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js">
+/* =====================================================
+   ANALISI PER TIPO DI SCOMMESSA
+===================================================== */
+function calcolaAnalisiPerTipo() {
+  const storico = loadStorico();
+  const map = {};
+
+  storico.forEach(r => {
+    if (r.esito === 'Non giocata') return;
+    const tipo = r.tipo || 'Altro';
+    if (!map[tipo]) {
+      map[tipo] = {
+        tipo,
+        bets: 0,
+        wins: 0,
+        profit: 0,
+        stake: 0,
+        quotes: [],
+        equity: [],
+        streakW: 0,
+        streakL: 0,
+        maxW: 0,
+        maxL: 0
+      };
+    }
+    const t = map[tipo];
+    t.bets++;
+    t.profit += r.profit;
+    const st = (r.stakeA || 0) + (r.stakeB || 0);
+    t.stake += st;
+    if (r.quotaA) t.quotes.push({q:r.quotaA,s:r.stakeA||0});
+    if (r.quotaB) t.quotes.push({q:r.quotaB,s:r.stakeB||0});
+
+    if (r.profit > 0) {
+      t.wins++;
+      t.streakW++; t.streakL = 0;
+      if (t.streakW > t.maxW) t.maxW = t.streakW;
+    } else {
+      t.streakL++; t.streakW = 0;
+      if (t.streakL > t.maxL) t.maxL = t.streakL;
+    }
+
+    const prevEq = t.equity.length ? t.equity[t.equity.length-1] : 0;
+    t.equity.push(prevEq + r.profit);
+  });
+
+  return Object.values(map).map(t => {
+    let qs = 0, ss = 0;
+    t.quotes.forEach(o => { qs += o.q * o.s; ss += o.s; });
+    const quotaMedia = ss ? qs/ss : 0;
+
+    let peak = 0, maxDD = 0;
+    t.equity.forEach(v => {
+      if (v > peak) peak = v;
+      const dd = v - peak;
+      if (dd < maxDD) maxDD = dd;
+    });
+
+    return {
+      tipo: t.tipo,
+      bets: t.bets,
+      winrate: t.bets ? (t.wins / t.bets * 100) : 0,
+      roi: t.stake ? (t.profit / t.stake * 100) : 0,
+      profit: t.profit,
+      quotaMedia,
+      maxDD,
+      maxW: t.maxW,
+      maxL: t.maxL
+    };
+  });
+}
+
+function renderAnalisiTipi() {
+  const sort = document.getElementById('typesSort').value;
+  let data = calcolaAnalisiPerTipo();
+
+  data.sort((a,b) => {
+    if (sort === 'name') return a.tipo.localeCompare(b.tipo);
+    return b[sort] - a[sort];
+  });
+
+  const wrap = document.getElementById('typesCards');
+  wrap.innerHTML = '';
+  data.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <h3>${d.tipo}</h3>
+      <p>Bets: <strong>${d.bets}</strong></p>
+      <p>Win rate: <strong>${d.winrate.toFixed(1)}%</strong></p>
+      <p>ROI: <strong class="${d.roi>=0?'pos':'neg'}">${d.roi.toFixed(2)}%</strong></p>
+      <p>Profitto: <strong class="${d.profit>=0?'pos':'neg'}">${d.profit.toFixed(2)}€</strong></p>
+      <p>Quota media: ${d.quotaMedia.toFixed(2)}</p>
+      <p>Max DD: ${d.maxDD.toFixed(2)}€</p>
+      <p>Win streak: ${d.maxW} · Lose streak: ${d.maxL}</p>
+    `;
+    wrap.appendChild(card);
+  });
+}
+
+document.getElementById('typesSort')?.addEventListener('change', renderAnalisiTipi);
+
+const oldShowTab = window.showTab;
+window.showTab = function(tab) {
+  oldShowTab(tab);
+  if (tab === 'types') renderAnalisiTipi();
+};
+
+</script>
 
   <style>
     :root {
@@ -2076,6 +2185,115 @@ document.addEventListener('DOMContentLoaded', () => {
     navigator.serviceWorker.register('service-worker.js').catch(()=>{});
   }
 });
+
+/* =====================================================
+   ANALISI PER TIPO DI SCOMMESSA
+===================================================== */
+function calcolaAnalisiPerTipo() {
+  const storico = loadStorico();
+  const map = {};
+
+  storico.forEach(r => {
+    if (r.esito === 'Non giocata') return;
+    const tipo = r.tipo || 'Altro';
+    if (!map[tipo]) {
+      map[tipo] = {
+        tipo,
+        bets: 0,
+        wins: 0,
+        profit: 0,
+        stake: 0,
+        quotes: [],
+        equity: [],
+        streakW: 0,
+        streakL: 0,
+        maxW: 0,
+        maxL: 0
+      };
+    }
+    const t = map[tipo];
+    t.bets++;
+    t.profit += r.profit;
+    const st = (r.stakeA || 0) + (r.stakeB || 0);
+    t.stake += st;
+    if (r.quotaA) t.quotes.push({q:r.quotaA,s:r.stakeA||0});
+    if (r.quotaB) t.quotes.push({q:r.quotaB,s:r.stakeB||0});
+
+    if (r.profit > 0) {
+      t.wins++;
+      t.streakW++; t.streakL = 0;
+      if (t.streakW > t.maxW) t.maxW = t.streakW;
+    } else {
+      t.streakL++; t.streakW = 0;
+      if (t.streakL > t.maxL) t.maxL = t.streakL;
+    }
+
+    const prevEq = t.equity.length ? t.equity[t.equity.length-1] : 0;
+    t.equity.push(prevEq + r.profit);
+  });
+
+  return Object.values(map).map(t => {
+    let qs = 0, ss = 0;
+    t.quotes.forEach(o => { qs += o.q * o.s; ss += o.s; });
+    const quotaMedia = ss ? qs/ss : 0;
+
+    let peak = 0, maxDD = 0;
+    t.equity.forEach(v => {
+      if (v > peak) peak = v;
+      const dd = v - peak;
+      if (dd < maxDD) maxDD = dd;
+    });
+
+    return {
+      tipo: t.tipo,
+      bets: t.bets,
+      winrate: t.bets ? (t.wins / t.bets * 100) : 0,
+      roi: t.stake ? (t.profit / t.stake * 100) : 0,
+      profit: t.profit,
+      quotaMedia,
+      maxDD,
+      maxW: t.maxW,
+      maxL: t.maxL
+    };
+  });
+}
+
+function renderAnalisiTipi() {
+  const sort = document.getElementById('typesSort').value;
+  let data = calcolaAnalisiPerTipo();
+
+  data.sort((a,b) => {
+    if (sort === 'name') return a.tipo.localeCompare(b.tipo);
+    return b[sort] - a[sort];
+  });
+
+  const wrap = document.getElementById('typesCards');
+  wrap.innerHTML = '';
+  data.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <h3>${d.tipo}</h3>
+      <p>Bets: <strong>${d.bets}</strong></p>
+      <p>Win rate: <strong>${d.winrate.toFixed(1)}%</strong></p>
+      <p>ROI: <strong class="${d.roi>=0?'pos':'neg'}">${d.roi.toFixed(2)}%</strong></p>
+      <p>Profitto: <strong class="${d.profit>=0?'pos':'neg'}">${d.profit.toFixed(2)}€</strong></p>
+      <p>Quota media: ${d.quotaMedia.toFixed(2)}</p>
+      <p>Max DD: ${d.maxDD.toFixed(2)}€</p>
+      <p>Win streak: ${d.maxW} · Lose streak: ${d.maxL}</p>
+    `;
+    wrap.appendChild(card);
+  });
+}
+
+document.getElementById('typesSort')?.addEventListener('change', renderAnalisiTipi);
+
+const oldShowTab = window.showTab;
+window.showTab = function(tab) {
+  oldShowTab(tab);
+  if (tab === 'types') renderAnalisiTipi();
+};
+
 </script>
 
 </body>
