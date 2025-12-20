@@ -14,73 +14,42 @@
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js">
-/* =============================
-   ANALISI PER TIPO
-============================= */
 function renderAnalisiTipi() {
+  const box = document.getElementById('tipiBox');
   const storico = loadStorico().filter(r => r.esito !== 'Non giocata');
+
+  if (!storico.length) {
+    box.innerHTML = '<p style="color:#888">Nessun dato disponibile.</p>';
+    return;
+  }
+
   const map = {};
 
   storico.forEach(r => {
-    const tipo = r.tipo || 'Altro';
-    if (!map[tipo]) {
-      map[tipo] = {tipo, bets:0, wins:0, profit:0, stake:0, quotes:[], eq:[], w:0,l:0,maxW:0,maxL:0};
-    }
-    const t = map[tipo];
-    t.bets++;
-    t.profit += r.profit;
-    const st = (r.stakeA||0)+(r.stakeB||0);
-    t.stake += st;
-    if (r.quotaA) t.quotes.push({q:r.quotaA,s:r.stakeA||0});
-    if (r.quotaB) t.quotes.push({q:r.quotaB,s:r.stakeB||0});
-
-    if (r.profit>0) {
-      t.w++; t.wins++; t.l=0; t.maxW=Math.max(t.maxW,t.w);
-    } else {
-      t.l++; t.w=0; t.maxL=Math.max(t.maxL,t.l);
-    }
-    const prev=t.eq.length?t.eq[t.eq.length-1]:0;
-    t.eq.push(prev+r.profit);
+    if (!map[r.tipo]) map[r.tipo] = {bets:0,wins:0,profit:0,stake:0,odds:[]};
+    const m = map[r.tipo];
+    const S = (r.stakeA||0)+(r.stakeB||0);
+    m.bets++; m.profit+=r.profit; m.stake+=S;
+    if (r.profit>0) m.wins++;
+    if (r.quotaA>1) m.odds.push(r.quotaA);
+    if (r.quotaB>1 && r.stakeB>0) m.odds.push(r.quotaB);
   });
 
-  let arr = Object.values(map).map(t=>{
-    let qs=0,ss=0;
-    t.quotes.forEach(o=>{qs+=o.q*o.s; ss+=o.s;});
-    let peak=0,dd=0;
-    t.eq.forEach(v=>{if(v>peak)peak=v; dd=Math.min(dd,v-peak);});
-    return {
-      tipo:t.tipo,
-      bets:t.bets,
-      winrate:t.bets?(t.wins/t.bets*100):0,
-      roi:t.stake?(t.profit/t.stake*100):0,
-      profit:t.profit,
-      quota:ss?qs/ss:0,
-      maxDD:dd,
-      maxW:t.maxW,
-      maxL:t.maxL
-    };
-  });
-
-  const sort=document.getElementById('typesSort').value;
-  arr.sort((a,b)=>sort==='name'?a.tipo.localeCompare(b.tipo):b[sort]-a[sort]);
-
-  const wrap=document.getElementById('typesCards');
-  wrap.innerHTML='';
-  arr.forEach(d=>{
-    const c=document.createElement('div');
-    c.className='card';
-    c.innerHTML=`
-      <h3>${d.tipo}</h3>
-      <p>Bets: ${d.bets}</p>
-      <p>Win rate: ${d.winrate.toFixed(1)}%</p>
-      <p>ROI: <b class="${d.roi>=0?'pos':'neg'}">${d.roi.toFixed(2)}%</b></p>
-      <p>Profitto: <b class="${d.profit>=0?'pos':'neg'}">${d.profit.toFixed(2)}€</b></p>
-      <p>Quota media: ${d.quota.toFixed(2)}</p>
-      <p>Max DD: ${d.maxDD.toFixed(2)}€</p>
-      <p>Win/Lose streak: ${d.maxW}/${d.maxL}</p>
-    `;
-    wrap.appendChild(c);
-  });
+  box.innerHTML = Object.entries(map).map(([t,m])=>{
+    const wr=m.bets?(m.wins/m.bets*100):0;
+    const roi=m.stake?(m.profit/m.stake*100):0;
+    const q=m.odds.length?m.odds.reduce((a,b)=>a+b,0)/m.odds.length:0;
+    return `<div class="storicoCard">
+      <div class="topLine"><div class="title">${t}</div></div>
+      <div class="grid2">
+        <div>Bets: ${m.bets}</div>
+        <div>Winrate: ${wr.toFixed(1)}%</div>
+        <div>ROI: ${roi.toFixed(1)}%</div>
+        <div>Profitto: ${(m.profit>=0?'+':'')+m.profit.toFixed(2)}€</div>
+        <div>Quota media: ${q.toFixed(2)}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 </script>
@@ -504,6 +473,7 @@ function renderAnalisiTipi() {
   <button id="tab_storico" onclick="showTab('storico')">Storico</button>
   <button id="tab_dash" onclick="showTab('dash')">Dashboard</button>
   <button id="tab_daily" onclick="showTab('daily')">Riepilogo</button>
+  <button id="tab_tipi" onclick="showTab('tipi')">Analisi Tipi</button>
 </div>
 
 <!-- ============== PAGINA CALCOLATORI ============== -->
@@ -786,6 +756,13 @@ function renderAnalisiTipi() {
         <option value="month">Mese</option>
       </select>
     </div>
+<div id="page_tipi" class="page" style="display:none;">
+  <div class="card">
+    <h2>Analisi per Tipo di Scommessa</h2>
+    <div id="tipiBox"></div>
+  </div>
+</div>
+
     <p class="desc">
       Per ogni giorno vedi profitto, numero di bets, winrate e stato rispetto a <b>target +3%</b> e <b>stop loss -10%</b>
       del bankroll a inizio giornata.
@@ -1143,14 +1120,18 @@ function adjustStakeMin(S, sA, sB) {
 
 /* ========= Tabs ========= */
 function showTab(name) {
-  ['calc','storico','dash','daily'].forEach(p => {
-    document.getElementById('page_'+p).style.display = (p === name ? 'block' : 'none');
+  ['calc','storico','dash','daily','tipi'].forEach(p => {
+    const page = document.getElementById('page_'+p);
+    if (page) page.style.display = (p === name ? 'block' : 'none');
+
     const tabBtn = document.getElementById('tab_'+p);
     if (tabBtn) tabBtn.classList.toggle('active', p === name);
   });
+
   if (name === 'storico') renderStorico();
   if (name === 'dash')    aggiornaDashboard();
   if (name === 'daily')   buildDailySummary();
+  if (name === 'tipi')    renderAnalisiTipi();
 }
 
 /* ========= Storage ========= */
@@ -2147,73 +2128,42 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/* =============================
-   ANALISI PER TIPO
-============================= */
 function renderAnalisiTipi() {
+  const box = document.getElementById('tipiBox');
   const storico = loadStorico().filter(r => r.esito !== 'Non giocata');
+
+  if (!storico.length) {
+    box.innerHTML = '<p style="color:#888">Nessun dato disponibile.</p>';
+    return;
+  }
+
   const map = {};
 
   storico.forEach(r => {
-    const tipo = r.tipo || 'Altro';
-    if (!map[tipo]) {
-      map[tipo] = {tipo, bets:0, wins:0, profit:0, stake:0, quotes:[], eq:[], w:0,l:0,maxW:0,maxL:0};
-    }
-    const t = map[tipo];
-    t.bets++;
-    t.profit += r.profit;
-    const st = (r.stakeA||0)+(r.stakeB||0);
-    t.stake += st;
-    if (r.quotaA) t.quotes.push({q:r.quotaA,s:r.stakeA||0});
-    if (r.quotaB) t.quotes.push({q:r.quotaB,s:r.stakeB||0});
-
-    if (r.profit>0) {
-      t.w++; t.wins++; t.l=0; t.maxW=Math.max(t.maxW,t.w);
-    } else {
-      t.l++; t.w=0; t.maxL=Math.max(t.maxL,t.l);
-    }
-    const prev=t.eq.length?t.eq[t.eq.length-1]:0;
-    t.eq.push(prev+r.profit);
+    if (!map[r.tipo]) map[r.tipo] = {bets:0,wins:0,profit:0,stake:0,odds:[]};
+    const m = map[r.tipo];
+    const S = (r.stakeA||0)+(r.stakeB||0);
+    m.bets++; m.profit+=r.profit; m.stake+=S;
+    if (r.profit>0) m.wins++;
+    if (r.quotaA>1) m.odds.push(r.quotaA);
+    if (r.quotaB>1 && r.stakeB>0) m.odds.push(r.quotaB);
   });
 
-  let arr = Object.values(map).map(t=>{
-    let qs=0,ss=0;
-    t.quotes.forEach(o=>{qs+=o.q*o.s; ss+=o.s;});
-    let peak=0,dd=0;
-    t.eq.forEach(v=>{if(v>peak)peak=v; dd=Math.min(dd,v-peak);});
-    return {
-      tipo:t.tipo,
-      bets:t.bets,
-      winrate:t.bets?(t.wins/t.bets*100):0,
-      roi:t.stake?(t.profit/t.stake*100):0,
-      profit:t.profit,
-      quota:ss?qs/ss:0,
-      maxDD:dd,
-      maxW:t.maxW,
-      maxL:t.maxL
-    };
-  });
-
-  const sort=document.getElementById('typesSort').value;
-  arr.sort((a,b)=>sort==='name'?a.tipo.localeCompare(b.tipo):b[sort]-a[sort]);
-
-  const wrap=document.getElementById('typesCards');
-  wrap.innerHTML='';
-  arr.forEach(d=>{
-    const c=document.createElement('div');
-    c.className='card';
-    c.innerHTML=`
-      <h3>${d.tipo}</h3>
-      <p>Bets: ${d.bets}</p>
-      <p>Win rate: ${d.winrate.toFixed(1)}%</p>
-      <p>ROI: <b class="${d.roi>=0?'pos':'neg'}">${d.roi.toFixed(2)}%</b></p>
-      <p>Profitto: <b class="${d.profit>=0?'pos':'neg'}">${d.profit.toFixed(2)}€</b></p>
-      <p>Quota media: ${d.quota.toFixed(2)}</p>
-      <p>Max DD: ${d.maxDD.toFixed(2)}€</p>
-      <p>Win/Lose streak: ${d.maxW}/${d.maxL}</p>
-    `;
-    wrap.appendChild(c);
-  });
+  box.innerHTML = Object.entries(map).map(([t,m])=>{
+    const wr=m.bets?(m.wins/m.bets*100):0;
+    const roi=m.stake?(m.profit/m.stake*100):0;
+    const q=m.odds.length?m.odds.reduce((a,b)=>a+b,0)/m.odds.length:0;
+    return `<div class="storicoCard">
+      <div class="topLine"><div class="title">${t}</div></div>
+      <div class="grid2">
+        <div>Bets: ${m.bets}</div>
+        <div>Winrate: ${wr.toFixed(1)}%</div>
+        <div>ROI: ${roi.toFixed(1)}%</div>
+        <div>Profitto: ${(m.profit>=0?'+':'')+m.profit.toFixed(2)}€</div>
+        <div>Quota media: ${q.toFixed(2)}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 </script>
