@@ -7,8 +7,8 @@
   <style>
     :root{
       --bg:#0b1220;
-      --panel:#111a2e;
-      --panel2:#0f1730;
+      --panel:#10182c;
+      --panel2:#0d1528;
       --text:#e8eefc;
       --muted:#9fb0d0;
       --line:#223055;
@@ -18,14 +18,14 @@
       --warn:#ffd166;
       --shadow: 0 12px 30px rgba(0,0,0,.35);
       --radius: 14px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
       --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
     }
     *{box-sizing:border-box}
     body{
       margin:0;
       font-family:var(--sans);
-      background:linear-gradient(180deg,#070b14 0%, #0b1220 40%, #070b14 100%);
+      background:linear-gradient(180deg,#070b14 0%, #0b1220 45%, #070b14 100%);
       color:var(--text);
     }
 
@@ -49,36 +49,25 @@
     }
     .hamburger:active{transform:scale(.98)}
     .hamburger span{
-      display:block;
-      width:18px; height:2px;
-      background:rgba(232,238,252,.92);
-      border-radius:2px;
-      position:relative;
+      display:block; width:18px; height:2px; background:rgba(232,238,252,.92);
+      border-radius:2px; position:relative;
     }
     .hamburger span::before,.hamburger span::after{
-      content:"";
-      position:absolute; left:0;
-      width:18px; height:2px;
-      background:rgba(232,238,252,.92);
-      border-radius:2px;
+      content:""; position:absolute; left:0; width:18px; height:2px;
+      background:rgba(232,238,252,.92); border-radius:2px;
     }
     .hamburger span::before{top:-6px}
     .hamburger span::after{top:6px}
-    .brand{
-      display:flex; flex-direction:column; line-height:1.05;
-    }
+    .brand{display:flex; flex-direction:column; line-height:1.05}
     .brand b{font-size:14px; letter-spacing:.2px}
     .brand small{color:var(--muted); font-size:12px}
     .topbar .spacer{flex:1}
     .pill{
-      padding:7px 10px;
-      border-radius:999px;
+      padding:7px 10px; border-radius:999px;
       border:1px solid rgba(255,255,255,.10);
       background:rgba(255,255,255,.05);
-      color:var(--muted);
-      font-size:12px;
-      display:flex; gap:8px; align-items:center;
-      white-space:nowrap;
+      color:var(--muted); font-size:12px;
+      display:flex; gap:8px; align-items:center; white-space:nowrap;
     }
     .dot{width:8px;height:8px;border-radius:50%}
     .dot.good{background:var(--good)}
@@ -107,33 +96,22 @@
       display:flex; flex-direction:column; gap:10px;
     }
     .sidebar.show{transform:translateX(0)}
-    .sideHeader{
-      display:flex; align-items:center; justify-content:space-between;
-      margin-bottom:8px;
-    }
+    .sideHeader{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px}
     .sideHeader b{font-size:14px}
     .closeBtn{
       width:38px;height:38px;border-radius:12px;
       border:1px solid rgba(255,255,255,.08);
       background:rgba(255,255,255,.04);
-      color:var(--text);
-      cursor:pointer;
+      color:var(--text); cursor:pointer;
     }
-    .nav{
-      display:flex; flex-direction:column; gap:8px;
-      padding-top:6px;
-    }
+    .nav{display:flex; flex-direction:column; gap:8px; padding-top:6px}
     .nav button{
-      text-align:left;
-      padding:12px 12px;
-      border-radius:14px;
+      text-align:left; padding:12px 12px; border-radius:14px;
       border:1px solid rgba(255,255,255,.08);
       background:rgba(255,255,255,.04);
-      color:var(--text);
-      cursor:pointer;
+      color:var(--text); cursor:pointer;
       display:flex; align-items:center; justify-content:space-between;
-      gap:10px;
-      font-size:14px;
+      gap:10px; font-size:14px;
     }
     .nav button.active{border-color:rgba(90,169,255,.55); background:rgba(90,169,255,.12)}
     .nav button small{color:var(--muted); font-size:12px}
@@ -141,70 +119,43 @@
       margin-top:auto;
       border-top:1px solid rgba(255,255,255,.08);
       padding-top:12px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.4;
+      color:var(--muted); font-size:12px; line-height:1.4;
     }
 
     /* Main */
-    .main{
-      padding:16px 14px 28px;
-      max-width: 1050px;
-      margin:0 auto;
-    }
+    .main{padding:16px 14px 28px; max-width:1050px; margin:0 auto}
     .page{display:none}
     .page.active{display:block}
     h1{font-size:18px; margin:0 0 10px}
-    h2{font-size:15px; margin:16px 0 8px; color:var(--text)}
-    p{color:var(--muted); margin:8px 0 0; line-height:1.35}
+    h2{font-size:14px; margin:14px 0 8px; color:var(--text)}
+    .muted{color:var(--muted)}
+    .mono{font-family:var(--mono)}
 
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:12px;
-    }
+    .grid{display:grid; grid-template-columns:1fr; gap:12px}
     @media (min-width:900px){
-      .grid.two{grid-template-columns: 1fr 1fr}
-      .grid.three{grid-template-columns: 1fr 1fr 1fr}
+      .grid.two{grid-template-columns:1fr 1fr}
+      .grid.three{grid-template-columns:1fr 1fr 1fr}
+      .grid.leftwide{grid-template-columns:1.2fr .8fr}
     }
     .card{
       background:rgba(255,255,255,.04);
       border:1px solid rgba(255,255,255,.08);
-      border-radius: var(--radius);
+      border-radius:14px;
       padding:12px;
       box-shadow: 0 6px 18px rgba(0,0,0,.18);
     }
-    .cardHeader{
-      display:flex; align-items:flex-start; justify-content:space-between;
-      gap:12px;
-      margin-bottom:8px;
-    }
+    .cardHeader{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:8px}
     .cardHeader b{font-size:14px}
     .cardHeader small{color:var(--muted)}
-    .row{
-      display:flex; gap:10px; flex-wrap:wrap;
-      align-items:center;
-    }
-    .kv{
-      display:flex; flex-direction:column;
-      gap:2px;
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.08);
-      background:rgba(255,255,255,.03);
-      min-width: 120px;
-    }
-    .kv span{color:var(--muted); font-size:12px}
-    .kv b{font-size:14px}
-
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
     .btn{
       border:1px solid rgba(255,255,255,.10);
       background:rgba(255,255,255,.06);
       color:var(--text);
-      padding:10px 12px;
-      border-radius:14px;
+      padding:9px 11px;
+      border-radius:12px;
       cursor:pointer;
-      font-weight:600;
+      font-weight:650;
       font-size:13px;
     }
     .btn.primary{border-color:rgba(90,169,255,.55); background:rgba(90,169,255,.14)}
@@ -218,7 +169,7 @@
       background:rgba(255,255,255,.04);
       border:1px solid rgba(255,255,255,.10);
       color:var(--text);
-      border-radius:14px;
+      border-radius:12px;
       padding:10px 12px;
       outline:none;
       font-family:var(--sans);
@@ -227,29 +178,186 @@
     textarea{min-height:150px; font-family:var(--mono); font-size:12.5px; line-height:1.35}
     label{display:block; color:var(--muted); font-size:12px; margin:10px 0 6px}
     .help{color:var(--muted); font-size:12px; line-height:1.35}
-    .mono{font-family:var(--mono)}
     .warnLine{color:var(--warn); font-size:12px; margin-top:8px}
     .okLine{color:var(--good); font-size:12px; margin-top:8px}
     .errLine{color:var(--bad); font-size:12px; margin-top:8px}
 
     .banner{
-      border-radius:16px;
-      padding:12px;
+      border-radius:14px;
+      padding:10px 12px;
       border:1px solid rgba(255,255,255,.10);
       background:rgba(255,255,255,.04);
-      margin-bottom:12px;
+      margin-bottom:10px;
     }
     .banner.good{border-color:rgba(25,195,125,.55); background:rgba(25,195,125,.12)}
     .banner.bad{border-color:rgba(255,77,79,.55); background:rgba(255,77,79,.12)}
-    .banner b{display:block; margin-bottom:4px}
-    .banner small{color:var(--muted)}
+    .banner b{display:block; margin-bottom:2px; font-size:13px}
+    .banner small{color:var(--muted); font-size:12px}
+
+    .badge{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:5px 8px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+      font-size:12px; color:var(--muted);
+      white-space:nowrap;
+    }
+    .badge.win{border-color:rgba(25,195,125,.55); color:rgba(25,195,125,.95); background:rgba(25,195,125,.10)}
+    .badge.loss{border-color:rgba(255,77,79,.55); color:rgba(255,77,79,.95); background:rgba(255,77,79,.10)}
+    .badge.pending{border-color:rgba(255,209,102,.55); color:rgba(255,209,102,.95); background:rgba(255,209,102,.10)}
+    .badge.neutral{border-color:rgba(124,143,183,.55); color:rgba(159,176,208,.95); background:rgba(124,143,183,.10)}
+
+    /* Compact “LivePick-like” toggles */
+    .seg{
+      display:inline-flex; gap:6px; flex-wrap:wrap;
+      padding:6px; border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+    }
+    .seg button{
+      padding:7px 10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      cursor:pointer;
+      font-weight:650;
+      font-size:12px;
+    }
+    .seg button.active{
+      border-color:rgba(90,169,255,.55);
+      background:rgba(90,169,255,.14);
+      color:var(--text);
+    }
+
+    /* History card list */
+    .list{display:flex; flex-direction:column; gap:10px}
+    .betCard{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+      border-radius:14px;
+      padding:10px 10px;
+    }
+    .betTop{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+    }
+    .betTopLeft{min-width:0}
+    .betTopLeft .t1{
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+      font-size:13px; font-weight:700;
+    }
+    .betTopLeft .t1 .date{color:rgba(232,238,252,.92)}
+    .betTopLeft .t1 .method{color:var(--muted); font-weight:650}
+    .betTopLeft .t2{
+      margin-top:4px;
+      color:rgba(232,238,252,.92);
+      font-size:13px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .betMid{
+      margin-top:8px;
+      display:flex; flex-wrap:wrap; gap:10px;
+      align-items:center;
+    }
+    .chip{
+      padding:6px 8px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+      font-size:12px;
+      color:var(--muted);
+      display:flex; gap:6px; align-items:center;
+    }
+    .chip b{color:var(--text); font-size:12px}
+    .chip.good b{color:rgba(25,195,125,.95)}
+    .chip.bad b{color:rgba(255,77,79,.95)}
+    .chip.warn b{color:rgba(255,209,102,.95)}
+    .betActions{
+      margin-top:10px;
+      display:flex; gap:8px; flex-wrap:wrap;
+    }
+    .miniBtn{
+      padding:7px 10px;
+      border-radius:12px;
+      font-weight:650;
+      font-size:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      cursor:pointer;
+    }
+    .miniBtn.primary{border-color:rgba(90,169,255,.55); background:rgba(90,169,255,.14)}
+    .miniBtn.danger{border-color:rgba(255,77,79,.55); background:rgba(255,77,79,.12)}
+
+    /* Inline edit fields */
+    .inlineEdit{
+      display:inline-block;
+      padding:2px 6px;
+      border-radius:10px;
+      border:1px dashed rgba(255,255,255,.14);
+      cursor:pointer;
+      user-select:none;
+    }
+    .inlineEdit:hover{border-color:rgba(90,169,255,.45)}
+    .inlineEdit input{
+      width:auto;
+      min-width:90px;
+      padding:6px 8px;
+      border-radius:10px;
+      font-size:12px;
+    }
+    .inlineSelect{
+      width:auto;
+      padding:6px 8px;
+      border-radius:10px;
+      font-size:12px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.10);
+      color:var(--text);
+    }
+
+    /* Charts */
+    .chartWrap{display:flex; flex-direction:column; gap:10px}
+    .chartRow{display:grid; grid-template-columns:1fr; gap:12px; align-items:start}
+    @media (min-width:900px){
+      .chartRow{grid-template-columns:.9fr 1.1fr}
+    }
+    canvas{width:100%; height:auto; border-radius:14px;}
+    .kpiRow{display:flex; flex-wrap:wrap; gap:10px}
+    .kpi{
+      min-width:140px;
+      padding:8px 10px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+    }
+    .kpi span{display:block; color:var(--muted); font-size:12px}
+    .kpi b{display:block; font-size:14px; margin-top:2px}
+    .kpi b.good{color:rgba(25,195,125,.95)}
+    .kpi b.bad{color:rgba(255,77,79,.95)}
+
+    /* Details list */
+    .detailsList{display:flex; flex-direction:column; gap:10px}
+    .section{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+      border-radius:14px;
+      padding:10px;
+    }
+    .sectionTitle{font-weight:750; font-size:13px; margin-bottom:8px}
+    .kvList{display:flex; flex-direction:column; gap:6px}
+    .kvItem{display:flex; justify-content:space-between; gap:10px; font-size:12px}
+    .kvItem .k{color:var(--muted)}
+    .kvItem .v{color:var(--text); font-family:var(--mono); text-align:right; overflow-wrap:anywhere}
 
     table{
       width:100%;
       border-collapse:separate;
       border-spacing:0;
       overflow:hidden;
-      border-radius:16px;
+      border-radius:14px;
       border:1px solid rgba(255,255,255,.10);
       background:rgba(255,255,255,.03);
     }
@@ -260,43 +368,17 @@
       font-size:13px;
       vertical-align:top;
     }
-    th{
-      color:var(--muted);
-      font-weight:600;
-      background:rgba(255,255,255,.03);
-    }
+    th{color:var(--muted); font-weight:700; background:rgba(255,255,255,.03)}
     tr:last-child td{border-bottom:none}
-    .badge{
-      display:inline-flex; align-items:center; gap:6px;
-      padding:5px 8px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.04);
-      font-size:12px;
-      color:var(--muted);
-      white-space:nowrap;
-    }
-    .badge.win{border-color:rgba(25,195,125,.55); color:rgba(25,195,125,.95); background:rgba(25,195,125,.10)}
-    .badge.loss{border-color:rgba(255,77,79,.55); color:rgba(255,77,79,.95); background:rgba(255,77,79,.10)}
-    .badge.pending{border-color:rgba(255,209,102,.55); color:rgba(255,209,102,.95); background:rgba(255,209,102,.10)}
-    .smallmuted{color:var(--muted); font-size:12px}
-    .split{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:10px;
-    }
-    @media (min-width:900px){ .split{grid-template-columns: 1.2fr .8fr} }
   </style>
 </head>
 
 <body>
   <div class="topbar">
-    <div class="hamburger" id="hamburger" aria-label="Apri menu" title="Menu">
-      <span></span>
-    </div>
+    <div class="hamburger" id="hamburger" aria-label="Apri menu" title="Menu"><span></span></div>
     <div class="brand">
       <b>BetTools</b>
-      <small>V3 Parser • Stake v1 • Daily BR</small>
+      <small>V3 • NEXT • Stake v1 • UI v1.1</small>
     </div>
     <div class="spacer"></div>
     <div class="pill" id="pillDaily">
@@ -314,15 +396,15 @@
     </div>
     <div class="nav" id="nav">
       <button data-page="calc" class="active">🧮 Calcolatore <small>LivePick V3</small></button>
-      <button data-page="storico">📒 Storico <small>Bet & risultati</small></button>
-      <button data-page="dash">📊 Dashboard <small>Bankroll & totali</small></button>
-      <button data-page="time">🗓️ Riepilogo temporale <small>Giorni / mesi</small></button>
-      <button data-page="filters">🧾 Riepilogo per filtri <small>ROI / profit</small></button>
+      <button data-page="storico">📒 Storico <small>Mini-card</small></button>
+      <button data-page="dash">📊 Dashboard <small>Grafici</small></button>
+      <button data-page="time">🗓️ Riepilogo temporale <small>G/W/M</small></button>
+      <button data-page="filters">🧾 Riepilogo per filtri <small>ROI</small></button>
     </div>
 
     <div class="sideFooter">
-      <div><b class="mono">Notifica V3 semplificata</b></div>
-      <div class="smallmuted">Parser robusto: a capo/spazi ok. Prob, stats, L10, PRESS, LATE, ODDS_TO_BET, LP.</div>
+      <div><b class="mono">Notifica V3</b></div>
+      <div>Parser robusto: a capo/spazi ok. NEXT: soglia dipende solo dalla line.</div>
     </div>
   </aside>
 
@@ -330,25 +412,24 @@
     <!-- CALCOLATORE -->
     <section class="page active" id="page-calc">
       <h1>Calcolatore</h1>
-
       <div id="dailyBannerWrap"></div>
 
-      <div class="split">
+      <div class="grid leftwide">
         <div class="card">
           <div class="cardHeader">
             <div>
-              <b>Incolla notifica LivePick (V3 semplificata)</b><br/>
-              <small>Il parser ignora a capo e spazi extra. Usa i tag (META, STATE, STATS, L10, PROB, PRESS, LATE, ODDS_TO_BET, LP).</small>
+              <b>Notifica LivePick (V3)</b><br/>
+              <small>NEXT: la PROB usata dipende solo da Phase e Line (x.5 ⇒ + (x+1)).</small>
             </div>
           </div>
 
-          <label for="lpText">Notifica</label>
+          <label for="lpText">Incolla notifica</label>
           <textarea id="lpText" spellcheck="false" placeholder="Incolla qui la notifica..."></textarea>
 
           <div class="row" style="margin-top:10px">
             <button class="btn primary" id="btnParse">Parse</button>
             <button class="btn" id="btnClear">Pulisci</button>
-            <button class="btn danger" id="btnResetAll" title="Cancella tutti i dati (storico, impostazioni, snapshot)">Reset totale</button>
+            <button class="btn danger" id="btnResetAll">Reset totale</button>
           </div>
 
           <div id="parseMsg" class="help" style="margin-top:10px"></div>
@@ -357,47 +438,42 @@
         <div class="card">
           <div class="cardHeader">
             <div>
-              <b>Preview stake (Stake v1)</b><br/>
-              <small>Min 2% • Max 5% • Bankroll fisso per la giornata.</small>
+              <b>Stake v1</b><br/>
+              <small>Min 2% • Max 5% • BR giornaliero fisso.</small>
             </div>
           </div>
 
           <div class="grid two">
             <div>
-              <label>Bankroll attuale (impostazioni)</label>
+              <label>Bankroll attuale</label>
               <input id="bankrollInput" type="number" min="0" step="0.01" />
-              <div class="help">Usato per “fotografare” il bankroll giornaliero alla prima bet del giorno.</div>
+              <div class="help">Snapshot giornaliero creato al primo “Aggiungi a storico”.</div>
             </div>
             <div>
-              <label>Bankroll giornaliero (snapshot)</label>
+              <label>Bankroll giornaliero (oggi)</label>
               <input id="bankrollDay" type="text" disabled />
-              <div class="help">Se oggi non c’è snapshot, verrà creato al primo “Aggiungi a storico”.</div>
             </div>
           </div>
 
-          <div style="margin-top:12px" id="previewWrap" class="help">
-            Nessun parse ancora.
-          </div>
+          <div style="margin-top:10px" id="previewWrap" class="help">Nessun parse ancora.</div>
 
-          <div class="grid two" style="margin-top:12px">
+          <div class="grid two" style="margin-top:10px">
             <div>
-              <label>Quota reale giocata (post-calcolo)</label>
+              <label>Quota reale giocata (dopo)</label>
               <input id="oddsPlayed" type="number" min="1" step="0.01" placeholder="es: 1.40" />
-              <div class="help">La quota della notifica è la quota di riferimento per calcolo stake.</div>
             </div>
             <div>
-              <label>Stake reale giocato (post-calcolo)</label>
+              <label>Stake reale giocato (dopo)</label>
               <input id="stakePlayed" type="number" min="0" step="0.01" placeholder="es: 30" />
-              <div class="help">Se vuoto, verrà precompilato con lo stake consigliato.</div>
             </div>
           </div>
 
-          <div class="row" style="margin-top:12px">
+          <div class="row" style="margin-top:10px">
             <button class="btn good" id="btnAddToHistory" disabled>➕ Aggiungi a storico</button>
           </div>
 
           <div class="help" style="margin-top:10px">
-            Dopo aver giocato, potrai modificare l’esito in <b>Storico</b> (win/loss) e il profitto verrà calcolato automaticamente.
+            Esito e correzioni in <b>Storico</b>. Pending/Non giocata non vengono conteggiate.
           </div>
         </div>
       </div>
@@ -407,87 +483,73 @@
     <section class="page" id="page-storico">
       <h1>Storico</h1>
 
-      <div class="grid two">
-        <div class="card">
-          <div class="cardHeader">
-            <div>
-              <b>Backup / Restore (JSON)</b><br/>
-              <small>Esporta / importa tutto lo storico + impostazioni.</small>
-            </div>
-          </div>
-
-          <div class="row">
-            <button class="btn primary" id="btnBackup">⬇️ Backup JSON</button>
-            <label class="btn" style="cursor:pointer">
-              ⬆️ Restore JSON
-              <input type="file" id="restoreFile" accept="application/json" style="display:none"/>
-            </label>
-          </div>
-          <div class="help" style="margin-top:10px" id="backupMsg"></div>
-        </div>
-
-        <div class="card">
-          <div class="cardHeader">
-            <div>
-              <b>Azioni rapide</b><br/>
-              <small>Gestisci storico e risultati.</small>
-            </div>
-          </div>
-
-          <div class="row">
-            <button class="btn danger" id="btnClearHistory">Svuota storico</button>
-            <button class="btn" id="btnRecalc">Ricalcola profit & riepiloghi</button>
-          </div>
-          <div class="help" style="margin-top:10px">
-            “Ricalcola” utile se hai importato dati o modificato quota/stake su bet già chiuse.
-          </div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:12px">
+      <!-- FILTERS ON TOP (LivePick-like) -->
+      <div class="card">
         <div class="cardHeader">
           <div>
-            <b>Lista bet</b><br/>
-            <small>Modifica esito e dettagli. Profitto calcolato su stake reale e quota reale.</small>
+            <b>Filtri</b><br/>
+            <small>Pending/Non giocata non conteggiate.</small>
           </div>
           <div class="row">
-            <select id="historyFilter">
+            <select id="historyResultFilter" style="width:auto; min-width:160px">
               <option value="all">Tutte</option>
+              <option value="win">Vinte</option>
+              <option value="loss">Perse</option>
               <option value="pending">Pending</option>
-              <option value="win">Win</option>
-              <option value="loss">Loss</option>
+              <option value="not_played">Non giocate</option>
+            </select>
+            <select id="historyDateFilter" style="width:auto; min-width:160px">
+              <option value="all">Tutto</option>
+              <option value="today">Oggi</option>
+              <option value="yesterday">Ieri</option>
+              <option value="week">Settimana corrente</option>
+              <option value="month">Mese corrente</option>
             </select>
           </div>
         </div>
 
-        <div class="help" id="historyEmpty"></div>
-        <div style="overflow:auto">
-          <table id="historyTable" style="display:none">
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Match</th>
-                <th>Pick</th>
-                <th>Stake (sugg/reale)</th>
-                <th>Quote (ref/reale)</th>
-                <th>Esito</th>
-                <th>Profitto</th>
-                <th>Azioni</th>
-              </tr>
-            </thead>
-            <tbody id="historyBody"></tbody>
-          </table>
-        </div>
+        <div id="historyList" class="list"></div>
+        <div id="historyEmpty" class="help"></div>
       </div>
 
-      <div class="card" style="margin-top:12px">
-        <div class="cardHeader">
-          <div>
-            <b>Dettagli bet selezionata</b><br/>
-            <small>Campi raw della notifica + calcoli (per audit e analisi).</small>
+      <div class="grid two" style="margin-top:12px">
+        <div class="card">
+          <div class="cardHeader">
+            <div>
+              <b>Dettagli bet</b><br/>
+              <small>Vista leggibile per sezioni (no JSON di default).</small>
+            </div>
+            <div class="row">
+              <button class="btn" id="btnToggleRaw" disabled>Mostra JSON raw</button>
+            </div>
           </div>
+          <div id="detailsBox" class="help">Seleziona “Dettagli” su una bet.</div>
         </div>
-        <div id="detailsBox" class="help">Seleziona una bet dalla tabella.</div>
+
+        <!-- moved to bottom as requested -->
+        <div class="card">
+          <div class="cardHeader">
+            <div>
+              <b>Backup / Restore</b><br/>
+              <small>JSON completo (storico + impostazioni).</small>
+            </div>
+          </div>
+
+          <div class="row">
+            <button class="btn primary" id="btnBackup">⬇️ Backup</button>
+            <label class="btn" style="cursor:pointer">
+              ⬆️ Restore
+              <input type="file" id="restoreFile" accept="application/json" style="display:none"/>
+            </label>
+          </div>
+
+          <div class="row" style="margin-top:10px">
+            <button class="btn danger" id="btnClearHistory">Svuota storico</button>
+            <button class="btn" id="btnRecalc">Ricalcola</button>
+          </div>
+
+          <div class="help" style="margin-top:10px" id="backupMsg"></div>
+        </div>
       </div>
     </section>
 
@@ -495,84 +557,110 @@
     <section class="page" id="page-dash">
       <h1>Dashboard</h1>
 
-      <div class="grid two">
+      <div class="card">
+        <div class="cardHeader">
+          <div>
+            <b>Filtro periodo</b><br/>
+            <small>Influenza KPI e grafici.</small>
+          </div>
+          <div class="seg" id="dashRangeSeg">
+            <button data-range="all" class="active">Tutto</button>
+            <button data-range="today">Oggi</button>
+            <button data-range="yesterday">Ieri</button>
+            <button data-range="week">Settimana</button>
+            <button data-range="month">Mese</button>
+          </div>
+        </div>
+
+        <div class="kpiRow" id="dashKpis"></div>
+      </div>
+
+      <div class="chartRow" style="margin-top:12px">
         <div class="card">
           <div class="cardHeader">
             <div>
-              <b>Impostazioni bankroll</b><br/>
-              <small>Usato per stake e per snapshot giornaliero.</small>
+              <b>Win Rate</b><br/>
+              <small>Solo bet chiuse.</small>
             </div>
           </div>
-
-          <label>Bankroll attuale</label>
-          <input id="bankrollInputDash" type="number" min="0" step="0.01" />
-          <div class="help">Consiglio: aggiorna qui quando fai deposit/withdraw o vuoi riallineare il valore di riferimento.</div>
-
-          <div class="row" style="margin-top:10px">
-            <button class="btn primary" id="btnSaveBR">Salva bankroll</button>
-            <button class="btn" id="btnNewDay">Nuova giornata (reset snapshot)</button>
+          <canvas id="donut" width="520" height="360"></canvas>
+          <div class="row" style="margin-top:8px; justify-content:space-between">
+            <div class="badge win" id="wonLabel">Won: —</div>
+            <div class="badge loss" id="lostLabel">Lost: —</div>
           </div>
-          <div class="help" id="dashMsg" style="margin-top:10px"></div>
         </div>
 
         <div class="card">
           <div class="cardHeader">
             <div>
-              <b>Totali</b><br/>
-              <small>Basati su bet chiuse (win/loss).</small>
+              <b>Profit Chart</b><br/>
+              <small>Cumulato bet chiuse.</small>
+            </div>
+            <div class="seg" id="profitRangeSeg">
+              <button data-pr="1m" class="active">1m</button>
+              <button data-pr="6m">6m</button>
+              <button data-pr="12m">12m</button>
+              <button data-pr="all">all</button>
             </div>
           </div>
-
-          <div class="row" id="totalsRow"></div>
-          <div class="help" style="margin-top:10px">
-            ROI = Profit / Somma stake reali (bet chiuse).
-          </div>
+          <canvas id="profitChart" width="820" height="360"></canvas>
+          <div class="help" style="margin-top:8px">Linea = profitto cumulato. Area sotto lo zero evidenziata.</div>
         </div>
       </div>
 
-      <div class="grid two" style="margin-top:12px">
-        <div class="card">
-          <div class="cardHeader">
-            <div>
-              <b>Max Drawdown</b><br/>
-              <small>Calcolato su equity cumulata dalle bet chiuse.</small>
+      <!-- moved bankroll to bottom as requested -->
+      <div class="card" style="margin-top:12px">
+        <div class="cardHeader">
+          <div>
+            <b>Impostazioni Bankroll</b><br/>
+            <small>Usato per stake e snapshot giornaliero.</small>
+          </div>
+        </div>
+        <div class="grid two">
+          <div>
+            <label>Bankroll attuale</label>
+            <input id="bankrollInputDash" type="number" min="0" step="0.01" />
+          </div>
+          <div>
+            <label>Azioni</label>
+            <div class="row">
+              <button class="btn primary" id="btnSaveBR">Salva bankroll</button>
+              <button class="btn" id="btnNewDay">Nuova giornata</button>
             </div>
           </div>
-          <div class="row" id="ddRow"></div>
         </div>
-
-        <div class="card">
-          <div class="cardHeader">
-            <div>
-              <b>Streak</b><br/>
-              <small>Striscia vincente / perdente più lunga (bet chiuse).</small>
-            </div>
-          </div>
-          <div class="row" id="streakRow"></div>
-        </div>
+        <div class="help" id="dashMsg" style="margin-top:8px"></div>
       </div>
     </section>
 
     <!-- TIME SUMMARY -->
     <section class="page" id="page-time">
       <h1>Riepilogo temporale</h1>
+
       <div class="card">
         <div class="cardHeader">
           <div>
-            <b>Risultati per giorno</b><br/>
-            <small>Basati su data inserimento bet (oggi) e profitto bet chiuse.</small>
+            <b>Raggruppa</b><br/>
+            <small>Profit/ROI colorati + target/stop del periodo.</small>
+          </div>
+          <div class="seg" id="timeGroupSeg">
+            <button data-tg="day" class="active">Giorni</button>
+            <button data-tg="week">Settimane</button>
+            <button data-tg="month">Mesi</button>
           </div>
         </div>
+
         <div class="help" id="timeEmpty"></div>
         <div style="overflow:auto">
           <table id="timeTable" style="display:none">
             <thead>
               <tr>
-                <th>Data</th>
-                <th>Bet chiuse</th>
-                <th>Stake totale</th>
+                <th>Periodo</th>
+                <th>Bet</th>
+                <th>Winrate</th>
                 <th>Profitto</th>
                 <th>ROI</th>
+                <th>Stato</th>
               </tr>
             </thead>
             <tbody id="timeBody"></tbody>
@@ -584,23 +672,23 @@
     <!-- FILTER SUMMARY -->
     <section class="page" id="page-filters">
       <h1>Riepilogo per filtri</h1>
+
       <div class="card">
         <div class="cardHeader">
           <div>
-            <b>Card per filtro (Method + Pick)</b><br/>
-            <small>Ordina per ROI (default) o per altri criteri.</small>
+            <b>Ordinamento</b><br/>
+            <small>Default ROI (migliore → peggiore).</small>
           </div>
           <div class="row">
-            <select id="filterSort">
-              <option value="roi">Ordina: ROI</option>
+            <select id="filterSort" style="width:auto; min-width:220px">
+              <option value="roi" selected>Ordina: ROI</option>
               <option value="profit">Ordina: Profitto</option>
-              <option value="winrate">Ordina: Winrate</option>
+              <option value="winrate">Ordina: % Vinte</option>
               <option value="bets">Ordina: Bet giocate</option>
               <option value="name">Ordina: Tipo scommessa</option>
             </select>
           </div>
         </div>
-
         <div class="row" id="filtersMetaRow"></div>
         <div class="warnLine" id="filtersNotes"></div>
       </div>
@@ -611,19 +699,14 @@
 
 <script>
 /* =========================
-   Storage & Utils
+   State
 ========================= */
-const STORAGE_KEY = "bettools_v3";
+const STORAGE_KEY = "bettools_v3_uiv11";
 const DEFAULT_STATE = {
-  version: "V3_SIMPLIFIED",
-  settings: {
-    bankroll: 1000
-  },
-  dailySnapshot: {
-    date: null,     // YYYY-MM-DD
-    bankroll: null  // number
-  },
-  history: [] // bet objects
+  version: "V3_SIMPLIFIED_UI11",
+  settings: { bankroll: 1000 },
+  dailySnapshot: { date: null, bankroll: null },
+  history: []
 };
 
 function loadState(){
@@ -631,29 +714,36 @@ function loadState(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) return structuredClone(DEFAULT_STATE);
     const st = JSON.parse(raw);
-    // minimal migrate
     if(!st.settings) st.settings = structuredClone(DEFAULT_STATE.settings);
     if(!st.dailySnapshot) st.dailySnapshot = structuredClone(DEFAULT_STATE.dailySnapshot);
     if(!Array.isArray(st.history)) st.history = [];
     return st;
   }catch(e){
-    console.warn("loadState failed", e);
     return structuredClone(DEFAULT_STATE);
   }
 }
-function saveState(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 function resetAll(){
   localStorage.removeItem(STORAGE_KEY);
   state = structuredClone(DEFAULT_STATE);
   saveState();
   renderAll();
 }
+let state = loadState();
 
+/* =========================
+   Utils
+========================= */
 function todayISO(){
   const d = new Date();
-  // local time (user is in Europe/Rome in practice)
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+function yesterdayISO(){
+  const d = new Date();
+  d.setDate(d.getDate()-1);
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth()+1).padStart(2,"0");
   const dd = String(d.getDate()).padStart(2,"0");
@@ -667,52 +757,82 @@ function fmtPct(x){
   if(x === null || x === undefined || Number.isNaN(Number(x))) return "—";
   return (Number(x)*100).toLocaleString("it-IT",{minimumFractionDigits:2, maximumFractionDigits:2}) + "%";
 }
-function clamp(x, a, b){ return Math.max(a, Math.min(b, x)); }
+function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
 function safeNum(v){
   if(v === null || v === undefined) return null;
   const s = String(v).trim();
-  if(s.toLowerCase() === "null" || s === "") return null;
+  if(s.toLowerCase()==="null" || s==="") return null;
   const n = Number(s.replace(",", "."));
   return Number.isFinite(n) ? n : null;
 }
 function sum(arr){ return arr.reduce((a,b)=>a+(Number(b)||0),0); }
+function escapeHtml(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+function startOfWeekISO(dISO){
+  // Monday as start (ISO week-ish)
+  const d = new Date(dISO+"T00:00:00");
+  const day = (d.getDay()+6)%7; // Mon=0 .. Sun=6
+  d.setDate(d.getDate()-day);
+  return d.toISOString().slice(0,10);
+}
+function monthKey(dISO){ return dISO.slice(0,7); } // YYYY-MM
+
+function inDateRange(dISO, range){
+  if(range==="all") return true;
+  const d = new Date(dISO+"T00:00:00");
+  const t = todayISO();
+  if(range==="today") return dISO===t;
+  if(range==="yesterday") return dISO===yesterdayISO();
+  if(range==="week"){
+    const sow = startOfWeekISO(t);
+    return dISO >= sow && dISO <= t;
+  }
+  if(range==="month"){
+    const ym = t.slice(0,7);
+    return dISO.slice(0,7)===ym;
+  }
+  return true;
+}
+function inMonthsBack(dISO, months){
+  const d = new Date(dISO+"T00:00:00");
+  const now = new Date();
+  const cutoff = new Date(now);
+  cutoff.setMonth(cutoff.getMonth()-months);
+  return d >= cutoff;
+}
 
 /* =========================
-   Navigation (Hamburger)
+   Navigation
 ========================= */
 const overlay = document.getElementById("overlay");
 const sidebar = document.getElementById("sidebar");
-const hamburger = document.getElementById("hamburger");
-const closeSidebar = document.getElementById("closeSidebar");
-const nav = document.getElementById("nav");
-
-function openSidebar(){
-  sidebar.classList.add("show");
-  overlay.classList.add("show");
+document.getElementById("hamburger").addEventListener("click", ()=>{
+  sidebar.classList.add("show"); overlay.classList.add("show");
+});
+document.getElementById("closeSidebar").addEventListener("click", closeSidebar);
+overlay.addEventListener("click", closeSidebar);
+function closeSidebar(){
+  sidebar.classList.remove("show"); overlay.classList.remove("show");
 }
-function closeSidebarFn(){
-  sidebar.classList.remove("show");
-  overlay.classList.remove("show");
-}
-hamburger.addEventListener("click", openSidebar);
-closeSidebar.addEventListener("click", closeSidebarFn);
-overlay.addEventListener("click", closeSidebarFn);
-
-nav.addEventListener("click", (e)=>{
+document.getElementById("nav").addEventListener("click",(e)=>{
   const btn = e.target.closest("button[data-page]");
   if(!btn) return;
-  const page = btn.getAttribute("data-page");
-  setPage(page);
-  closeSidebarFn();
+  setPage(btn.getAttribute("data-page"));
+  closeSidebar();
 });
-
 function setPage(page){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.getElementById("page-"+page).classList.add("active");
   document.querySelectorAll("#nav button").forEach(b=>b.classList.remove("active"));
-  const activeBtn = document.querySelector(`#nav button[data-page="${page}"]`);
-  if(activeBtn) activeBtn.classList.add("active");
-  // refresh some pages on enter
+  const active = document.querySelector(`#nav button[data-page="${page}"]`);
+  if(active) active.classList.add("active");
+
   if(page==="storico") renderHistory();
   if(page==="dash") renderDashboard();
   if(page==="time") renderTimeSummary();
@@ -720,40 +840,17 @@ function setPage(page){
 }
 
 /* =========================
-   Parser V3 Semplificata
-   Tags:
-   META | Ver=V3 | Method=... | Comp=... | Match=...
-   STATE | Time=... | RemHT=... | RemFT=... | Score=X-Y
-   STATS | SOT=h/a | ...
-   L10 | ...
-   PROB | HT(+1=..,+2=..) | FT(+1=..,+2=..,+3=..)
-   PRESS | GPI(M=..,L10=..) | GMS(H=..,..,A=..,..,M=..,..) | SI(M=..,..)
-   LATE | AT=.. | L10=.. | L5=..
-   ODDS_TO_BET | HT Next Over 0.5 = 1.45
-   LP | WR=.. | ROI=.. | Profit=.. | AO=.. | N=..
+   Parser V3 (same tags as before)
 ========================= */
-
 const TAGS = ["META","STATE","STATS","L10","PROB","PRESS","LATE","ODDS_TO_BET","LP"];
-
 function normalizeText(s){
   return String(s || "")
     .replace(/\r/g,"\n")
-    .replace(/[ \t]+/g," ")            // compress spaces
-    .replace(/\n+/g,"\n");             // compress newlines
+    .replace(/[ \t]+/g," ")
+    .replace(/\n+/g,"\n");
 }
-
-// Extract blocks by tag regardless of line breaks
 function extractBlocks(text){
   const t = normalizeText(text);
-  const positions = [];
-  for(const tag of TAGS){
-    const re = new RegExp(`(^|\\n|\\s)(${tag})\\s*\\|`, "g");
-    let m;
-    while((m=re.exec(t))!==null){
-      positions.push({tag, idx: m.index + (m[1] ? m[1].length : 0)}); // approximate start
-    }
-  }
-  // better: find exact tag occurrences by scanning
   const hits = [];
   const scanRe = new RegExp(`\\b(${TAGS.join("|")})\\s*\\|`, "g");
   let m;
@@ -765,18 +862,12 @@ function extractBlocks(text){
   for(let i=0;i<hits.length;i++){
     const start = hits[i].idx;
     const end = (i+1<hits.length) ? hits[i+1].idx : t.length;
-    const tag = hits[i].tag;
-    const chunk = t.slice(start, end).trim();
-    blocks[tag] = chunk;
+    blocks[hits[i].tag] = t.slice(start, end).trim();
   }
   return blocks;
 }
-
-// Helper to parse key=value pairs from "TAG | a=b | c=d"
 function parsePipeKVs(chunk){
-  // chunk includes "TAG | ..."
   const parts = chunk.split("|").map(x=>x.trim()).filter(Boolean);
-  // parts[0] is tag
   const kvs = {};
   for(let i=1;i<parts.length;i++){
     const p = parts[i];
@@ -788,7 +879,6 @@ function parsePipeKVs(chunk){
   }
   return kvs;
 }
-
 function parseScore(s){
   if(!s) return {home:null, away:null};
   const m = String(s).match(/(\d+)\s*-\s*(\d+)/);
@@ -796,417 +886,291 @@ function parseScore(s){
   return {home:Number(m[1]), away:Number(m[2])};
 }
 function parseHA(s){
-  // "h/a" with tolerant separators like "h - a" or "h / a"
   if(!s) return {home:null, away:null};
   const m = String(s).match(/(-?\d+(\.\d+)?)\s*[/\-]\s*(-?\d+(\.\d+)?)/);
   if(!m) return {home:null, away:null};
   return {home:safeNum(m[1]), away:safeNum(m[3])};
 }
-
 function parsePROB(chunk){
-  // "PROB | HT(+1=0.75,+2=0.55) | FT(+1=0.90,+2=0.72,+3=0.45)"
   const out = {HT:{}, FT:{}};
   const ht = chunk.match(/HT\s*\(([^)]*)\)/i);
   const ft = chunk.match(/FT\s*\(([^)]*)\)/i);
   if(ht){
-    const inner = ht[1];
-    inner.split(",").forEach(pair=>{
-      const m = pair.match(/\+(\d+)\s*=\s*([0-9.,]+)/);
+    ht[1].split(",").forEach(pair=>{
+      const m = pair.match(/\+(\d+)\s*=\s*([0-9.,-]+)/);
       if(m) out.HT[Number(m[1])] = safeNum(m[2]);
     });
   }
   if(ft){
-    const inner = ft[1];
-    inner.split(",").forEach(pair=>{
-      const m = pair.match(/\+(\d+)\s*=\s*([0-9.,]+)/);
+    ft[1].split(",").forEach(pair=>{
+      const m = pair.match(/\+(\d+)\s*=\s*([0-9.,-]+)/);
       if(m) out.FT[Number(m[1])] = safeNum(m[2]);
     });
   }
   return out;
 }
-
 function parsePRESS(chunk){
-  // PRESS | GPI(M=156,L10=35) | GMS(H=90/45,A=60/30,M=180/60) | SI(M=4.5/0.75)
   const out = {
     GPI: {M_all:null, M_l10:null},
     GMS: {H_all:null,H_l10:null, A_all:null,A_l10:null, M_all:null,M_l10:null},
     SI:  {M_all:null, M_l10:null}
   };
-
   const gpi = chunk.match(/GPI\s*\(\s*M\s*=\s*([0-9.,-]+)\s*,\s*L10\s*=\s*([0-9.,-]+)\s*\)/i);
-  if(gpi){
-    out.GPI.M_all = safeNum(gpi[1]);
-    out.GPI.M_l10 = safeNum(gpi[2]);
-  }
+  if(gpi){ out.GPI.M_all=safeNum(gpi[1]); out.GPI.M_l10=safeNum(gpi[2]); }
   const gms = chunk.match(/GMS\s*\(\s*H\s*=\s*([0-9.,-]+)\s*\/\s*([0-9.,-]+)\s*,\s*A\s*=\s*([0-9.,-]+)\s*\/\s*([0-9.,-]+)\s*,\s*M\s*=\s*([0-9.,-]+)\s*\/\s*([0-9.,-]+)\s*\)/i);
   if(gms){
-    out.GMS.H_all = safeNum(gms[1]); out.GMS.H_l10 = safeNum(gms[2]);
-    out.GMS.A_all = safeNum(gms[3]); out.GMS.A_l10 = safeNum(gms[4]);
-    out.GMS.M_all = safeNum(gms[5]); out.GMS.M_l10 = safeNum(gms[6]);
+    out.GMS.H_all=safeNum(gms[1]); out.GMS.H_l10=safeNum(gms[2]);
+    out.GMS.A_all=safeNum(gms[3]); out.GMS.A_l10=safeNum(gms[4]);
+    out.GMS.M_all=safeNum(gms[5]); out.GMS.M_l10=safeNum(gms[6]);
   }
   const si = chunk.match(/SI\s*\(\s*M\s*=\s*([0-9.,-]+)\s*\/\s*([0-9.,-]+)\s*\)/i);
-  if(si){
-    out.SI.M_all = safeNum(si[1]);
-    out.SI.M_l10 = safeNum(si[2]);
-  }
+  if(si){ out.SI.M_all=safeNum(si[1]); out.SI.M_l10=safeNum(si[2]); }
   return out;
 }
-
 function parseLATE(chunk){
   const kv = parsePipeKVs(chunk);
-  return { AT: safeNum(kv.AT), L10: safeNum(kv.L10), L5: safeNum(kv.L5) };
+  return { AT:safeNum(kv.AT), L10:safeNum(kv.L10), L5:safeNum(kv.L5) };
 }
-
 function parseODDSTOBET(chunk){
-  // "ODDS_TO_BET | HT Next Over 0.5 = 1.45"
-  // Accept ":" or "="
   const m = chunk.match(/ODDS_TO_BET\s*\|\s*(.+?)\s*[:=]\s*([0-9.,]+)/i);
   if(!m) return null;
   const label = m[1].trim().replace(/\s+/g," ");
   const odds = safeNum(m[2]);
-  // Try extract phase + market + line
-  // Examples: "HT Next Over 0.5" or "FT Next Over 1.5"
   const ph = label.match(/\b(HT|FT)\b/i);
   const phase = ph ? ph[1].toUpperCase() : null;
-
   const lineM = label.match(/([0-9]+(\.[0-9]+)?)\b/);
   const line = lineM ? safeNum(lineM[1]) : null;
-
-  // Market: remove phase and line
   let market = label;
   if(phase) market = market.replace(new RegExp("\\b"+phase+"\\b","i"),"").trim();
   if(line !== null) market = market.replace(new RegExp(String(line).replace(".","\\.")),"").trim();
-  market = market.replace(/\s+/g," ").trim(); // e.g., "Next Over"
+  market = market.replace(/\s+/g," ").trim();
   return { label, phase, market, line, odds_ref: odds };
 }
-
 function parseLP(chunk){
+  // IMPORTANT: per tua regola, WR/ROI arrivano SEMPRE come percentuali => sempre /100
   const kv = parsePipeKVs(chunk);
+  const wr = safeNum(kv.WR);
+  const roi = safeNum(kv.ROI);
   return {
-    WR: safeNum(kv.WR),
-    ROI: safeNum(kv.ROI),
+    WR: wr===null ? null : wr/100,
+    ROI: roi===null ? null : roi/100,
     Profit: safeNum(kv.Profit),
     AO: safeNum(kv.AO),
     N: safeNum(kv.N)
   };
 }
-
-function parseStatsLine(chunk, tag){
+function parseStatsLine(chunk){
   const kv = parsePipeKVs(chunk);
-  return {
-    SOT: parseHA(kv.SOT),
-    SOFF: parseHA(kv.SOFF),
-    COR: parseHA(kv.COR),
-    ATT: parseHA(kv.ATT),
-    DATT: parseHA(kv.DATT),
-    _raw: chunk
-  };
+  return { SOT:parseHA(kv.SOT), SOFF:parseHA(kv.SOFF), COR:parseHA(kv.COR), ATT:parseHA(kv.ATT), DATT:parseHA(kv.DATT) };
 }
-
 function parseMETA(chunk){
   const kv = parsePipeKVs(chunk);
-  return {
-    Ver: (kv.Ver || "").trim(),
-    Method: (kv.Method || "").trim(),
-    Comp: (kv.Comp || "").trim(),
-    Match: (kv.Match || "").trim(),
-    _raw: chunk
-  };
+  return { Ver:(kv.Ver||"").trim(), Method:(kv.Method||"").trim(), Comp:(kv.Comp||"").trim(), Match:(kv.Match||"").trim() };
 }
-
 function parseSTATE(chunk){
   const kv = parsePipeKVs(chunk);
   const sc = parseScore(kv.Score);
+  const remht = safeNum(kv.RemHT);
   return {
     Time: safeNum(kv.Time),
-    RemHT: safeNum(kv.RemHT),
+    RemHT: remht!==null && remht<0 ? 0 : remht,
     RemFT: safeNum(kv.RemFT),
     ScoreHome: sc.home,
     ScoreAway: sc.away,
-    ScoreRaw: kv.Score ? String(kv.Score).trim() : "",
-    _raw: chunk
+    ScoreRaw: kv.Score ? String(kv.Score).trim() : ""
   };
 }
-
 function parseNotification(text){
   const blocks = extractBlocks(text);
   const errors = [];
   const warnings = [];
-
-  // required tags
   const required = ["META","STATE","PROB","ODDS_TO_BET","LP"];
-  for(const r of required){
-    if(!blocks[r]) errors.push(`Manca blocco: ${r}`);
-  }
+  for(const r of required){ if(!blocks[r]) errors.push(`Manca blocco: ${r}`); }
   if(errors.length) return {ok:false, errors, warnings, data:null};
 
   const meta = parseMETA(blocks.META);
-  if(!meta.Ver || meta.Ver.toUpperCase() !== "V3"){
-    warnings.push(`Ver non è "V3" (trovato: "${meta.Ver || "—"}"). Parser comunque procede.`);
-  }
-  if(!meta.Method) warnings.push("META.Method vuoto");
-  if(!meta.Match) warnings.push("META.Match vuoto");
-
-  const state = parseSTATE(blocks.STATE);
-  if(state.Time === null) warnings.push("STATE.Time non parsabile");
-  if(state.RemHT === null) warnings.push("STATE.RemHT non parsabile");
-  if(state.RemFT === null) warnings.push("STATE.RemFT non parsabile");
-
-  const stats = blocks.STATS ? parseStatsLine(blocks.STATS, "STATS") : null;
-  const l10 = blocks.L10 ? parseStatsLine(blocks.L10, "L10") : null;
-
+  const stateObj = parseSTATE(blocks.STATE);
   const prob = parsePROB(blocks.PROB);
-  if(Object.keys(prob.HT).length===0) warnings.push("PROB.HT non parsato");
-  if(Object.keys(prob.FT).length===0) warnings.push("PROB.FT non parsato");
+  const oddsToBet = parseODDSTOBET(blocks.ODDS_TO_BET);
+  const lp = parseLP(blocks.LP);
 
+  const stats = blocks.STATS ? parseStatsLine(blocks.STATS) : null;
+  const l10 = blocks.L10 ? parseStatsLine(blocks.L10) : null;
   const press = blocks.PRESS ? parsePRESS(blocks.PRESS) : null;
   const late = blocks.LATE ? parseLATE(blocks.LATE) : null;
 
-  const oddsToBet = parseODDSTOBET(blocks.ODDS_TO_BET);
-  if(!oddsToBet || oddsToBet.odds_ref === null) errors.push("ODDS_TO_BET non parsabile (serve: '... = 1.45')");
-  if(!oddsToBet.phase) warnings.push("ODDS_TO_BET: non riesco a capire Phase (HT/FT)");
-  if(oddsToBet.line === null) warnings.push("ODDS_TO_BET: non riesco a capire Line (es: 0.5)");
-
-  const lp = parseLP(blocks.LP);
-  if(lp.WR === null) warnings.push("LP.WR non parsabile (atteso decimale 0-1)");
-  if(lp.ROI !== null && lp.ROI > 1) warnings.push("LP.ROI sembra non in formato decimale (es: 0.043).");
-
+  if(!oddsToBet || oddsToBet.odds_ref===null) errors.push("ODDS_TO_BET non parsabile (serve: '... = 1.45')");
+  if(!oddsToBet?.phase) warnings.push("ODDS_TO_BET: Phase (HT/FT) non rilevata");
+  if(oddsToBet?.line===null) warnings.push("ODDS_TO_BET: Line non rilevata (es 1.5)");
+  if(lp.WR===null) warnings.push("LP.WR mancante");
+  if(lp.ROI===null) warnings.push("LP.ROI mancante");
   if(errors.length) return {ok:false, errors, warnings, data:null};
 
-  // Normalize RemHT: never negative
-  if(state.RemHT !== null && state.RemHT < 0) {
-    warnings.push("STATE.RemHT è negativo: normalizzato a 0");
-    state.RemHT = 0;
-  }
-
-  return {
-    ok:true,
-    errors:[],
-    warnings,
-    data:{
-      meta, state, stats, l10, prob, press, late, oddsToBet, lp,
-      raw: normalizeText(text)
+  // Basic sanity: prob values in [0,1] (do not fail, just warn)
+  const checkProb = (obj, label)=>{
+    for(const k of Object.keys(obj)){
+      const v = obj[k];
+      if(v!==null && (v<0 || v>1)) warnings.push(`PROB ${label}(+${k}) fuori range (0-1): ${v}`);
     }
   };
+  checkProb(prob.HT,"HT"); checkProb(prob.FT,"FT");
+
+  return { ok:true, errors:[], warnings, data:{
+    meta, state:stateObj, stats, l10, prob, press, late, oddsToBet, lp,
+    raw: normalizeText(text)
+  }};
 }
 
 /* =========================
-   Stake Formula v1
+   Stake v1 (NEXT logic)
 ========================= */
-
 function betKeyFromParsed(parsed){
-  // group key: method + phase + market + line
   const m = parsed.meta.Method || "";
   const phase = parsed.oddsToBet.phase || "";
   const market = parsed.oddsToBet.market || parsed.oddsToBet.label || "";
   const line = parsed.oddsToBet.line;
   return `${m}||${phase}||${market}||${line ?? ""}`.trim();
 }
-
-function pickMatchProbability(parsed){
-  // Determine which +k prob to use based on ODDS_TO_BET line (over X.5 => k = floor(X)+1)
+function neededGoalsFromLine_NEXT(line){
+  // NEXT Over x.5 => need (x+1) goals from now. x.5 => integer.
+  if(line===null) return null;
+  return Math.floor(line) + 1; // 1.5->2, 2.5->3, 0.5->1
+}
+function pickMatchProbability_NEXT(parsed){
   const phase = parsed.oddsToBet.phase;
   const line = parsed.oddsToBet.line;
-  if(!phase || line === null) return {p:null, needed:null, reason:"Phase o Line non disponibili"};
-  const needed = Math.floor(line) + 1; // 0.5 ->1, 1.5->2, 2.5->3
+  if(!phase || line===null) return {p:null, needed:null, reason:"Phase o Line non disponibili"};
+  const needed = neededGoalsFromLine_NEXT(line);
   const table = (phase==="HT") ? parsed.prob.HT : parsed.prob.FT;
   const p = table ? table[needed] : null;
   if(p === undefined || p === null) return {p:null, needed, reason:`Manca PROB ${phase}(+${needed})`};
   return {p, needed, reason:null};
 }
-
 function getArchiveStatsForKey(key){
-  // Only closed bets
-  const closed = state.history.filter(b => b.key === key && (b.result==="win" || b.result==="loss"));
+  const closed = state.history.filter(b => b.key===key && (b.result==="win" || b.result==="loss"));
   const N = closed.length;
-  if(N === 0) return {N:0, winrate:null};
+  if(N===0) return {N:0, winrate:null};
   const wins = closed.filter(b=>b.result==="win").length;
-  return {N, winrate: wins / N};
+  return {N, winrate: wins/N};
 }
-
 function calcStakeV1(parsed){
   const key = betKeyFromParsed(parsed);
   const odds = parsed.oddsToBet.odds_ref;
-  const lpWR = parsed.lp.WR;
+  const lpWR = parsed.lp.WR; // already converted to 0-1 always
 
-  const matchP = pickMatchProbability(parsed);
-  const P_MATCH = matchP.p; // can be null
+  const matchP = pickMatchProbability_NEXT(parsed);
+  const P_MATCH = matchP.p;
   const arch = getArchiveStatsForKey(key);
   const P_ARCH = arch.winrate;
   const N = arch.N;
 
   const warnings = [];
-  if(odds === null || odds <= 1) return { ok:false, reason:"Quota ODDS_TO_BET non valida", warnings, key };
+  if(odds===null || odds<=1) return {ok:false, reason:"Quota ODDS_TO_BET non valida", warnings, key};
+  if(P_MATCH===null) warnings.push(matchP.reason || "Prob match non disponibile");
+  if(lpWR===null) warnings.push("LP.WR non disponibile");
+  if(P_ARCH===null) warnings.push("Archivio: nessuna bet chiusa per questo filtro (N=0)");
 
-  if(P_MATCH === null) warnings.push(matchP.reason || "Prob match non disponibile");
-  if(lpWR === null) warnings.push("LP.WR non disponibile (atteso decimale 0-1)");
-  if(P_ARCH === null) warnings.push("Archivio: nessuna bet chiusa per questo filtro (N=0)");
-
-  // If we cannot form a reference probability, fail
-  if(P_MATCH === null && lpWR === null && P_ARCH === null){
-    return { ok:false, reason:"Impossibile calcolare P_REF (mancano probabilità)", warnings, key };
+  if(P_MATCH===null && lpWR===null && P_ARCH===null){
+    return {ok:false, reason:"Impossibile calcolare P_REF (mancano probabilità)", warnings, key};
   }
 
-  // Build P_REF per rules
-  const P_LP = lpWR;
-  let P_REF = null;
-  let source = "LP/MATCH";
+  let P_REF=null, source="LP/MATCH";
   if(N < 50){
-    // P_REF = 0.6*P_LP + 0.4*P_MATCH
-    // fallback: if one missing, use the other
-    if(P_LP !== null && P_MATCH !== null) P_REF = 0.6*P_LP + 0.4*P_MATCH;
-    else P_REF = (P_LP !== null) ? P_LP : P_MATCH;
+    if(lpWR!==null && P_MATCH!==null) P_REF = 0.6*lpWR + 0.4*P_MATCH;
+    else P_REF = (lpWR!==null) ? lpWR : P_MATCH;
   }else{
-    source = "ARCH/MATCH";
-    if(P_ARCH !== null && P_MATCH !== null) P_REF = 0.6*P_ARCH + 0.4*P_MATCH;
-    else P_REF = (P_ARCH !== null) ? P_ARCH : P_MATCH;
+    source="ARCH/MATCH";
+    if(P_ARCH!==null && P_MATCH!==null) P_REF = 0.6*P_ARCH + 0.4*P_MATCH;
+    else P_REF = (P_ARCH!==null) ? P_ARCH : P_MATCH;
   }
-
-  // Blending zone 30-70 (smooth transition)
-  if(N >= 30 && N < 70){
-    const w = (N - 30) / 40; // 0..1
-    const left = (P_LP !== null && P_MATCH !== null) ? (0.6*P_LP + 0.4*P_MATCH) : ((P_LP !== null)?P_LP:P_MATCH);
-    const right = (P_ARCH !== null && P_MATCH !== null) ? (0.6*P_ARCH + 0.4*P_MATCH) : ((P_ARCH !== null)?P_ARCH:P_MATCH);
+  if(N>=30 && N<70){
+    const w=(N-30)/40;
+    const left = (lpWR!==null && P_MATCH!==null) ? (0.6*lpWR + 0.4*P_MATCH) : ((lpWR!==null)?lpWR:P_MATCH);
+    const right = (P_ARCH!==null && P_MATCH!==null) ? (0.6*P_ARCH + 0.4*P_MATCH) : ((P_ARCH!==null)?P_ARCH:P_MATCH);
     P_REF = (1-w)*left + w*right;
-    source = "BLEND";
+    source="BLEND";
   }
 
-  // Edge
   const implied = 1/odds;
-  const edge = (P_REF !== null) ? (P_REF - implied) : null;
+  const edge = (P_REF!==null) ? (P_REF - implied) : null;
 
-  // No bet if edge <= 0 or P_REF invalid
-  if(P_REF === null || edge === null || edge <= 0){
-    return {
-      ok:true,
-      key,
-      source,
-      N_archive: N,
-      P_REF,
-      implied,
-      edge,
-      kelly: 0,
-      stake_pct: 0,
-      stake_amount: 0,
-      no_bet: true,
-      warnings
-    };
+  if(P_REF===null || edge===null || edge<=0){
+    return {ok:true, key, source, N_archive:N, P_REF, implied, edge, kelly:0, stake_pct:0, stake_amount:0, no_bet:true, warnings};
   }
 
-  // Kelly reduced
   const kelly = edge / (odds - 1);
   let kAdj = 0.5 * kelly;
-
-  // Clamp min/max
   let stakePct = clamp(kAdj, 0.02, 0.05);
 
-  // Rule: under 50 in DB never max stake (your rule)
   if(N < 50 && stakePct >= 0.05){
-    stakePct = 0.04; // cap at 4% when sample small
+    stakePct = 0.04;
     warnings.push("N<50: cap stake al 4% (mai massimo stake)");
   }
-
-  // LP sample size reduction
-  if(parsed.lp.N !== null && parsed.lp.N < 500){
+  if(parsed.lp.N!==null && parsed.lp.N < 500){
     stakePct *= 0.8;
-    stakePct = Math.max(stakePct, 0.02); // keep min
+    stakePct = Math.max(stakePct, 0.02);
     warnings.push("LP.N<500: stake ridotto del 20%");
   }
 
-  return {
-    ok:true,
-    key,
-    source,
-    N_archive: N,
-    P_REF,
-    implied,
-    edge,
-    kelly,
-    stake_pct: stakePct,
-    stake_amount: null, // computed after bankrollDay known
-    no_bet: false,
-    warnings
-  };
+  return {ok:true, key, source, N_archive:N, P_REF, implied, edge, kelly, stake_pct:stakePct, stake_amount:null, no_bet:false, warnings, needed_goals: matchP.needed};
 }
 
 /* =========================
-   Daily Snapshot + Day PnL
+   Daily snapshot & PnL
 ========================= */
 function ensureDailySnapshot(){
-  const today = todayISO();
-  if(state.dailySnapshot.date !== today || state.dailySnapshot.bankroll === null){
-    state.dailySnapshot.date = today;
+  const t = todayISO();
+  if(state.dailySnapshot.date !== t || state.dailySnapshot.bankroll === null){
+    state.dailySnapshot.date = t;
     state.dailySnapshot.bankroll = Number(state.settings.bankroll || 0);
     saveState();
   }
 }
 function getTodayClosedPnL(){
-  const today = todayISO();
-  const brDay = state.dailySnapshot.date === today ? Number(state.dailySnapshot.bankroll || 0) : null;
-  const todays = state.history.filter(b=>b.date === today && (b.result==="win" || b.result==="loss"));
+  const t = todayISO();
+  const brDay = (state.dailySnapshot.date===t) ? Number(state.dailySnapshot.bankroll || 0) : null;
+  const todays = state.history.filter(b=>b.date===t && (b.result==="win" || b.result==="loss"));
   const profit = sum(todays.map(b=>b.profit_real));
-  const pct = (brDay && brDay>0) ? (profit / brDay) : null;
-  return {profit, pct, brDay, closedCount: todays.length};
+  const pct = (brDay && brDay>0) ? (profit/brDay) : null;
+  return {profit, pct, brDay, closedCount:todays.length};
 }
-
 function updateDailyPill(){
-  const pillDot = document.getElementById("pillDot");
-  const pillText = document.getElementById("pillText");
-  const info = getTodayClosedPnL();
-  if(info.brDay === null){
-    pillDot.className = "dot neu";
-    pillText.textContent = "Giornata: neutra";
-    return;
+  const pillDot=document.getElementById("pillDot");
+  const pillText=document.getElementById("pillText");
+  const info=getTodayClosedPnL();
+  if(info.brDay===null){
+    pillDot.className="dot neu"; pillText.textContent="Giornata: neutra"; return;
   }
-  if(info.pct !== null && info.pct >= 0.03){
-    pillDot.className = "dot good";
-    pillText.textContent = "Target profit raggiunto";
-  }else if(info.pct !== null && info.pct <= -0.10){
-    pillDot.className = "dot bad";
-    pillText.textContent = "Stop loss raggiunto";
+  if(info.pct!==null && info.pct>=0.03){
+    pillDot.className="dot good"; pillText.textContent="Target profit raggiunto";
+  }else if(info.pct!==null && info.pct<=-0.10){
+    pillDot.className="dot bad"; pillText.textContent="Stop loss raggiunto";
   }else{
-    pillDot.className = "dot neu";
-    pillText.textContent = "Giornata: neutra";
+    pillDot.className="dot neu"; pillText.textContent="Giornata: neutra";
   }
 }
-
 function renderDailyBanner(){
-  const wrap = document.getElementById("dailyBannerWrap");
-  const info = getTodayClosedPnL();
-  wrap.innerHTML = "";
-  if(info.brDay === null){
-    const b = document.createElement("div");
-    b.className = "banner";
-    b.innerHTML = `<b>Bankroll giornaliero</b><small>Nessuno snapshot per oggi: verrà creato alla prima bet aggiunta allo storico.</small>`;
-    wrap.appendChild(b);
+  const wrap=document.getElementById("dailyBannerWrap");
+  const info=getTodayClosedPnL();
+  wrap.innerHTML="";
+  if(info.brDay===null){
+    wrap.innerHTML = `<div class="banner"><b>Bankroll giornaliero</b><small>Nessuno snapshot per oggi: verrà creato alla prima bet aggiunta allo storico.</small></div>`;
     return;
   }
   const pctStr = info.pct===null ? "—" : fmtPct(info.pct);
   const pStr = fmtMoney(info.profit);
   const brStr = fmtMoney(info.brDay);
-  if(info.pct !== null && info.pct >= 0.03){
-    const b = document.createElement("div");
-    b.className = "banner good";
-    b.innerHTML = `<b>TARGET PROFIT RAGGIUNTO</b>
-      <small>Oggi: <b>${pStr}</b> (${pctStr}) su bankroll giornaliero <b>${brStr}</b>.</small>`;
-    wrap.appendChild(b);
-  }else if(info.pct !== null && info.pct <= -0.10){
-    const b = document.createElement("div");
-    b.className = "banner bad";
-    b.innerHTML = `<b>STOP LOSS RAGGIUNTO</b>
-      <small>Oggi: <b>${pStr}</b> (${pctStr}) su bankroll giornaliero <b>${brStr}</b>.</small>`;
-    wrap.appendChild(b);
+  if(info.pct!==null && info.pct>=0.03){
+    wrap.innerHTML = `<div class="banner good"><b>TARGET PROFIT RAGGIUNTO</b><small>Oggi: <b>${pStr}</b> (${pctStr}) su BR day <b>${brStr}</b>.</small></div>`;
+  }else if(info.pct!==null && info.pct<=-0.10){
+    wrap.innerHTML = `<div class="banner bad"><b>STOP LOSS RAGGIUNTO</b><small>Oggi: <b>${pStr}</b> (${pctStr}) su BR day <b>${brStr}</b>.</small></div>`;
   }else{
-    const b = document.createElement("div");
-    b.className = "banner";
-    b.innerHTML = `<b>Giornata in corso</b>
-      <small>Oggi: <b>${pStr}</b> (${pctStr}) su bankroll giornaliero <b>${brStr}</b>. (Bet chiuse: ${info.closedCount})</small>`;
-    wrap.appendChild(b);
+    wrap.innerHTML = `<div class="banner"><b>Giornata in corso</b><small>Oggi: <b>${pStr}</b> (${pctStr}) su BR day <b>${brStr}</b>. (Bet chiuse: ${info.closedCount})</small></div>`;
   }
 }
 
 /* =========================
-   History & Profit Calc
+   Profit calc
 ========================= */
 function calcProfit(result, stake, odds){
   const s = Number(stake);
@@ -1217,15 +1181,13 @@ function calcProfit(result, stake, odds){
     return s * (o - 1);
   }
   if(result==="loss") return -s;
-  return null; // pending
+  return null;
 }
-
 function recalcAll(){
   for(const b of state.history){
     if(b.result==="win" || b.result==="loss"){
-      // prefer manual override if present
-      if(b.profit_manual === true) continue;
-      b.profit_real = calcProfit(b.result, b.stake_played, b.odds_played);
+      if(b.profit_manual===true) continue;
+      b.profit_real = calcProfit(b.result, b.execution.stake_played, b.execution.odds_played);
     }else{
       b.profit_real = null;
     }
@@ -1235,143 +1197,114 @@ function recalcAll(){
 }
 
 /* =========================
-   UI: Calcolatore
+   Calcolatore UI
 ========================= */
-let state = loadState();
+const lpText=document.getElementById("lpText");
+const btnParse=document.getElementById("btnParse");
+const btnClear=document.getElementById("btnClear");
+const btnResetAll=document.getElementById("btnResetAll");
+const parseMsg=document.getElementById("parseMsg");
+const previewWrap=document.getElementById("previewWrap");
+const bankrollInput=document.getElementById("bankrollInput");
+const bankrollDay=document.getElementById("bankrollDay");
+const oddsPlayed=document.getElementById("oddsPlayed");
+const stakePlayed=document.getElementById("stakePlayed");
+const btnAddToHistory=document.getElementById("btnAddToHistory");
 
-const lpText = document.getElementById("lpText");
-const btnParse = document.getElementById("btnParse");
-const btnClear = document.getElementById("btnClear");
-const btnResetAll = document.getElementById("btnResetAll");
-const parseMsg = document.getElementById("parseMsg");
-const previewWrap = document.getElementById("previewWrap");
-const bankrollInput = document.getElementById("bankrollInput");
-const bankrollDay = document.getElementById("bankrollDay");
-const oddsPlayed = document.getElementById("oddsPlayed");
-const stakePlayed = document.getElementById("stakePlayed");
-const btnAddToHistory = document.getElementById("btnAddToHistory");
-
-let lastParsed = null;
-let lastStake = null;
+let lastParsed=null;
+let lastStake=null;
 
 function syncBankrollInputs(){
-  bankrollInput.value = Number(state.settings.bankroll || 0);
-  document.getElementById("bankrollInputDash").value = Number(state.settings.bankroll || 0);
-  bankrollDay.value = (state.dailySnapshot.date === todayISO() && state.dailySnapshot.bankroll !== null)
+  bankrollInput.value = Number(state.settings.bankroll||0);
+  document.getElementById("bankrollInputDash").value = Number(state.settings.bankroll||0);
+  bankrollDay.value = (state.dailySnapshot.date===todayISO() && state.dailySnapshot.bankroll!==null)
     ? fmtMoney(state.dailySnapshot.bankroll)
-    : "— (non creato)";
+    : "—";
 }
-
 bankrollInput.addEventListener("change", ()=>{
-  state.settings.bankroll = Number(bankrollInput.value || 0);
-  saveState();
-  syncBankrollInputs();
+  state.settings.bankroll = Number(bankrollInput.value||0);
+  saveState(); syncBankrollInputs(); renderDailyBanner(); updateDailyPill();
 });
 document.getElementById("bankrollInputDash").addEventListener("change", ()=>{
-  state.settings.bankroll = Number(document.getElementById("bankrollInputDash").value || 0);
-  saveState();
-  syncBankrollInputs();
+  state.settings.bankroll = Number(document.getElementById("bankrollInputDash").value||0);
+  saveState(); syncBankrollInputs(); renderDailyBanner(); updateDailyPill();
 });
 
 btnClear.addEventListener("click", ()=>{
-  lpText.value = "";
-  lastParsed = null;
-  lastStake = null;
-  parseMsg.innerHTML = "";
-  previewWrap.innerHTML = "Nessun parse ancora.";
-  btnAddToHistory.disabled = true;
+  lpText.value=""; lastParsed=null; lastStake=null;
+  parseMsg.innerHTML=""; previewWrap.innerHTML="Nessun parse ancora.";
+  btnAddToHistory.disabled=true;
 });
 btnResetAll.addEventListener("click", ()=>{
-  if(confirm("Sicuro di voler resettare TUTTO? (storico + impostazioni + snapshot)")){
-    resetAll();
-  }
+  if(confirm("Sicuro di voler resettare TUTTO? (storico + impostazioni + snapshot)")) resetAll();
 });
 
 btnParse.addEventListener("click", ()=>{
-  const txt = lpText.value;
-  const res = parseNotification(txt);
+  const res = parseNotification(lpText.value);
   if(!res.ok){
-    lastParsed = null;
-    lastStake = null;
-    btnAddToHistory.disabled = true;
-    parseMsg.innerHTML = `<div class="errLine"><b>Parse fallito:</b><br/>${res.errors.map(e=>`• ${e}`).join("<br/>")}</div>` +
-      (res.warnings.length ? `<div class="warnLine" style="margin-top:8px"><b>Warning:</b><br/>${res.warnings.map(w=>`• ${w}`).join("<br/>")}</div>` : "");
-    previewWrap.innerHTML = "Correggi la notifica e riprova.";
+    lastParsed=null; lastStake=null; btnAddToHistory.disabled=true;
+    parseMsg.innerHTML = `<div class="errLine"><b>Parse fallito:</b><br/>${res.errors.map(e=>`• ${escapeHtml(e)}`).join("<br/>")}</div>` +
+      (res.warnings.length ? `<div class="warnLine"><b>Warning:</b><br/>${res.warnings.map(w=>`• ${escapeHtml(w)}`).join("<br/>")}</div>` : "");
+    previewWrap.innerHTML="Correggi la notifica e riprova.";
     return;
   }
+  lastParsed=res.data;
+  lastStake=calcStakeV1(lastParsed);
 
-  lastParsed = res.data;
-  // stake calc
-  const st = calcStakeV1(lastParsed);
-  lastStake = st;
+  const warn = [...res.warnings, ...(lastStake.warnings||[])];
+  parseMsg.innerHTML = `<div class="okLine"><b>Parse OK.</b> <span class="mono">${escapeHtml(lastParsed.meta.Match)}</span></div>` +
+    (warn.length ? `<div class="warnLine"><b>Warning:</b><br/>${warn.map(w=>`• ${escapeHtml(w)}`).join("<br/>")}</div>` : "");
 
-  const warningsHtml = (res.warnings.length || st.warnings.length)
-    ? `<div class="warnLine"><b>Warning:</b><br/>${[...res.warnings, ...st.warnings].map(w=>`• ${w}`).join("<br/>")}</div>` : "";
-
-  parseMsg.innerHTML =
-    `<div class="okLine"><b>Parse OK.</b> Method: <span class="mono">${escapeHtml(lastParsed.meta.Method)}</span> — Match: <span class="mono">${escapeHtml(lastParsed.meta.Match)}</span></div>` +
-    warningsHtml;
-
-  // Ensure bankroll day field display (do not create snapshot yet)
   syncBankrollInputs();
 
-  // Compute suggested stake amount based on snapshot if exists, else on current bankroll
-  const brBase = (state.dailySnapshot.date === todayISO() && state.dailySnapshot.bankroll !== null)
-    ? Number(state.dailySnapshot.bankroll)
-    : Number(state.settings.bankroll || 0);
+  const brBase = (state.dailySnapshot.date===todayISO() && state.dailySnapshot.bankroll!==null)
+    ? Number(state.dailySnapshot.bankroll) : Number(state.settings.bankroll||0);
 
-  const stakeAmt = st.stake_pct ? (st.stake_pct * brBase) : 0;
+  const stakeAmt = lastStake.stake_pct ? (lastStake.stake_pct*brBase) : 0;
 
-  // Pre-fill stake played if empty
-  if(!stakePlayed.value){
-    stakePlayed.value = stakeAmt > 0 ? stakeAmt.toFixed(2) : "";
-  }
-  // Pre-fill odds played if empty (common: slightly lower, user will edit)
-  if(!oddsPlayed.value && lastParsed.oddsToBet.odds_ref !== null){
-    oddsPlayed.value = "";
-  }
+  if(!stakePlayed.value) stakePlayed.value = stakeAmt>0 ? stakeAmt.toFixed(2) : "";
+  // oddsPlayed left empty by design
 
-  const pRef = (st.P_REF !== null) ? fmtPct(st.P_REF) : "—";
-  const implied = (st.implied !== null) ? fmtPct(st.implied) : "—";
-  const edge = (st.edge !== null) ? fmtPct(st.edge) : "—";
-  const stakePct = st.no_bet ? "0.00%" : fmtPct(st.stake_pct);
-  const stakeMoney = st.no_bet ? "—" : fmtMoney(stakeAmt);
-  const noBetLine = st.no_bet ? `<div class="errLine"><b>NO BET</b>: edge ≤ 0 (o probabilità insufficiente).</div>` : "";
+  const noBetLine = lastStake.no_bet ? `<div class="errLine"><b>NO BET</b>: edge ≤ 0 (o probabilità insufficiente).</div>` : "";
+  const pRef = lastStake.P_REF!==null ? fmtPct(lastStake.P_REF) : "—";
+  const implied = lastStake.implied!==null ? fmtPct(lastStake.implied) : "—";
+  const edge = lastStake.edge!==null ? fmtPct(lastStake.edge) : "—";
+  const needed = lastStake.needed_goals ?? "—";
 
   previewWrap.innerHTML = `
     <div class="row">
-      <div class="kv"><span>Pick</span><b class="mono">${escapeHtml(lastParsed.oddsToBet.label)} @ ${lastParsed.oddsToBet.odds_ref ?? "—"}</b></div>
-      <div class="kv"><span>Fonte</span><b>${escapeHtml(st.source || "—")}</b></div>
-      <div class="kv"><span>N archivio</span><b>${st.N_archive ?? 0}</b></div>
+      <span class="badge">${escapeHtml(lastParsed.oddsToBet.label)} @ <span class="mono">${lastParsed.oddsToBet.odds_ref}</span></span>
+      <span class="badge">PROB usata: <b class="mono">${escapeHtml(lastParsed.oddsToBet.phase||"—")}(+${needed})</b></span>
+      <span class="badge">Fonte: <b>${escapeHtml(lastStake.source||"—")}</b></span>
+      <span class="badge">N arch: <b>${lastStake.N_archive ?? 0}</b></span>
     </div>
-    <div class="row" style="margin-top:10px">
-      <div class="kv"><span>P_REF</span><b>${pRef}</b></div>
-      <div class="kv"><span>Implied</span><b>${implied}</b></div>
-      <div class="kv"><span>Edge</span><b>${edge}</b></div>
+    <div class="row" style="margin-top:8px">
+      <span class="badge">P_REF: <b class="mono">${pRef}</b></span>
+      <span class="badge">Implied: <b class="mono">${implied}</b></span>
+      <span class="badge">Edge: <b class="mono">${edge}</b></span>
     </div>
-    <div class="row" style="margin-top:10px">
-      <div class="kv"><span>Stake %</span><b>${stakePct}</b></div>
-      <div class="kv"><span>Stake € (base day)</span><b>${stakeMoney}</b></div>
-      <div class="kv"><span>Bankroll base</span><b>${fmtMoney(brBase)}</b></div>
+    <div class="row" style="margin-top:8px">
+      <span class="badge">Stake%: <b class="mono">${fmtPct(lastStake.stake_pct)}</b></span>
+      <span class="badge">Stake € (base): <b class="mono">${fmtMoney(stakeAmt)}</b></span>
+      <span class="badge">BR base: <b class="mono">${fmtMoney(brBase)}</b></span>
     </div>
     ${noBetLine}
   `;
 
-  btnAddToHistory.disabled = false;
+  btnAddToHistory.disabled=false;
 });
 
 btnAddToHistory.addEventListener("click", ()=>{
   if(!lastParsed || !lastStake || !lastStake.ok) return;
 
-  // Create daily snapshot at first bet of day
   ensureDailySnapshot();
   syncBankrollInputs();
 
-  const brDay = Number(state.dailySnapshot.bankroll || 0);
+  const brDay = Number(state.dailySnapshot.bankroll||0);
   const stakeAmt = lastStake.stake_pct ? lastStake.stake_pct * brDay : 0;
 
   const bet = {
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + "_" + Math.random().toString(16).slice(2),
+    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now())+"_"+Math.random().toString(16).slice(2),
     date: todayISO(),
     key: lastStake.key,
     meta: lastParsed.meta,
@@ -1381,7 +1314,7 @@ btnAddToHistory.addEventListener("click", ()=>{
     prob: lastParsed.prob,
     press: lastParsed.press,
     late: lastParsed.late,
-    odds_to_bet: lastParsed.oddsToBet, // contains odds_ref, phase, market, line
+    odds_to_bet: lastParsed.oddsToBet,
     lp: lastParsed.lp,
     calc: {
       stake_source: lastStake.source,
@@ -1391,7 +1324,8 @@ btnAddToHistory.addEventListener("click", ()=>{
       edge: lastStake.edge,
       kelly: lastStake.kelly,
       stake_suggested_pct: lastStake.stake_pct,
-      bankroll_day: brDay
+      bankroll_day: brDay,
+      needed_goals: lastStake.needed_goals
     },
     execution: {
       odds_ref: lastParsed.oddsToBet.odds_ref,
@@ -1399,98 +1333,121 @@ btnAddToHistory.addEventListener("click", ()=>{
       odds_played: safeNum(oddsPlayed.value),
       stake_played: safeNum(stakePlayed.value) ?? stakeAmt
     },
-    result: "pending",
+    result: "pending", // pending by default
     profit_real: null,
     profit_manual: false,
     raw: lastParsed.raw
   };
 
-  // store
   state.history.unshift(bet);
   saveState();
-
-  // reset small fields (keep notification for rapid adds)
-  // stakePlayed/oddsPlayed left as-is to speed workflow
   renderAll();
   setPage("storico");
 });
 
 /* =========================
-   UI: Storico
+   Storico UI (mini-cards)
 ========================= */
-const historyEmpty = document.getElementById("historyEmpty");
-const historyTable = document.getElementById("historyTable");
-const historyBody = document.getElementById("historyBody");
-const detailsBox = document.getElementById("detailsBox");
-const historyFilter = document.getElementById("historyFilter");
+const historyList=document.getElementById("historyList");
+const historyEmpty=document.getElementById("historyEmpty");
+const historyResultFilter=document.getElementById("historyResultFilter");
+const historyDateFilter=document.getElementById("historyDateFilter");
 
-historyFilter.addEventListener("change", renderHistory);
+historyResultFilter.addEventListener("change", renderHistory);
+historyDateFilter.addEventListener("change", renderHistory);
 
-document.getElementById("btnClearHistory").addEventListener("click", ()=>{
-  if(confirm("Svuotare lo storico?")){
-    state.history = [];
-    saveState();
-    renderAll();
-  }
-});
-document.getElementById("btnRecalc").addEventListener("click", ()=>{
-  recalcAll();
-  alert("Ricalcolo completato.");
+let selectedBetId=null;
+let showRaw=false;
+document.getElementById("btnToggleRaw").addEventListener("click", ()=>{
+  if(!selectedBetId) return;
+  showRaw = !showRaw;
+  renderDetails(state.history.find(b=>b.id===selectedBetId));
 });
 
 function resultBadge(res){
-  if(res==="win") return `<span class="badge win">WIN</span>`;
-  if(res==="loss") return `<span class="badge loss">LOSS</span>`;
-  return `<span class="badge pending">PENDING</span>`;
+  if(res==="win") return `<span class="badge win">Vinta</span>`;
+  if(res==="loss") return `<span class="badge loss">Persa</span>`;
+  if(res==="not_played") return `<span class="badge pending">Non giocata</span>`;
+  return `<span class="badge neutral">Pending</span>`;
 }
-
-function renderHistory(){
-  const f = historyFilter.value;
-  let rows = state.history.slice();
-  if(f !== "all"){
-    rows = rows.filter(b=>b.result === f);
+function profitChip(b){
+  if(b.result==="win"){
+    return `<span class="chip good">Profit <b>+${escapeHtml(fmtMoney(b.profit_real))}</b></span>`;
   }
-  if(rows.length===0){
-    historyEmpty.textContent = "Nessuna bet da mostrare.";
-    historyTable.style.display = "none";
-    historyBody.innerHTML = "";
-    detailsBox.textContent = "Seleziona una bet dalla tabella.";
+  if(b.result==="loss"){
+    return `<span class="chip bad">Profit <b>${escapeHtml(fmtMoney(b.profit_real))}</b></span>`;
+  }
+  // pending/not played not counted
+  return `<span class="chip warn">Profit <b>—</b></span>`;
+}
+function formatPick(b){
+  // show "FT Next Over 1.5"
+  return (b.odds_to_bet && b.odds_to_bet.label) ? b.odds_to_bet.label : `${b.odds_to_bet?.phase||""} ${b.odds_to_bet?.market||""} ${b.odds_to_bet?.line??""}`.trim();
+}
+function filterHistoryList(){
+  let arr = state.history.slice();
+  const rf = historyResultFilter.value;
+  const df = historyDateFilter.value;
+
+  if(rf!=="all"){
+    arr = arr.filter(b=>b.result===rf);
+  }
+  if(df!=="all"){
+    arr = arr.filter(b=>inDateRange(b.date, df));
+  }
+  return arr;
+}
+function renderHistory(){
+  const arr = filterHistoryList();
+  historyList.innerHTML="";
+  historyEmpty.textContent="";
+  if(arr.length===0){
+    historyEmpty.textContent="Nessuna bet da mostrare.";
     return;
   }
-  historyEmpty.textContent = "";
-  historyTable.style.display = "";
-  historyBody.innerHTML = "";
 
-  for(const b of rows){
-    const pick = `${b.odds_to_bet.phase || "—"} ${b.odds_to_bet.market || ""} ${b.odds_to_bet.line ?? ""}`.trim();
-    const stakeS = fmtMoney(b.execution.stake_suggested);
-    const stakeP = fmtMoney(b.execution.stake_played);
-    const oddsRef = (b.execution.odds_ref ?? "—");
-    const oddsP = (b.execution.odds_played ?? "—");
-    const profit = fmtMoney(b.profit_real);
+  for(const b of arr){
+    const pick = formatPick(b);
+    const method = b.meta?.Method || "—";
+    const match = b.meta?.Match || "—";
+    const stakeS = fmtMoney(b.execution?.stake_suggested);
+    const stakeP = fmtMoney(b.execution?.stake_played);
+    const oddsRef = b.execution?.odds_ref ?? "—";
+    const oddsP = (b.execution?.odds_played ?? "—");
+    const badge = resultBadge(b.result);
 
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="mono">${escapeHtml(b.date)}</td>
-      <td class="mono">${escapeHtml((b.meta.Match||"—"))}</td>
-      <td class="mono">${escapeHtml(pick)}<br/><span class="smallmuted">${escapeHtml(b.meta.Method||"")}</span></td>
-      <td class="mono">${stakeS} / <b>${stakeP}</b></td>
-      <td class="mono">${oddsRef} / <b>${oddsP}</b></td>
-      <td>${resultBadge(b.result)}</td>
-      <td class="mono">${profit}</td>
-      <td>
-        <div class="row">
-          <button class="btn" data-act="view" data-id="${b.id}">Dettagli</button>
-          <button class="btn primary" data-act="edit" data-id="${b.id}">Modifica</button>
-          <button class="btn danger" data-act="del" data-id="${b.id}">Elimina</button>
+    const el = document.createElement("div");
+    el.className="betCard";
+    el.innerHTML = `
+      <div class="betTop">
+        <div class="betTopLeft">
+          <div class="t1">
+            <span class="date mono">${escapeHtml(b.date)}</span>
+            <span class="method">${escapeHtml(method)}</span>
+          </div>
+          <div class="t2 mono">${escapeHtml(match)}</div>
         </div>
-      </td>
+        <div>${badge}</div>
+      </div>
+
+      <div class="betMid">
+        <span class="chip">Pick <b class="mono">${escapeHtml(pick)}</b></span>
+        <span class="chip">Stake <b class="mono">${escapeHtml(stakeP)}</b> <span class="muted">(${escapeHtml(stakeS)} sug)</span></span>
+        <span class="chip">Odds <b class="mono">${escapeHtml(String(oddsP))}</b> <span class="muted">(${escapeHtml(String(oddsRef))} ref)</span></span>
+        ${profitChip(b)}
+      </div>
+
+      <div class="betActions">
+        <button class="miniBtn primary" data-act="edit" data-id="${b.id}">Modifica</button>
+        <button class="miniBtn" data-act="details" data-id="${b.id}">Dettagli</button>
+        <button class="miniBtn danger" data-act="del" data-id="${b.id}">Elimina</button>
+      </div>
     `;
-    historyBody.appendChild(tr);
+    historyList.appendChild(el);
   }
 }
 
-historyBody.addEventListener("click", (e)=>{
+historyList.addEventListener("click",(e)=>{
   const btn = e.target.closest("button[data-act]");
   if(!btn) return;
   const id = btn.getAttribute("data-id");
@@ -1498,374 +1455,725 @@ historyBody.addEventListener("click", (e)=>{
   const b = state.history.find(x=>x.id===id);
   if(!b) return;
 
-  if(act==="view"){
-    showDetails(b);
-    return;
-  }
   if(act==="del"){
     if(confirm("Eliminare questa bet?")){
       state.history = state.history.filter(x=>x.id!==id);
       saveState();
+      if(selectedBetId===id){
+        selectedBetId=null;
+        document.getElementById("btnToggleRaw").disabled=true;
+        document.getElementById("detailsBox").textContent="Seleziona “Dettagli” su una bet.";
+      }
       renderAll();
     }
     return;
   }
+  if(act==="details"){
+    selectedBetId=id;
+    showRaw=false;
+    document.getElementById("btnToggleRaw").disabled=false;
+    document.getElementById("btnToggleRaw").textContent="Mostra JSON raw";
+    renderDetails(b);
+    return;
+  }
   if(act==="edit"){
-    editBet(b);
+    openInlineEditor(b);
     return;
   }
 });
 
-function showDetails(b){
-  const pretty = {
-    id:b.id,
-    date:b.date,
-    match:b.meta.Match,
-    method:b.meta.Method,
-    comp:b.meta.Comp,
-    state:b.state,
-    odds_to_bet:b.odds_to_bet,
-    lp:b.lp,
-    calc:b.calc,
-    execution:b.execution,
-    result:b.result,
-    profit_real:b.profit_real,
-    raw_notification:b.raw
-  };
-  detailsBox.innerHTML = `<pre class="mono" style="white-space:pre-wrap;margin:0">${escapeHtml(JSON.stringify(pretty,null,2))}</pre>`;
-}
-
-function editBet(b){
-  // Simple prompt-based editor (mobile friendly)
-  const res = prompt(
-`Modifica esito: scrivi "win", "loss" o "pending".
-Attuale: ${b.result}`,
-    b.result
-  );
-  if(res === null) return;
-  const r = res.trim().toLowerCase();
-  if(!["win","loss","pending"].includes(r)){
-    alert('Valore non valido. Usa: win / loss / pending');
+function renderDetails(b){
+  const box=document.getElementById("detailsBox");
+  if(!b){
+    box.textContent="Seleziona “Dettagli” su una bet.";
     return;
   }
-  b.result = r;
-
-  const op = prompt(
-`Quota reale giocata (odds_played).
-Attuale: ${b.execution.odds_played ?? ""}\n(Invio per lasciare invariato)`,
-    (b.execution.odds_played ?? "")
-  );
-  if(op !== null && op.trim() !== ""){
-    b.execution.odds_played = safeNum(op);
+  if(showRaw){
+    document.getElementById("btnToggleRaw").textContent="Mostra vista leggibile";
+    box.innerHTML = `<pre class="mono" style="white-space:pre-wrap;margin:0">${escapeHtml(JSON.stringify(b,null,2))}</pre>`;
+    return;
   }
+  document.getElementById("btnToggleRaw").textContent="Mostra JSON raw";
 
-  const sp = prompt(
-`Stake reale giocato (stake_played).
-Attuale: ${b.execution.stake_played ?? ""}\n(Invio per lasciare invariato)`,
-    (b.execution.stake_played ?? "")
-  );
-  if(sp !== null && sp.trim() !== ""){
-    b.execution.stake_played = safeNum(sp);
-  }
+  const sec = (title, rows)=>`
+    <div class="section">
+      <div class="sectionTitle">${escapeHtml(title)}</div>
+      <div class="kvList">
+        ${rows.map(([k,v])=>`
+          <div class="kvItem"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v)}</div></div>
+        `).join("")}
+      </div>
+    </div>`;
 
-  // Optional manual profit override
-  const pm = prompt(
-`Profitto manuale (opzionale).
-Lascia vuoto per calcolo automatico.\nAttuale: ${b.profit_manual ? b.profit_real : ""}`,
-    b.profit_manual ? String(b.profit_real ?? "") : ""
-  );
-  if(pm !== null){
-    if(pm.trim()===""){
-      b.profit_manual = false;
-      b.profit_real = (b.result==="win"||b.result==="loss") ? calcProfit(b.result, b.execution.stake_played, b.execution.odds_played) : null;
-    }else{
-      b.profit_manual = true;
-      b.profit_real = safeNum(pm);
+  const sMeta = sec("INFO", [
+    ["Data", b.date],
+    ["Metodo", b.meta?.Method || "—"],
+    ["Competizione", b.meta?.Comp || "—"],
+    ["Match", b.meta?.Match || "—"],
+    ["Pick", formatPick(b)],
+    ["Odds ref", String(b.execution?.odds_ref ?? "—")],
+    ["Odds reale", String(b.execution?.odds_played ?? "—")],
+    ["Stake suggerito", fmtMoney(b.execution?.stake_suggested)],
+    ["Stake reale", fmtMoney(b.execution?.stake_played)],
+    ["Esito", b.result],
+    ["Profitto", (b.result==="win"||b.result==="loss") ? fmtMoney(b.profit_real) : "—"]
+  ]);
+
+  const sState = sec("STATE", [
+    ["Time", String(b.state?.Time ?? "—")],
+    ["RemHT", String(b.state?.RemHT ?? "—")],
+    ["RemFT", String(b.state?.RemFT ?? "—")],
+    ["Score", b.state?.ScoreRaw || "—"]
+  ]);
+
+  const probRows = [];
+  const addProb = (phase)=>{
+    const obj = b.prob?.[phase] || {};
+    const keys = Object.keys(obj).sort((a,b)=>Number(a)-Number(b));
+    for(const k of keys){
+      probRows.push([`${phase}(+${k})`, String(obj[k])]);
     }
-  }
+  };
+  addProb("HT"); addProb("FT");
+  const sProb = sec("PROB", probRows.length?probRows:[["—","—"]]);
 
-  saveState();
-  renderAll();
-  showDetails(b);
+  const sLP = sec("LIVEPICK", [
+    ["WR", b.lp?.WR===null ? "—" : (b.lp.WR*100).toFixed(2)+"%"],
+    ["ROI", b.lp?.ROI===null ? "—" : (b.lp.ROI*100).toFixed(2)+"%"],
+    ["Profit", String(b.lp?.Profit ?? "—")],
+    ["AO", String(b.lp?.AO ?? "—")],
+    ["N", String(b.lp?.N ?? "—")]
+  ]);
+
+  const sCalc = sec("CALC", [
+    ["Fonte stake", b.calc?.stake_source || "—"],
+    ["N arch", String(b.calc?.N_archive_at_bet ?? "—")],
+    ["P_REF", b.calc?.P_REF===null ? "—" : (b.calc.P_REF*100).toFixed(2)+"%"],
+    ["Implied", b.calc?.implied_prob===null ? "—" : (b.calc.implied_prob*100).toFixed(2)+"%"],
+    ["Edge", b.calc?.edge===null ? "—" : (b.calc.edge*100).toFixed(2)+"%"],
+    ["Stake% sugg", b.calc?.stake_suggested_pct===null ? "—" : (b.calc.stake_suggested_pct*100).toFixed(2)+"%"],
+    ["Bankroll day", b.calc?.bankroll_day===null ? "—" : fmtMoney(b.calc.bankroll_day)],
+    ["Needed goals (NEXT)", String(b.calc?.needed_goals ?? "—")]
+  ]);
+
+  box.innerHTML = `<div class="detailsList">${sMeta}${sState}${sProb}${sLP}${sCalc}</div>`;
+}
+
+/* ---- Inline editor modal-ish (simple, LivePick-like) ---- */
+function openInlineEditor(b){
+  // We build a small inline editor inside details box to avoid popups
+  selectedBetId = b.id;
+  showRaw = false;
+  document.getElementById("btnToggleRaw").disabled = false;
+  document.getElementById("btnToggleRaw").textContent = "Mostra JSON raw";
+
+  const box=document.getElementById("detailsBox");
+  const curRes = b.result;
+
+  // editable: date, match, odds_played, stake_played
+  // result: dropdown
+  const mkField = (label, value, key, type="text", step=null)=>`
+    <div class="kvItem">
+      <div class="k">${escapeHtml(label)}</div>
+      <div class="v">
+        <span class="inlineEdit" data-key="${escapeHtml(key)}" data-type="${escapeHtml(type)}" ${step?`data-step="${step}"`:""}>${escapeHtml(String(value ?? "—"))}</span>
+      </div>
+    </div>
+  `;
+
+  const resSelect = `
+    <select class="inlineSelect" id="editResult">
+      <option value="win" ${curRes==="win"?"selected":""}>Vinta</option>
+      <option value="loss" ${curRes==="loss"?"selected":""}>Persa</option>
+      <option value="not_played" ${curRes==="not_played"?"selected":""}>Non giocata</option>
+      <option value="pending" ${curRes==="pending"?"selected":""}>Pending</option>
+    </select>`;
+
+  const html = `
+    <div class="section">
+      <div class="sectionTitle">Modifica (clic sul valore per cambiare)</div>
+      <div class="kvList">
+        ${mkField("Data", b.date, "date", "date")}
+        ${mkField("Partita", b.meta?.Match || "", "match", "text")}
+        ${mkField("Quota reale", b.execution?.odds_played ?? "", "odds_played", "number", "0.01")}
+        ${mkField("Stake reale", b.execution?.stake_played ?? "", "stake_played", "number", "0.01")}
+        <div class="kvItem">
+          <div class="k">Esito</div>
+          <div class="v">${resSelect}</div>
+        </div>
+        <div class="kvItem">
+          <div class="k">Profitto</div>
+          <div class="v"><b class="mono">${(b.result==="win"||b.result==="loss") ? fmtMoney(b.profit_real) : "—"}</b> <span class="muted">(calcolato)</span></div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="btnSaveEdit">Salva</button>
+        <button class="btn" id="btnCancelEdit">Annulla</button>
+      </div>
+      <div class="help" style="margin-top:8px">Profitto non modificabile: viene ricalcolato da stake e quota reali (solo win/loss).</div>
+    </div>
+  `;
+  box.innerHTML = html;
+
+  // attach click-to-edit for fields
+  box.querySelectorAll(".inlineEdit").forEach(span=>{
+    span.addEventListener("click", ()=>{
+      const key = span.getAttribute("data-key");
+      const type = span.getAttribute("data-type") || "text";
+      const step = span.getAttribute("data-step");
+      const old = (span.textContent==="—") ? "" : span.textContent;
+
+      const inp = document.createElement("input");
+      inp.type = type;
+      if(step) inp.step = step;
+      inp.value = old;
+      inp.className = "";
+      inp.style.width = "160px";
+      span.replaceWith(inp);
+      inp.focus();
+
+      inp.addEventListener("blur", ()=>{
+        const newSpan = document.createElement("span");
+        newSpan.className = "inlineEdit";
+        newSpan.setAttribute("data-key", key);
+        newSpan.setAttribute("data-type", type);
+        if(step) newSpan.setAttribute("data-step", step);
+        newSpan.textContent = inp.value.trim() || "—";
+        inp.replaceWith(newSpan);
+        // rebind
+        newSpan.addEventListener("click", ()=>newSpan.click());
+      }, {once:true});
+    }, {once:true});
+  });
+
+  document.getElementById("btnCancelEdit").addEventListener("click", ()=>{
+    renderDetails(b);
+  });
+
+  document.getElementById("btnSaveEdit").addEventListener("click", ()=>{
+    // read values from fields: they may be spans (not converted) - easier: query section and parse.
+    const sec = box.querySelector(".section");
+    const getVal = (k)=>{
+      const node = sec.querySelector(`[data-key="${CSS.escape(k)}"]`);
+      if(!node) return null;
+      const v = node.textContent?.trim();
+      if(!v || v==="—") return "";
+      return v;
+    };
+
+    const newDate = getVal("date") || b.date;
+    const newMatch = getVal("match");
+    const newOdds = getVal("odds_played");
+    const newStake = getVal("stake_played");
+    const newRes = document.getElementById("editResult").value;
+
+    // apply
+    b.date = newDate || b.date;
+    if(typeof newMatch === "string" && newMatch.trim() !== ""){
+      b.meta.Match = newMatch.trim();
+    }
+    const op = safeNum(newOdds);
+    const sp = safeNum(newStake);
+    if(op !== null) b.execution.odds_played = op;
+    if(sp !== null) b.execution.stake_played = sp;
+
+    b.result = newRes;
+
+    // profit recalculation rules: profit not editable
+    if(b.result==="win" || b.result==="loss"){
+      b.profit_manual = false;
+      b.profit_real = calcProfit(b.result, b.execution.stake_played, b.execution.odds_played);
+    }else{
+      b.profit_manual = false;
+      b.profit_real = null;
+    }
+
+    saveState();
+    renderHistory();
+    renderDetails(b);
+    updateDailyPill();
+    renderDailyBanner();
+  });
 }
 
 /* =========================
-   Backup / Restore
+   Backup / Restore + quick actions
 ========================= */
-const btnBackup = document.getElementById("btnBackup");
-const restoreFile = document.getElementById("restoreFile");
-const backupMsg = document.getElementById("backupMsg");
+document.getElementById("btnClearHistory").addEventListener("click", ()=>{
+  if(confirm("Svuotare lo storico?")){
+    state.history=[];
+    saveState();
+    selectedBetId=null;
+    document.getElementById("btnToggleRaw").disabled=true;
+    document.getElementById("detailsBox").textContent="Seleziona “Dettagli” su una bet.";
+    renderAll();
+  }
+});
+document.getElementById("btnRecalc").addEventListener("click", ()=>{
+  recalcAll();
+  document.getElementById("backupMsg").innerHTML = `<div class="okLine">Ricalcolo completato.</div>`;
+});
 
-btnBackup.addEventListener("click", ()=>{
+document.getElementById("btnBackup").addEventListener("click", ()=>{
   const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = `bettools_backup_${todayISO()}.json`;
   document.body.appendChild(a);
-  a.click();
-  a.remove();
+  a.click(); a.remove();
   URL.revokeObjectURL(url);
-  backupMsg.innerHTML = `<div class="okLine">Backup creato.</div>`;
+  document.getElementById("backupMsg").innerHTML = `<div class="okLine">Backup creato.</div>`;
 });
-
-restoreFile.addEventListener("change", async (e)=>{
+document.getElementById("restoreFile").addEventListener("change", async (e)=>{
   const file = e.target.files && e.target.files[0];
   if(!file) return;
   try{
     const text = await file.text();
     const incoming = JSON.parse(text);
-
-    const replace = confirm("OK = Sostituisci tutto lo storico.\nAnnulla = Unisci (merge) allo storico esistente.");
+    const replace = confirm("OK = Sostituisci tutto.\nAnnulla = Unisci (merge).");
     if(replace){
       state = incoming;
-      saveState();
-      renderAll();
-      backupMsg.innerHTML = `<div class="okLine">Restore completato (sostituzione).</div>`;
     }else{
-      // Merge history arrays + keep current settings unless incoming has them
-      const merged = loadState();
-      // Keep current settings unless user wants incoming? We'll merge with incoming settings taking precedence if present
-      const mergedState = structuredClone(merged);
-      mergedState.settings = incoming.settings || mergedState.settings;
-      mergedState.dailySnapshot = incoming.dailySnapshot || mergedState.dailySnapshot;
-
+      const cur = loadState();
+      const merged = structuredClone(cur);
+      merged.settings = incoming.settings || merged.settings;
+      merged.dailySnapshot = incoming.dailySnapshot || merged.dailySnapshot;
       const incHist = Array.isArray(incoming.history) ? incoming.history : [];
-      const curHist = Array.isArray(mergedState.history) ? mergedState.history : [];
-      const ids = new Set(curHist.map(b=>b.id));
+      const ids = new Set((merged.history||[]).map(b=>b.id));
       for(const b of incHist){
-        if(!b || !b.id) continue;
-        if(!ids.has(b.id)){
-          curHist.push(b);
+        if(b && b.id && !ids.has(b.id)){
+          merged.history.push(b);
           ids.add(b.id);
         }
       }
-      mergedState.history = curHist;
-      state = mergedState;
-      saveState();
-      renderAll();
-      backupMsg.innerHTML = `<div class="okLine">Restore completato (merge).</div>`;
+      state = merged;
     }
+    saveState();
+    renderAll();
+    document.getElementById("backupMsg").innerHTML = `<div class="okLine">Restore completato.</div>`;
   }catch(err){
-    console.error(err);
-    backupMsg.innerHTML = `<div class="errLine">Errore restore: file non valido.</div>`;
+    document.getElementById("backupMsg").innerHTML = `<div class="errLine">Errore restore: file non valido.</div>`;
   }finally{
-    restoreFile.value = "";
+    document.getElementById("restoreFile").value="";
   }
 });
 
 /* =========================
-   Dashboard + Summaries
+   Dashboard: totals, DD, streaks + charts
 ========================= */
+let dashRange = "all";
+let profitRange = "1m";
+
+document.getElementById("dashRangeSeg").addEventListener("click",(e)=>{
+  const b=e.target.closest("button[data-range]");
+  if(!b) return;
+  dashRange = b.getAttribute("data-range");
+  document.querySelectorAll("#dashRangeSeg button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  renderDashboard();
+});
+document.getElementById("profitRangeSeg").addEventListener("click",(e)=>{
+  const b=e.target.closest("button[data-pr]");
+  if(!b) return;
+  profitRange = b.getAttribute("data-pr");
+  document.querySelectorAll("#profitRangeSeg button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  renderDashboard(); // redraw chart
+});
+
 document.getElementById("btnSaveBR").addEventListener("click", ()=>{
-  const v = Number(document.getElementById("bankrollInputDash").value || 0);
+  const v = Number(document.getElementById("bankrollInputDash").value||0);
   state.settings.bankroll = v;
   saveState();
   syncBankrollInputs();
   document.getElementById("dashMsg").innerHTML = `<div class="okLine">Bankroll salvato: ${fmtMoney(v)}</div>`;
-  renderAll();
 });
-
 document.getElementById("btnNewDay").addEventListener("click", ()=>{
-  if(confirm("Vuoi azzerare lo snapshot giornaliero? (La prossima bet creerà un nuovo bankroll-day)")){
-    state.dailySnapshot.date = null;
-    state.dailySnapshot.bankroll = null;
+  if(confirm("Reset snapshot giornaliero?")){
+    state.dailySnapshot.date=null;
+    state.dailySnapshot.bankroll=null;
     saveState();
     renderAll();
   }
 });
 
-function computeTotals(){
-  const closed = state.history.filter(b=>b.result==="win" || b.result==="loss");
+function closedBetsFiltered(range){
+  return state.history
+    .filter(b=> (b.result==="win" || b.result==="loss") && inDateRange(b.date, range));
+}
+function computeTotalsRange(range){
+  const closed = closedBetsFiltered(range);
   const profit = sum(closed.map(b=>b.profit_real));
   const stakeTot = sum(closed.map(b=>Number(b.execution.stake_played)||0));
-  const roi = (stakeTot>0) ? (profit/stakeTot) : null;
+  const roi = stakeTot>0 ? (profit/stakeTot) : null;
   const wins = closed.filter(b=>b.result==="win").length;
   const losses = closed.filter(b=>b.result==="loss").length;
-  const winrate = (closed.length>0) ? (wins/closed.length) : null;
+  const winrate = closed.length>0 ? wins/closed.length : null;
   return {closedCount:closed.length, wins, losses, profit, stakeTot, roi, winrate};
 }
-
-function computeDrawdown(){
-  // equity curve on closed bets in chronological order by date and insertion order
-  const closed = state.history
-    .filter(b=>b.result==="win" || b.result==="loss")
-    .slice()
-    .sort((a,b)=> (a.date===b.date ? 0 : (a.date<b.date ? -1 : 1))); // simplistic by date
-  let equity = 0;
-  let peak = 0;
-  let maxDD = 0;
-  for(const b of closed){
-    equity += Number(b.profit_real)||0;
-    if(equity > peak) peak = equity;
-    const dd = peak - equity;
-    if(dd > maxDD) maxDD = dd;
+function computeDrawdownFromClosed(closed){
+  const sorted = closed.slice().sort((a,b)=> a.date<b.date ? -1 : (a.date>b.date ? 1 : 0));
+  let eq=0, peak=0, maxDD=0;
+  for(const b of sorted){
+    eq += Number(b.profit_real)||0;
+    if(eq>peak) peak=eq;
+    const dd=peak-eq;
+    if(dd>maxDD) maxDD=dd;
   }
-  return {maxDD, peak, end: equity};
+  return {maxDD, eqEnd:eq};
 }
-
-function computeStreaks(){
-  const closed = state.history
-    .filter(b=>b.result==="win" || b.result==="loss")
-    .slice()
-    .sort((a,b)=> (a.date===b.date ? 0 : (a.date<b.date ? -1 : 1)));
-  let curW=0, curL=0, maxW=0, maxL=0;
-  for(const b of closed){
-    if(b.result==="win"){
-      curW++; curL=0;
-    }else{
-      curL++; curW=0;
-    }
+function computeStreaksFromClosed(closed){
+  const sorted = closed.slice().sort((a,b)=> a.date<b.date ? -1 : (a.date>b.date ? 1 : 0));
+  let curW=0,curL=0,maxW=0,maxL=0;
+  for(const b of sorted){
+    if(b.result==="win"){curW++;curL=0;} else {curL++;curW=0;}
     if(curW>maxW) maxW=curW;
     if(curL>maxL) maxL=curL;
   }
-  return {maxW, maxL};
+  return {maxW,maxL};
+}
+
+/* --- Donut chart (canvas) --- */
+function drawDonut(wins, losses){
+  const c = document.getElementById("donut");
+  const ctx = c.getContext("2d");
+  const W=c.width, H=c.height;
+  ctx.clearRect(0,0,W,H);
+
+  const total = wins+losses;
+  const winPct = total>0 ? wins/total : 0;
+  const lossPct = total>0 ? losses/total : 0;
+
+  // base circle
+  const cx=W/2, cy=H/2, r=Math.min(W,H)*0.28;
+  const thickness=r*0.45;
+
+  function arc(pct, start, color){
+    const end = start + pct*Math.PI*2;
+    ctx.beginPath();
+    ctx.strokeStyle=color;
+    ctx.lineWidth=thickness;
+    ctx.lineCap="butt";
+    ctx.arc(cx, cy, r, start, end);
+    ctx.stroke();
+    return end;
+  }
+
+  // background
+  ctx.beginPath();
+  ctx.strokeStyle="rgba(255,255,255,.08)";
+  ctx.lineWidth=thickness;
+  ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.stroke();
+
+  // colors
+  const good="rgba(25,195,125,.95)";
+  const bad="rgba(255,77,79,.95)";
+  let a=-Math.PI/2;
+  a = arc(winPct, a, good);
+  arc(lossPct, a, bad);
+
+  // text
+  ctx.fillStyle="rgba(232,238,252,.92)";
+  ctx.font="700 22px "+getComputedStyle(document.body).fontFamily;
+  const wr = total>0 ? Math.round(winPct*100) : 0;
+  ctx.textAlign="center";
+  ctx.fillText(`${wr}%`, cx, cy+8);
+  ctx.font="600 12px "+getComputedStyle(document.body).fontFamily;
+  ctx.fillStyle="rgba(159,176,208,.95)";
+  ctx.fillText("Win Rate", cx, cy+28);
+
+  document.getElementById("wonLabel").innerHTML = `Won: <b>${Math.round(winPct*100)}%</b>`;
+  document.getElementById("lostLabel").innerHTML = `Lost: <b>${Math.round(lossPct*100)}%</b>`;
+}
+
+/* --- Profit chart (canvas) --- */
+function drawProfitChart(closed, monthsMode){
+  const c = document.getElementById("profitChart");
+  const ctx = c.getContext("2d");
+  const W=c.width, H=c.height;
+  ctx.clearRect(0,0,W,H);
+
+  let data = closed.slice().sort((a,b)=> a.date<b.date ? -1 : (a.date>b.date ? 1 : 0));
+  if(monthsMode==="1m") data = data.filter(b=>inMonthsBack(b.date,1));
+  if(monthsMode==="6m") data = data.filter(b=>inMonthsBack(b.date,6));
+  if(monthsMode==="12m") data = data.filter(b=>inMonthsBack(b.date,12));
+
+  // Build cumulative series
+  let eq=0;
+  const pts = data.map(b=> (eq += Number(b.profit_real)||0));
+  if(pts.length===0){
+    // axes only
+    ctx.strokeStyle="rgba(255,255,255,.10)";
+    ctx.strokeRect(40,20,W-60,H-50);
+    ctx.fillStyle="rgba(159,176,208,.95)";
+    ctx.font="600 12px "+getComputedStyle(document.body).fontFamily;
+    ctx.fillText("Nessun dato nel periodo", 50, 40);
+    return;
+  }
+
+  const minY = Math.min(...pts, 0);
+  const maxY = Math.max(...pts, 0);
+  const pad = (maxY-minY)*0.12 || 1;
+  const y0 = minY - pad;
+  const y1 = maxY + pad;
+
+  const left=40, top=20, right=W-20, bottom=H-30;
+  const plotW = right-left;
+  const plotH = bottom-top;
+
+  // helper map
+  const xAt = (i)=> left + (pts.length===1 ? plotW/2 : (i/(pts.length-1))*plotW);
+  const yAt = (v)=> top + (1-(v-y0)/(y1-y0))*plotH;
+
+  // grid + zero line
+  ctx.strokeStyle="rgba(255,255,255,.08)";
+  ctx.strokeRect(left, top, plotW, plotH);
+
+  const zeroY = yAt(0);
+  ctx.beginPath();
+  ctx.strokeStyle="rgba(255,255,255,.12)";
+  ctx.moveTo(left, zeroY);
+  ctx.lineTo(right, zeroY);
+  ctx.stroke();
+
+  // fill negative area
+  ctx.beginPath();
+  ctx.moveTo(left, zeroY);
+  for(let i=0;i<pts.length;i++){
+    ctx.lineTo(xAt(i), yAt(pts[i]));
+  }
+  ctx.lineTo(right, zeroY);
+  ctx.closePath();
+  ctx.fillStyle="rgba(255,77,79,.10)";
+  ctx.fill();
+
+  // line
+  ctx.beginPath();
+  for(let i=0;i<pts.length;i++){
+    const x=xAt(i), y=yAt(pts[i]);
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle="rgba(255,77,79,.80)";
+  ctx.lineWidth=2;
+  ctx.stroke();
+
+  // points
+  ctx.fillStyle="rgba(255,77,79,.95)";
+  for(let i=0;i<pts.length;i++){
+    const x=xAt(i), y=yAt(pts[i]);
+    ctx.beginPath();
+    ctx.arc(x,y,3,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  // y labels (few)
+  ctx.fillStyle="rgba(159,176,208,.95)";
+  ctx.font="600 11px "+getComputedStyle(document.body).fontFamily;
+  ctx.textAlign="left";
+  ctx.fillText(`${y1.toFixed(1)}`, 6, top+10);
+  ctx.fillText(`${y0.toFixed(1)}`, 6, bottom);
+
+  // last value
+  const last = pts[pts.length-1];
+  ctx.textAlign="right";
+  ctx.fillText(`Cumulato: ${last.toFixed(2)}`, right, top-6);
 }
 
 function renderDashboard(){
-  const t = computeTotals();
-  const totalsRow = document.getElementById("totalsRow");
-  totalsRow.innerHTML = "";
-  const items = [
-    ["Bet chiuse", t.closedCount],
-    ["Winrate", fmtPct(t.winrate)],
-    ["Stake totale", fmtMoney(t.stakeTot)],
-    ["Profitto", fmtMoney(t.profit)],
-    ["ROI", t.roi===null ? "—" : fmtPct(t.roi)]
-  ];
-  for(const [k,v] of items){
-    const el = document.createElement("div");
-    el.className = "kv";
-    el.innerHTML = `<span>${k}</span><b>${escapeHtml(String(v))}</b>`;
-    totalsRow.appendChild(el);
-  }
+  const t = computeTotalsRange(dashRange);
+  const dd = computeDrawdownFromClosed(closedBetsFiltered(dashRange));
+  const st = computeStreaksFromClosed(closedBetsFiltered(dashRange));
 
-  const dd = computeDrawdown();
-  const ddRow = document.getElementById("ddRow");
-  ddRow.innerHTML = "";
-  const ddItems = [
-    ["Max DD", fmtMoney(dd.maxDD)],
-    ["Equity end", fmtMoney(dd.end)]
-  ];
-  for(const [k,v] of ddItems){
-    const el = document.createElement("div");
-    el.className = "kv";
-    el.innerHTML = `<span>${k}</span><b>${escapeHtml(String(v))}</b>`;
-    ddRow.appendChild(el);
-  }
+  const kpis=document.getElementById("dashKpis");
+  kpis.innerHTML = `
+    <div class="kpi"><span>Bet chiuse</span><b>${t.closedCount}</b></div>
+    <div class="kpi"><span>Winrate</span><b>${t.winrate===null ? "—" : fmtPct(t.winrate)}</b></div>
+    <div class="kpi"><span>Profitto</span><b class="${t.profit>=0?'good':'bad'}">${fmtMoney(t.profit)}</b></div>
+    <div class="kpi"><span>ROI</span><b class="${(t.roi!==null && t.roi>=0)?'good':'bad'}">${t.roi===null?"—":fmtPct(t.roi)}</b></div>
+    <div class="kpi"><span>Max DD</span><b>${fmtMoney(dd.maxDD)}</b></div>
+    <div class="kpi"><span>Streak (W/L)</span><b>${st.maxW} / ${st.maxL}</b></div>
+  `;
 
-  const st = computeStreaks();
-  const streakRow = document.getElementById("streakRow");
-  streakRow.innerHTML = "";
-  const stItems = [
-    ["Max win streak", st.maxW],
-    ["Max loss streak", st.maxL]
-  ];
-  for(const [k,v] of stItems){
-    const el = document.createElement("div");
-    el.className = "kv";
-    el.innerHTML = `<span>${k}</span><b>${escapeHtml(String(v))}</b>`;
-    streakRow.appendChild(el);
-  }
+  drawDonut(t.wins, t.losses);
+
+  // Profit chart uses closed across ALL by default but also respects dashRange? In LivePick screenshot, chart has its own buttons.
+  // We'll filter by dashRange first, then apply 1m/6m/12m/all.
+  const closed = closedBetsFiltered(dashRange);
+  drawProfitChart(closed, profitRange);
 }
 
+/* =========================
+   Riepilogo temporale
+========================= */
+let timeGroup="day";
+document.getElementById("timeGroupSeg").addEventListener("click",(e)=>{
+  const b=e.target.closest("button[data-tg]");
+  if(!b) return;
+  timeGroup=b.getAttribute("data-tg");
+  document.querySelectorAll("#timeGroupSeg button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  renderTimeSummary();
+});
+function periodKey(dateISO, mode){
+  if(mode==="day") return dateISO;
+  if(mode==="week") return startOfWeekISO(dateISO); // label by week start
+  if(mode==="month") return monthKey(dateISO);
+  return dateISO;
+}
+function periodLabel(key, mode){
+  if(mode==="day") return key;
+  if(mode==="week") return `Week ${key}`;
+  if(mode==="month") return key;
+  return key;
+}
+function periodStatus(profit, br){
+  if(!br || br<=0) return {label:"—", cls:"badge neutral"};
+  const pct=profit/br;
+  if(pct>=0.03) return {label:"Target profit", cls:"badge win"};
+  if(pct<=-0.10) return {label:"Stop loss", cls:"badge loss"};
+  return {label:"Neutra", cls:"badge neutral"};
+}
 function renderTimeSummary(){
-  const timeEmpty = document.getElementById("timeEmpty");
-  const timeTable = document.getElementById("timeTable");
-  const timeBody = document.getElementById("timeBody");
-  const closed = state.history.filter(b=>b.result==="win" || b.result==="loss");
+  const empty=document.getElementById("timeEmpty");
+  const table=document.getElementById("timeTable");
+  const body=document.getElementById("timeBody");
 
+  const closed = state.history.filter(b=>b.result==="win"||b.result==="loss");
   if(closed.length===0){
-    timeEmpty.textContent = "Nessuna bet chiusa: riepilogo temporale non disponibile.";
-    timeTable.style.display = "none";
-    timeBody.innerHTML = "";
+    empty.textContent="Nessuna bet chiusa: riepilogo non disponibile.";
+    table.style.display="none";
+    body.innerHTML="";
     return;
   }
-  timeEmpty.textContent = "";
-  timeTable.style.display = "";
-  timeBody.innerHTML = "";
+  empty.textContent="";
+  table.style.display="";
+  body.innerHTML="";
 
-  const byDay = new Map();
+  const map=new Map();
   for(const b of closed){
-    const d = b.date || "—";
-    if(!byDay.has(d)) byDay.set(d, {bets:0, stake:0, profit:0});
-    const o = byDay.get(d);
-    o.bets += 1;
+    const key=periodKey(b.date, timeGroup);
+    if(!map.has(key)) map.set(key,{key,bets:0,wins:0,losses:0,stake:0,profit:0, br: null});
+    const o=map.get(key);
+    o.bets++;
+    if(b.result==="win") o.wins++; else o.losses++;
     o.stake += Number(b.execution.stake_played)||0;
     o.profit += Number(b.profit_real)||0;
+
+    // bankroll day for that bet (snapshot at time) stored in calc.bankroll_day
+    if(o.br===null && b.calc?.bankroll_day) o.br = Number(b.calc.bankroll_day);
   }
-  const days = Array.from(byDay.entries()).sort((a,b)=> a[0]<b[0] ? 1 : -1); // newest first
-  for(const [d, o] of days){
-    const roi = o.stake>0 ? (o.profit/o.stake) : null;
-    const tr = document.createElement("tr");
+
+  const rows=[...map.values()].sort((a,b)=> a.key<b.key ? 1 : -1);
+  for(const r of rows){
+    const closedN=r.wins+r.losses;
+    const wr=closedN>0 ? r.wins/closedN : null;
+    const roi=r.stake>0 ? r.profit/r.stake : null;
+
+    const status = periodStatus(r.profit, r.br);
+    const profitCls = r.profit>=0 ? "badge win" : "badge loss";
+    const roiCls = (roi!==null && roi>=0) ? "badge win" : "badge loss";
+
+    const tr=document.createElement("tr");
     tr.innerHTML = `
-      <td class="mono">${escapeHtml(d)}</td>
-      <td>${o.bets}</td>
-      <td class="mono">${fmtMoney(o.stake)}</td>
-      <td class="mono">${fmtMoney(o.profit)}</td>
-      <td class="mono">${roi===null ? "—" : fmtPct(roi)}</td>
+      <td class="mono">${escapeHtml(periodLabel(r.key,timeGroup))}</td>
+      <td>${r.bets}</td>
+      <td class="mono">${wr===null?"—":fmtPct(wr)}</td>
+      <td><span class="${profitCls}">${escapeHtml(fmtMoney(r.profit))}</span></td>
+      <td><span class="${roiCls}">${roi===null?"—":escapeHtml(fmtPct(roi))}</span></td>
+      <td><span class="${status.cls}">${escapeHtml(status.label)}</span></td>
     `;
-    timeBody.appendChild(tr);
+    body.appendChild(tr);
   }
 }
 
+/* =========================
+   Riepilogo filtri (cards + LivePick compare)
+========================= */
+document.getElementById("filterSort").addEventListener("change", renderFilters);
+
+function computeTotalsAllClosed(){
+  const closed = state.history.filter(b=>b.result==="win"||b.result==="loss");
+  const profit = sum(closed.map(b=>b.profit_real));
+  const stakeTot = sum(closed.map(b=>Number(b.execution.stake_played)||0));
+  const roi = stakeTot>0 ? profit/stakeTot : null;
+  return {closedCount:closed.length, profit, stakeTot, roi};
+}
+function computeDrawdownGlobal(){
+  const closed = state.history.filter(b=>b.result==="win"||b.result==="loss");
+  return computeDrawdownFromClosed(closed);
+}
+function computeStreaksGlobal(){
+  const closed = state.history.filter(b=>b.result==="win"||b.result==="loss");
+  return computeStreaksFromClosed(closed);
+}
 function renderFilters(){
-  const grid = document.getElementById("filtersGrid");
-  const sort = document.getElementById("filterSort").value;
-  const filtersMetaRow = document.getElementById("filtersMetaRow");
-  const filtersNotes = document.getElementById("filtersNotes");
+  const grid=document.getElementById("filtersGrid");
+  const sort=document.getElementById("filterSort").value;
+  const metaRow=document.getElementById("filtersMetaRow");
+  const notes=document.getElementById("filtersNotes");
 
-  const all = state.history;
-  const closed = all.filter(b=>b.result==="win" || b.result==="loss");
+  const totals=computeTotalsAllClosed();
+  const dd=computeDrawdownGlobal();
+  const st=computeStreaksGlobal();
 
-  filtersMetaRow.innerHTML = "";
-  const t = computeTotals();
-  const items = [
-    ["Bet totali", all.length],
-    ["Bet chiuse", t.closedCount],
-    ["Profitto", fmtMoney(t.profit)],
-    ["ROI", t.roi===null ? "—" : fmtPct(t.roi)]
-  ];
-  for(const [k,v] of items){
-    const el = document.createElement("div");
-    el.className = "kv";
-    el.innerHTML = `<span>${k}</span><b>${escapeHtml(String(v))}</b>`;
-    filtersMetaRow.appendChild(el);
-  }
+  metaRow.innerHTML = `
+    <div class="kpi"><span>Bet totali</span><b>${state.history.length}</b></div>
+    <div class="kpi"><span>Bet chiuse</span><b>${totals.closedCount}</b></div>
+    <div class="kpi"><span>Profitto</span><b class="${totals.profit>=0?'good':'bad'}">${fmtMoney(totals.profit)}</b></div>
+    <div class="kpi"><span>ROI</span><b class="${(totals.roi!==null && totals.roi>=0)?'good':'bad'}">${totals.roi===null?"—":fmtPct(totals.roi)}</b></div>
+  `;
+  notes.textContent = `Max DD: ${fmtMoney(dd.maxDD)} • Max win streak: ${st.maxW} • Max loss streak: ${st.maxL}`;
 
-  const dd = computeDrawdown();
-  const st = computeStreaks();
-  filtersNotes.textContent = `Max DD: ${fmtMoney(dd.maxDD)} • Max win streak: ${st.maxW} • Max loss streak: ${st.maxL}`;
-
-  // Group by (Method + Pick label)
-  const groups = new Map();
-  for(const b of all){
-    const name = `${b.meta.Method || "—"} • ${b.odds_to_bet.label || "—"}`;
+  // group by method + pick label
+  const groups=new Map();
+  for(const b of state.history){
+    const name = `${b.meta?.Method || "—"} • ${formatPick(b)}`;
     if(!groups.has(name)){
-      groups.set(name, {name, bets:0, wins:0, losses:0, stake:0, profit:0, oddsSum:0, oddsN:0});
+      groups.set(name, {
+        name, bets:0, wins:0, losses:0,
+        stake:0, profit:0,
+        oddsSum:0, oddsN:0,
+        lastLP: null, lastDate: null
+      });
     }
-    const g = groups.get(name);
-    g.bets += 1;
-    // avg odds: use odds_played if exists else odds_ref
-    const o = (b.execution.odds_played ?? b.execution.odds_ref);
-    if(o && Number(o)>1){ g.oddsSum += Number(o); g.oddsN += 1; }
-    if(b.result==="win" || b.result==="loss"){
+    const g=groups.get(name);
+    g.bets++;
+
+    // last LP values by temporal order (date then insertion)
+    if(!g.lastDate || b.date >= g.lastDate){
+      g.lastDate = b.date;
+      g.lastLP = b.lp || null;
+    }
+
+    // odds avg (use played if exists else ref)
+    const o = (b.execution?.odds_played ?? b.execution?.odds_ref);
+    if(o && Number(o)>1){ g.oddsSum += Number(o); g.oddsN++; }
+
+    if(b.result==="win"||b.result==="loss"){
       g.stake += Number(b.execution.stake_played)||0;
       g.profit += Number(b.profit_real)||0;
-      if(b.result==="win") g.wins += 1;
-      if(b.result==="loss") g.losses += 1;
+      if(b.result==="win") g.wins++; else g.losses++;
     }
   }
 
-  let arr = Array.from(groups.values()).map(g=>{
-    const closedN = g.wins + g.losses;
-    const winrate = closedN>0 ? (g.wins/closedN) : null;
-    const avgOdds = g.oddsN>0 ? (g.oddsSum/g.oddsN) : null;
-    const roi = g.stake>0 ? (g.profit/g.stake) : null;
-    return {...g, closedN, winrate, avgOdds, roi};
+  let arr=[...groups.values()].map(g=>{
+    const closedN=g.wins+g.losses;
+    const winrate = closedN>0 ? g.wins/closedN : null;
+    const roi = g.stake>0 ? g.profit/g.stake : null;
+    const avgOdds = g.oddsN>0 ? g.oddsSum/g.oddsN : null;
+    // livepick compare from last bet for that filter
+    const lp = g.lastLP;
+    const lpWR = lp?.WR ?? null;
+    const lpROI = lp?.ROI ?? null;
+    const lpProfit = lp?.Profit ?? null;
+    return {...g, closedN, winrate, roi, avgOdds, lpWR, lpROI, lpProfit};
   });
 
-  // Sort
+  // sort
   arr.sort((a,b)=>{
     const va = (sort==="roi") ? (a.roi ?? -1e9)
       : (sort==="profit") ? a.profit
@@ -1877,44 +2185,68 @@ function renderFilters(){
       : (sort==="winrate") ? (b.winrate ?? -1e9)
       : (sort==="bets") ? b.bets
       : 0;
-
     if(sort==="name") return va;
     return vb - va;
   });
 
-  grid.innerHTML = "";
+  grid.innerHTML="";
   if(arr.length===0){
     grid.innerHTML = `<div class="card"><div class="help">Nessun dato.</div></div>`;
     return;
   }
 
   for(const g of arr){
-    const card = document.createElement("div");
-    card.className = "card";
+    const winPct = g.winrate===null ? "—" : fmtPct(g.winrate);
+    const roiStr = g.roi===null ? "—" : fmtPct(g.roi);
+    const roiCls = (g.roi!==null && g.roi>=0) ? "badge win" : "badge loss";
+    const profitCls = g.profit>=0 ? "good" : "bad";
+
+    // Compare with LP (in parentheses) + delta
+    const lpwr = g.lpWR===null ? null : g.lpWR;
+    const lproi = g.lpROI===null ? null : g.lpROI;
+    const lpp = (g.lpProfit===null || g.lpProfit===undefined) ? null : Number(g.lpProfit);
+
+    const wrDelta = (g.winrate!==null && lpwr!==null) ? (g.winrate - lpwr) : null;
+    const roiDelta = (g.roi!==null && lproi!==null) ? (g.roi - lproi) : null;
+    const pDelta = (lpp!==null) ? (g.profit - lpp) : null;
+
+    const compLine = (label, val, lpVal, delta, isPct=true)=>{
+      const v = val===null ? "—" : (isPct ? fmtPct(val) : fmtMoney(val));
+      const lpS = lpVal===null ? "" : ` (LP ${isPct?fmtPct(lpVal):fmtMoney(lpVal)})`;
+      const dS = delta===null ? "" : ` • Δ ${isPct?fmtPct(delta):fmtMoney(delta)}`;
+      return `<div class="help">${escapeHtml(label)}: <b>${escapeHtml(v)}</b>${escapeHtml(lpS)}${escapeHtml(dS)}</div>`;
+    };
+
+    const card=document.createElement("div");
+    card.className="card";
     card.innerHTML = `
       <div class="cardHeader">
         <div>
           <b>${escapeHtml(g.name)}</b><br/>
-          <small>${g.bets} bet • chiuse ${g.closedN}</small>
+          <small>${g.bets} bet</small>
         </div>
-        <div class="badge">${g.roi===null ? "ROI —" : ("ROI " + fmtPct(g.roi))}</div>
+        <div class="${roiCls}">${g.roi===null?"ROI —":"ROI "+roiStr}</div>
       </div>
 
       <div class="row">
-        <div class="kv"><span>Winrate</span><b>${g.winrate===null ? "—" : fmtPct(g.winrate)}</b></div>
-        <div class="kv"><span>Quota media</span><b>${g.avgOdds===null ? "—" : Number(g.avgOdds).toFixed(2)}</b></div>
-        <div class="kv"><span>Profitto</span><b>${fmtMoney(g.profit)}</b></div>
-        <div class="kv"><span>Stake tot</span><b>${fmtMoney(g.stake)}</b></div>
+        <span class="badge">Vinte: <b>${g.winrate===null?"—":winPct}</b></span>
+        <span class="badge">Quota media: <b class="mono">${g.avgOdds===null?"—":g.avgOdds.toFixed(2)}</b></span>
+        <span class="badge">Profitto: <b class="${profitCls} mono">${fmtMoney(g.profit)}</b></span>
+      </div>
+
+      <div style="margin-top:8px">
+        ${compLine("% Vinte", g.winrate, lpwr, wrDelta, true)}
+        ${compLine("ROI", g.roi, lproi, roiDelta, true)}
+        ${compLine("Profit", g.profit, (lpp===null?null:lpp), pDelta, false)}
+        <div class="help">LP preso dall’ultima bet registrata per questo filtro.</div>
       </div>
     `;
     grid.appendChild(card);
   }
 }
 
-document.getElementById("filterSort").addEventListener("change", renderFilters);
-
 /* =========================
-   Render All
+   Daily UI refresh
 ========================= */
 function renderAll(){
   syncBankrollInputs();
@@ -1928,19 +2260,9 @@ function renderAll(){
 renderAll();
 
 /* =========================
-   Misc actions
+   Startup buttons
 ========================= */
-document.getElementById("btnClearHistory").addEventListener("click", ()=>{});
-document.getElementById("btnClearHistory");
-
-function escapeHtml(s){
-  return String(s ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
+document.getElementById("btnToggleRaw").disabled = true;
 </script>
 </body>
 </html>
