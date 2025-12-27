@@ -127,14 +127,12 @@
     .page{display:none}
     .page.active{display:block}
     h1{font-size:18px; margin:0 0 10px}
-    h2{font-size:14px; margin:14px 0 8px; color:var(--text)}
     .muted{color:var(--muted)}
     .mono{font-family:var(--mono)}
 
     .grid{display:grid; grid-template-columns:1fr; gap:12px}
     @media (min-width:900px){
       .grid.two{grid-template-columns:1fr 1fr}
-      .grid.three{grid-template-columns:1fr 1fr 1fr}
       .grid.leftwide{grid-template-columns:1.2fr .8fr}
     }
     .card{
@@ -207,29 +205,6 @@
     .badge.pending{border-color:rgba(255,209,102,.55); color:rgba(255,209,102,.95); background:rgba(255,209,102,.10)}
     .badge.neutral{border-color:rgba(124,143,183,.55); color:rgba(159,176,208,.95); background:rgba(124,143,183,.10)}
 
-    /* Compact “LivePick-like” toggles */
-    .seg{
-      display:inline-flex; gap:6px; flex-wrap:wrap;
-      padding:6px; border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.03);
-    }
-    .seg button{
-      padding:7px 10px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.08);
-      background:rgba(255,255,255,.03);
-      color:var(--muted);
-      cursor:pointer;
-      font-weight:650;
-      font-size:12px;
-    }
-    .seg button.active{
-      border-color:rgba(90,169,255,.55);
-      background:rgba(90,169,255,.14);
-      color:var(--text);
-    }
-
     /* History card list */
     .list{display:flex; flex-direction:column; gap:10px}
     .betCard{
@@ -291,52 +266,60 @@
     .miniBtn.primary{border-color:rgba(90,169,255,.55); background:rgba(90,169,255,.14)}
     .miniBtn.danger{border-color:rgba(255,77,79,.55); background:rgba(255,77,79,.12)}
 
-    /* Inline edit fields */
-    .inlineEdit{
-      display:inline-block;
-      padding:2px 6px;
-      border-radius:10px;
-      border:1px dashed rgba(255,255,255,.14);
-      cursor:pointer;
-      user-select:none;
-    }
-    .inlineEdit:hover{border-color:rgba(90,169,255,.45)}
-    .inlineEdit input{
-      width:auto;
-      min-width:90px;
-      padding:6px 8px;
-      border-radius:10px;
-      font-size:12px;
-    }
-    .inlineSelect{
-      width:auto;
-      padding:6px 8px;
-      border-radius:10px;
-      font-size:12px;
-      background:rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.10);
-      color:var(--text);
-    }
-
-    /* Charts */
-    .chartWrap{display:flex; flex-direction:column; gap:10px}
-    .chartRow{display:grid; grid-template-columns:1fr; gap:12px; align-items:start}
-    @media (min-width:900px){
-      .chartRow{grid-template-columns:.9fr 1.1fr}
-    }
-    canvas{width:100%; height:auto; border-radius:14px;}
-    .kpiRow{display:flex; flex-wrap:wrap; gap:10px}
-    .kpi{
-      min-width:140px;
-      padding:8px 10px;
-      border-radius:14px;
+    /* Calc action block */
+    .actionBlock{
       border:1px solid rgba(255,255,255,.10);
       background:rgba(255,255,255,.03);
+      border-radius:14px;
+      padding:12px;
+      margin-top:10px;
     }
-    .kpi span{display:block; color:var(--muted); font-size:12px}
-    .kpi b{display:block; font-size:14px; margin-top:2px}
-    .kpi b.good{color:rgba(25,195,125,.95)}
-    .kpi b.bad{color:rgba(255,77,79,.95)}
+    .stakeBig{
+      display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+    .stakeBig .label{color:var(--muted); font-size:12px}
+    .stakeBig .value{
+      font-size:28px;
+      font-weight:900;
+      letter-spacing:.2px;
+      font-family:var(--mono);
+    }
+    .stakeBig .sub{color:var(--muted); font-size:12px}
+    .stakeBig .right{
+      display:flex; flex-direction:column; align-items:flex-end; gap:4px;
+    }
+    .stakeBig .right .pillMini{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+    .collapse{
+      margin-top:10px;
+      border-top:1px solid rgba(255,255,255,.08);
+      padding-top:10px;
+    }
+    details summary{
+      cursor:pointer;
+      color:var(--muted);
+      font-weight:750;
+      list-style:none;
+    }
+    details summary::-webkit-details-marker{display:none}
+    details[open] summary{color:rgba(232,238,252,.92)}
+    .kvGrid{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+    @media (min-width:700px){
+      .kvGrid{grid-template-columns:1fr 1fr}
+    }
 
     /* Details list */
     .detailsList{display:flex; flex-direction:column; gap:10px}
@@ -370,6 +353,27 @@
     }
     th{color:var(--muted); font-weight:700; background:rgba(255,255,255,.03)}
     tr:last-child td{border-bottom:none}
+
+    /* Dashboard compact KPI grid */
+    .kpiGrid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+    @media (min-width:700px){
+      .kpiGrid{grid-template-columns:1fr 1fr}
+    }
+    .kpi{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+    }
+    .kpi span{display:block; color:var(--muted); font-size:12px}
+    .kpi b{display:block; font-size:16px; margin-top:2px}
+    .kpi b.good{color:rgba(25,195,125,.95)}
+    .kpi b.bad{color:rgba(255,77,79,.95)}
+    canvas{width:100%; height:auto; border-radius:14px;}
   </style>
 </head>
 
@@ -378,7 +382,7 @@
     <div class="hamburger" id="hamburger" aria-label="Apri menu" title="Menu"><span></span></div>
     <div class="brand">
       <b>BetTools</b>
-      <small>V3 • NEXT • Stake v1 • UI v1.1</small>
+      <small>V3 • NEXT • Stake v1 • UI v1.3</small>
     </div>
     <div class="spacer"></div>
     <div class="pill" id="pillDaily">
@@ -395,10 +399,10 @@
       <button class="closeBtn" id="closeSidebar" aria-label="Chiudi menu">✕</button>
     </div>
     <div class="nav" id="nav">
-      <button data-page="calc" class="active">🧮 Calcolatore <small>LivePick V3</small></button>
+      <button data-page="calc" class="active">🧮 Calcolatore <small>Operativo</small></button>
       <button data-page="storico">📒 Storico <small>Mini-card</small></button>
       <button data-page="dash">📊 Dashboard <small>Grafici</small></button>
-      <button data-page="time">🗓️ Riepilogo temporale <small>G/W/M</small></button>
+      <button data-page="time">🗓️ Riepilogo temporale <small>ROC</small></button>
       <button data-page="filters">🧾 Riepilogo per filtri <small>ROI</small></button>
     </div>
 
@@ -419,7 +423,7 @@
           <div class="cardHeader">
             <div>
               <b>Notifica LivePick (V3)</b><br/>
-              <small>NEXT: la PROB usata dipende solo da Phase e Line (x.5 ⇒ + (x+1)).</small>
+              <small>Può andare a capo: il parser regge. NEXT: usa PROB Phase(+needed).</small>
             </div>
           </div>
 
@@ -433,6 +437,9 @@
           </div>
 
           <div id="parseMsg" class="help" style="margin-top:10px"></div>
+
+          <!-- ACTION BLOCK: always shown after parse -->
+          <div id="actionWrap"></div>
         </div>
 
         <div class="card">
@@ -443,7 +450,7 @@
             </div>
           </div>
 
-          <div class="grid two">
+          <div class="kvGrid">
             <div>
               <label>Bankroll attuale</label>
               <input id="bankrollInput" type="number" min="0" step="0.01" />
@@ -452,19 +459,6 @@
             <div>
               <label>Bankroll giornaliero (oggi)</label>
               <input id="bankrollDay" type="text" disabled />
-            </div>
-          </div>
-
-          <div style="margin-top:10px" id="previewWrap" class="help">Nessun parse ancora.</div>
-
-          <div class="grid two" style="margin-top:10px">
-            <div>
-              <label>Quota reale giocata (dopo)</label>
-              <input id="oddsPlayed" type="number" min="1" step="0.01" placeholder="es: 1.40" />
-            </div>
-            <div>
-              <label>Stake reale giocato (dopo)</label>
-              <input id="stakePlayed" type="number" min="0" step="0.01" placeholder="es: 30" />
             </div>
           </div>
 
@@ -483,7 +477,6 @@
     <section class="page" id="page-storico">
       <h1>Storico</h1>
 
-      <!-- FILTERS ON TOP (LivePick-like) -->
       <div class="card">
         <div class="cardHeader">
           <div>
@@ -526,7 +519,6 @@
           <div id="detailsBox" class="help">Seleziona “Dettagli” su una bet.</div>
         </div>
 
-        <!-- moved to bottom as requested -->
         <div class="card">
           <div class="cardHeader">
             <div>
@@ -563,19 +555,26 @@
             <b>Filtro periodo</b><br/>
             <small>Influenza KPI e grafici.</small>
           </div>
-          <div class="seg" id="dashRangeSeg">
-            <button data-range="all" class="active">Tutto</button>
-            <button data-range="today">Oggi</button>
-            <button data-range="yesterday">Ieri</button>
-            <button data-range="week">Settimana</button>
-            <button data-range="month">Mese</button>
+          <div class="row">
+            <select id="dashRangeSelect" style="width:auto; min-width:220px">
+              <option value="all" selected>Tutto</option>
+              <option value="today">Oggi</option>
+              <option value="yesterday">Ieri</option>
+              <option value="week">Settimana corrente</option>
+              <option value="month">Mese corrente</option>
+            </select>
           </div>
         </div>
 
-        <div class="kpiRow" id="dashKpis"></div>
+        <div class="kpiGrid" id="dashKpis"></div>
+
+        <div class="row" style="margin-top:10px">
+          <span class="badge">Max DD: <b class="mono" id="dashMaxDD">—</b></span>
+          <span class="badge">Streak W/L: <b class="mono" id="dashStreak">—</b></span>
+        </div>
       </div>
 
-      <div class="chartRow" style="margin-top:12px">
+      <div class="grid two" style="margin-top:12px">
         <div class="card">
           <div class="cardHeader">
             <div>
@@ -596,19 +595,20 @@
               <b>Profit Chart</b><br/>
               <small>Cumulato bet chiuse.</small>
             </div>
-            <div class="seg" id="profitRangeSeg">
-              <button data-pr="1m" class="active">1m</button>
-              <button data-pr="6m">6m</button>
-              <button data-pr="12m">12m</button>
-              <button data-pr="all">all</button>
+            <div class="row">
+              <select id="profitRangeSelect" style="width:auto; min-width:140px">
+                <option value="1m" selected>1m</option>
+                <option value="6m">6m</option>
+                <option value="12m">12m</option>
+                <option value="all">all</option>
+              </select>
             </div>
           </div>
           <canvas id="profitChart" width="820" height="360"></canvas>
-          <div class="help" style="margin-top:8px">Linea = profitto cumulato. Area sotto lo zero evidenziata.</div>
+          <div class="help" style="margin-top:8px">Area tutta verde se cumulato finale > 0, tutta rossa se < 0.</div>
         </div>
       </div>
 
-      <!-- moved bankroll to bottom as requested -->
       <div class="card" style="margin-top:12px">
         <div class="cardHeader">
           <div>
@@ -641,12 +641,14 @@
         <div class="cardHeader">
           <div>
             <b>Raggruppa</b><br/>
-            <small>Profit/ROI colorati + target/stop del periodo.</small>
+            <small>Stato solo per Giorno. ROC basato su bankroll inizio giornata.</small>
           </div>
-          <div class="seg" id="timeGroupSeg">
-            <button data-tg="day" class="active">Giorni</button>
-            <button data-tg="week">Settimane</button>
-            <button data-tg="month">Mesi</button>
+          <div class="row">
+            <select id="timeGroupSelect" style="width:auto; min-width:180px">
+              <option value="day" selected>Giorni</option>
+              <option value="week">Settimane</option>
+              <option value="month">Mesi</option>
+            </select>
           </div>
         </div>
 
@@ -660,6 +662,7 @@
                 <th>Winrate</th>
                 <th>Profitto</th>
                 <th>ROI</th>
+                <th>ROC</th>
                 <th>Stato</th>
               </tr>
             </thead>
@@ -689,8 +692,7 @@
             </select>
           </div>
         </div>
-        <div class="row" id="filtersMetaRow"></div>
-        <div class="warnLine" id="filtersNotes"></div>
+        <div class="help">Confronto LivePick preso dall’ultima bet registrata per filtro.</div>
       </div>
 
       <div class="grid two" id="filtersGrid" style="margin-top:12px"></div>
@@ -701,9 +703,9 @@
 /* =========================
    State
 ========================= */
-const STORAGE_KEY = "bettools_v3_uiv11";
+const STORAGE_KEY = "bettools_v3_uiv13";
 const DEFAULT_STATE = {
-  version: "V3_SIMPLIFIED_UI11",
+  version: "V3_SIMPLIFIED_UI13",
   settings: { bankroll: 1000 },
   dailySnapshot: { date: null, bankroll: null },
   history: []
@@ -775,17 +777,14 @@ function escapeHtml(s){
     .replaceAll("'","&#039;");
 }
 function startOfWeekISO(dISO){
-  // Monday as start (ISO week-ish)
   const d = new Date(dISO+"T00:00:00");
-  const day = (d.getDay()+6)%7; // Mon=0 .. Sun=6
+  const day = (d.getDay()+6)%7; // Mon=0..Sun=6
   d.setDate(d.getDate()-day);
   return d.toISOString().slice(0,10);
 }
-function monthKey(dISO){ return dISO.slice(0,7); } // YYYY-MM
-
+function monthKey(dISO){ return dISO.slice(0,7); }
 function inDateRange(dISO, range){
   if(range==="all") return true;
-  const d = new Date(dISO+"T00:00:00");
   const t = todayISO();
   if(range==="today") return dISO===t;
   if(range==="yesterday") return dISO===yesterdayISO();
@@ -840,7 +839,7 @@ function setPage(page){
 }
 
 /* =========================
-   Parser V3 (same tags as before)
+   Parser V3
 ========================= */
 const TAGS = ["META","STATE","STATS","L10","PROB","PRESS","LATE","ODDS_TO_BET","LP"];
 function normalizeText(s){
@@ -854,9 +853,7 @@ function extractBlocks(text){
   const hits = [];
   const scanRe = new RegExp(`\\b(${TAGS.join("|")})\\s*\\|`, "g");
   let m;
-  while((m=scanRe.exec(t))!==null){
-    hits.push({tag:m[1], idx:m.index});
-  }
+  while((m=scanRe.exec(t))!==null) hits.push({tag:m[1], idx:m.index});
   hits.sort((a,b)=>a.idx-b.idx);
   const blocks = {};
   for(let i=0;i<hits.length;i++){
@@ -947,7 +944,7 @@ function parseODDSTOBET(chunk){
   return { label, phase, market, line, odds_ref: odds };
 }
 function parseLP(chunk){
-  // IMPORTANT: per tua regola, WR/ROI arrivano SEMPRE come percentuali => sempre /100
+  // WR/ROI arrivano SEMPRE come percentuali => sempre /100
   const kv = parsePipeKVs(chunk);
   const wr = safeNum(kv.WR);
   const roi = safeNum(kv.ROI);
@@ -1006,7 +1003,6 @@ function parseNotification(text){
   if(lp.ROI===null) warnings.push("LP.ROI mancante");
   if(errors.length) return {ok:false, errors, warnings, data:null};
 
-  // Basic sanity: prob values in [0,1] (do not fail, just warn)
   const checkProb = (obj, label)=>{
     for(const k of Object.keys(obj)){
       const v = obj[k];
@@ -1022,7 +1018,7 @@ function parseNotification(text){
 }
 
 /* =========================
-   Stake v1 (NEXT logic)
+   Stake v1 (NEXT logic) — ALWAYS RETURNS STAKE%
 ========================= */
 function betKeyFromParsed(parsed){
   const m = parsed.meta.Method || "";
@@ -1032,9 +1028,8 @@ function betKeyFromParsed(parsed){
   return `${m}||${phase}||${market}||${line ?? ""}`.trim();
 }
 function neededGoalsFromLine_NEXT(line){
-  // NEXT Over x.5 => need (x+1) goals from now. x.5 => integer.
   if(line===null) return null;
-  return Math.floor(line) + 1; // 1.5->2, 2.5->3, 0.5->1
+  return Math.floor(line) + 1; // 1.5->2, 2.5->3
 }
 function pickMatchProbability_NEXT(parsed){
   const phase = parsed.oddsToBet.phase;
@@ -1056,7 +1051,7 @@ function getArchiveStatsForKey(key){
 function calcStakeV1(parsed){
   const key = betKeyFromParsed(parsed);
   const odds = parsed.oddsToBet.odds_ref;
-  const lpWR = parsed.lp.WR; // already converted to 0-1 always
+  const lpWR = parsed.lp.WR;
 
   const matchP = pickMatchProbability_NEXT(parsed);
   const P_MATCH = matchP.p;
@@ -1070,10 +1065,7 @@ function calcStakeV1(parsed){
   if(lpWR===null) warnings.push("LP.WR non disponibile");
   if(P_ARCH===null) warnings.push("Archivio: nessuna bet chiusa per questo filtro (N=0)");
 
-  if(P_MATCH===null && lpWR===null && P_ARCH===null){
-    return {ok:false, reason:"Impossibile calcolare P_REF (mancano probabilità)", warnings, key};
-  }
-
+  // P_REF logic
   let P_REF=null, source="LP/MATCH";
   if(N < 50){
     if(lpWR!==null && P_MATCH!==null) P_REF = 0.6*lpWR + 0.4*P_MATCH;
@@ -1087,20 +1079,33 @@ function calcStakeV1(parsed){
     const w=(N-30)/40;
     const left = (lpWR!==null && P_MATCH!==null) ? (0.6*lpWR + 0.4*P_MATCH) : ((lpWR!==null)?lpWR:P_MATCH);
     const right = (P_ARCH!==null && P_MATCH!==null) ? (0.6*P_ARCH + 0.4*P_MATCH) : ((P_ARCH!==null)?P_ARCH:P_MATCH);
-    P_REF = (1-w)*left + w*right;
-    source="BLEND";
+    if(left!==null && right!==null) {
+      P_REF = (1-w)*left + w*right;
+      source="BLEND";
+    }
   }
 
-  const implied = 1/odds;
-  const edge = (P_REF!==null) ? (P_REF - implied) : null;
+  const implied = (odds>1) ? 1/odds : null;
+  const edge = (P_REF!==null && implied!==null) ? (P_REF - implied) : null;
 
-  if(P_REF===null || edge===null || edge<=0){
-    return {ok:true, key, source, N_archive:N, P_REF, implied, edge, kelly:0, stake_pct:0, stake_amount:0, no_bet:true, warnings};
+  // --- ALWAYS suggest stake% between 2% and 5% ---
+  // If we have no usable P_REF/edge -> fallback to MIN 2%
+  let stakePct = 0.02;
+  let kelly = null;
+
+  if(P_REF!==null && edge!==null){
+    if(edge>0){
+      kelly = edge / (odds - 1);
+      let kAdj = 0.5 * kelly;
+      stakePct = clamp(kAdj, 0.02, 0.05);
+    }else{
+      // edge <= 0 -> keep min stake but warn
+      stakePct = 0.02;
+      warnings.push("Edge negativo: stake impostato al minimo (2%)");
+    }
+  }else{
+    warnings.push("Probabilità insufficiente: stake impostato al minimo (2%)");
   }
-
-  const kelly = edge / (odds - 1);
-  let kAdj = 0.5 * kelly;
-  let stakePct = clamp(kAdj, 0.02, 0.05);
 
   if(N < 50 && stakePct >= 0.05){
     stakePct = 0.04;
@@ -1112,7 +1117,16 @@ function calcStakeV1(parsed){
     warnings.push("LP.N<500: stake ridotto del 20%");
   }
 
-  return {ok:true, key, source, N_archive:N, P_REF, implied, edge, kelly, stake_pct:stakePct, stake_amount:null, no_bet:false, warnings, needed_goals: matchP.needed};
+  return {
+    ok:true,
+    key, source,
+    N_archive:N,
+    P_REF, implied, edge,
+    kelly,
+    stake_pct:stakePct,
+    needed_goals: matchP.needed,
+    warnings
+  };
 }
 
 /* =========================
@@ -1126,13 +1140,22 @@ function ensureDailySnapshot(){
     saveState();
   }
 }
+function getStartBankrollForDate(dateISO){
+  // Prefer any bet of that date with calc.bankroll_day (snapshot at first add)
+  const bets = state.history.filter(b=>b.date===dateISO && b.calc?.bankroll_day);
+  if(bets.length>0) return Number(bets[bets.length-1].calc.bankroll_day); // oldest in array is end (we unshift)
+  // If date is today and dailySnapshot exists, use it
+  if(state.dailySnapshot.date===dateISO && state.dailySnapshot.bankroll!==null) return Number(state.dailySnapshot.bankroll);
+  // fallback settings
+  return Number(state.settings.bankroll || 0);
+}
 function getTodayClosedPnL(){
   const t = todayISO();
   const brDay = (state.dailySnapshot.date===t) ? Number(state.dailySnapshot.bankroll || 0) : null;
   const todays = state.history.filter(b=>b.date===t && (b.result==="win" || b.result==="loss"));
   const profit = sum(todays.map(b=>b.profit_real));
-  const pct = (brDay && brDay>0) ? (profit/brDay) : null;
-  return {profit, pct, brDay, closedCount:todays.length};
+  const roc = (brDay && brDay>0) ? (profit/brDay) : null;
+  return {profit, roc, brDay, closedCount:todays.length};
 }
 function updateDailyPill(){
   const pillDot=document.getElementById("pillDot");
@@ -1141,9 +1164,9 @@ function updateDailyPill(){
   if(info.brDay===null){
     pillDot.className="dot neu"; pillText.textContent="Giornata: neutra"; return;
   }
-  if(info.pct!==null && info.pct>=0.03){
+  if(info.roc!==null && info.roc>=0.03){
     pillDot.className="dot good"; pillText.textContent="Target profit raggiunto";
-  }else if(info.pct!==null && info.pct<=-0.10){
+  }else if(info.roc!==null && info.roc<=-0.10){
     pillDot.className="dot bad"; pillText.textContent="Stop loss raggiunto";
   }else{
     pillDot.className="dot neu"; pillText.textContent="Giornata: neutra";
@@ -1157,15 +1180,15 @@ function renderDailyBanner(){
     wrap.innerHTML = `<div class="banner"><b>Bankroll giornaliero</b><small>Nessuno snapshot per oggi: verrà creato alla prima bet aggiunta allo storico.</small></div>`;
     return;
   }
-  const pctStr = info.pct===null ? "—" : fmtPct(info.pct);
+  const rocStr = info.roc===null ? "—" : fmtPct(info.roc);
   const pStr = fmtMoney(info.profit);
   const brStr = fmtMoney(info.brDay);
-  if(info.pct!==null && info.pct>=0.03){
-    wrap.innerHTML = `<div class="banner good"><b>TARGET PROFIT RAGGIUNTO</b><small>Oggi: <b>${pStr}</b> (${pctStr}) su BR day <b>${brStr}</b>.</small></div>`;
-  }else if(info.pct!==null && info.pct<=-0.10){
-    wrap.innerHTML = `<div class="banner bad"><b>STOP LOSS RAGGIUNTO</b><small>Oggi: <b>${pStr}</b> (${pctStr}) su BR day <b>${brStr}</b>.</small></div>`;
+  if(info.roc!==null && info.roc>=0.03){
+    wrap.innerHTML = `<div class="banner good"><b>TARGET PROFIT RAGGIUNTO</b><small>Oggi: <b>${pStr}</b> (ROC ${rocStr}) su BR day <b>${brStr}</b>.</small></div>`;
+  }else if(info.roc!==null && info.roc<=-0.10){
+    wrap.innerHTML = `<div class="banner bad"><b>STOP LOSS RAGGIUNTO</b><small>Oggi: <b>${pStr}</b> (ROC ${rocStr}) su BR day <b>${brStr}</b>.</small></div>`;
   }else{
-    wrap.innerHTML = `<div class="banner"><b>Giornata in corso</b><small>Oggi: <b>${pStr}</b> (${pctStr}) su BR day <b>${brStr}</b>. (Bet chiuse: ${info.closedCount})</small></div>`;
+    wrap.innerHTML = `<div class="banner"><b>Giornata in corso</b><small>Oggi: <b>${pStr}</b> (ROC ${rocStr}) su BR day <b>${brStr}</b>. (Bet chiuse: ${info.closedCount})</small></div>`;
   }
 }
 
@@ -1186,7 +1209,6 @@ function calcProfit(result, stake, odds){
 function recalcAll(){
   for(const b of state.history){
     if(b.result==="win" || b.result==="loss"){
-      if(b.profit_manual===true) continue;
       b.profit_real = calcProfit(b.result, b.execution.stake_played, b.execution.odds_played);
     }else{
       b.profit_real = null;
@@ -1204,15 +1226,17 @@ const btnParse=document.getElementById("btnParse");
 const btnClear=document.getElementById("btnClear");
 const btnResetAll=document.getElementById("btnResetAll");
 const parseMsg=document.getElementById("parseMsg");
-const previewWrap=document.getElementById("previewWrap");
+const actionWrap=document.getElementById("actionWrap");
 const bankrollInput=document.getElementById("bankrollInput");
 const bankrollDay=document.getElementById("bankrollDay");
-const oddsPlayed=document.getElementById("oddsPlayed");
-const stakePlayed=document.getElementById("stakePlayed");
 const btnAddToHistory=document.getElementById("btnAddToHistory");
 
 let lastParsed=null;
 let lastStake=null;
+
+// action inputs (created after parse)
+let oddsPlayedInput=null;
+let stakePlayedInput=null;
 
 function syncBankrollInputs(){
   bankrollInput.value = Number(state.settings.bankroll||0);
@@ -1232,7 +1256,7 @@ document.getElementById("bankrollInputDash").addEventListener("change", ()=>{
 
 btnClear.addEventListener("click", ()=>{
   lpText.value=""; lastParsed=null; lastStake=null;
-  parseMsg.innerHTML=""; previewWrap.innerHTML="Nessun parse ancora.";
+  parseMsg.innerHTML=""; actionWrap.innerHTML="";
   btnAddToHistory.disabled=true;
 });
 btnResetAll.addEventListener("click", ()=>{
@@ -1241,13 +1265,17 @@ btnResetAll.addEventListener("click", ()=>{
 
 btnParse.addEventListener("click", ()=>{
   const res = parseNotification(lpText.value);
+  actionWrap.innerHTML="";
+  oddsPlayedInput=null; stakePlayedInput=null;
+
   if(!res.ok){
     lastParsed=null; lastStake=null; btnAddToHistory.disabled=true;
-    parseMsg.innerHTML = `<div class="errLine"><b>Parse fallito:</b><br/>${res.errors.map(e=>`• ${escapeHtml(e)}`).join("<br/>")}</div>` +
+    parseMsg.innerHTML =
+      `<div class="errLine"><b>Parse fallito:</b><br/>${res.errors.map(e=>`• ${escapeHtml(e)}`).join("<br/>")}</div>` +
       (res.warnings.length ? `<div class="warnLine"><b>Warning:</b><br/>${res.warnings.map(w=>`• ${escapeHtml(w)}`).join("<br/>")}</div>` : "");
-    previewWrap.innerHTML="Correggi la notifica e riprova.";
     return;
   }
+
   lastParsed=res.data;
   lastStake=calcStakeV1(lastParsed);
 
@@ -1257,39 +1285,71 @@ btnParse.addEventListener("click", ()=>{
 
   syncBankrollInputs();
 
+  // base bankroll for stake: daily snapshot if exists else current bankroll
   const brBase = (state.dailySnapshot.date===todayISO() && state.dailySnapshot.bankroll!==null)
     ? Number(state.dailySnapshot.bankroll) : Number(state.settings.bankroll||0);
 
-  const stakeAmt = lastStake.stake_pct ? (lastStake.stake_pct*brBase) : 0;
+  const stakeAmt = (lastStake.stake_pct || 0.02) * brBase;
 
-  if(!stakePlayed.value) stakePlayed.value = stakeAmt>0 ? stakeAmt.toFixed(2) : "";
-  // oddsPlayed left empty by design
-
-  const noBetLine = lastStake.no_bet ? `<div class="errLine"><b>NO BET</b>: edge ≤ 0 (o probabilità insufficiente).</div>` : "";
   const pRef = lastStake.P_REF!==null ? fmtPct(lastStake.P_REF) : "—";
   const implied = lastStake.implied!==null ? fmtPct(lastStake.implied) : "—";
   const edge = lastStake.edge!==null ? fmtPct(lastStake.edge) : "—";
   const needed = lastStake.needed_goals ?? "—";
 
-  previewWrap.innerHTML = `
-    <div class="row">
-      <span class="badge">${escapeHtml(lastParsed.oddsToBet.label)} @ <span class="mono">${lastParsed.oddsToBet.odds_ref}</span></span>
-      <span class="badge">PROB usata: <b class="mono">${escapeHtml(lastParsed.oddsToBet.phase||"—")}(+${needed})</b></span>
-      <span class="badge">Fonte: <b>${escapeHtml(lastStake.source||"—")}</b></span>
-      <span class="badge">N arch: <b>${lastStake.N_archive ?? 0}</b></span>
+  const edgeNeg = (lastStake.edge!==null && lastStake.edge<=0);
+  const edgeTag = edgeNeg
+    ? `<span class="badge loss">Edge: ${escapeHtml(edge)} (negativo)</span>`
+    : `<span class="badge win">Edge: ${escapeHtml(edge)}</span>`;
+
+  actionWrap.innerHTML = `
+    <div class="actionBlock">
+      <div class="stakeBig">
+        <div>
+          <div class="label">Stake suggerito</div>
+          <div class="value">${escapeHtml(fmtMoney(stakeAmt))}</div>
+          <div class="sub">Stake%: <span class="mono">${escapeHtml(fmtPct(lastStake.stake_pct))}</span> • BR base: <span class="mono">${escapeHtml(fmtMoney(brBase))}</span></div>
+        </div>
+        <div class="right">
+          <div class="pillMini">PROB: <b class="mono">${escapeHtml(lastParsed.oddsToBet.phase||"—")}(+${needed})</b></div>
+          <div class="pillMini">Fonte: <b>${escapeHtml(lastStake.source||"—")}</b> • N arch: <b class="mono">${lastStake.N_archive ?? 0}</b></div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:8px">
+        <span class="badge">${escapeHtml(lastParsed.oddsToBet.label)} @ <b class="mono">${escapeHtml(String(lastParsed.oddsToBet.odds_ref))}</b></span>
+        <span class="badge">P_REF: <b class="mono">${escapeHtml(pRef)}</b></span>
+        <span class="badge">Implied: <b class="mono">${escapeHtml(implied)}</b></span>
+        ${edgeTag}
+      </div>
+
+      <div class="grid two" style="margin-top:12px">
+        <div>
+          <label>Quota reale giocata (dopo)</label>
+          <input id="oddsPlayed" type="number" min="1" step="0.01" placeholder="es: 1.40" />
+        </div>
+        <div>
+          <label>Stake reale giocato (dopo)</label>
+          <input id="stakePlayed" type="number" min="0" step="0.01" placeholder="es: ${stakeAmt.toFixed(2)}" value="${stakeAmt.toFixed(2)}" />
+        </div>
+      </div>
+
+      <details class="collapse">
+        <summary>Dettagli calcolo</summary>
+        <div class="row" style="margin-top:10px">
+          <span class="badge">P_REF: <b class="mono">${escapeHtml(pRef)}</b></span>
+          <span class="badge">Implied: <b class="mono">${escapeHtml(implied)}</b></span>
+          <span class="badge">Edge: <b class="mono">${escapeHtml(edge)}</b></span>
+          <span class="badge">Needed goals (NEXT): <b class="mono">${escapeHtml(String(needed))}</b></span>
+        </div>
+        <div class="help" style="margin-top:10px">
+          Nota: anche con edge negativo lo stake viene fornito (min 2%) con warning.
+        </div>
+      </details>
     </div>
-    <div class="row" style="margin-top:8px">
-      <span class="badge">P_REF: <b class="mono">${pRef}</b></span>
-      <span class="badge">Implied: <b class="mono">${implied}</b></span>
-      <span class="badge">Edge: <b class="mono">${edge}</b></span>
-    </div>
-    <div class="row" style="margin-top:8px">
-      <span class="badge">Stake%: <b class="mono">${fmtPct(lastStake.stake_pct)}</b></span>
-      <span class="badge">Stake € (base): <b class="mono">${fmtMoney(stakeAmt)}</b></span>
-      <span class="badge">BR base: <b class="mono">${fmtMoney(brBase)}</b></span>
-    </div>
-    ${noBetLine}
   `;
+
+  oddsPlayedInput = document.getElementById("oddsPlayed");
+  stakePlayedInput = document.getElementById("stakePlayed");
 
   btnAddToHistory.disabled=false;
 });
@@ -1301,7 +1361,10 @@ btnAddToHistory.addEventListener("click", ()=>{
   syncBankrollInputs();
 
   const brDay = Number(state.dailySnapshot.bankroll||0);
-  const stakeAmt = lastStake.stake_pct ? lastStake.stake_pct * brDay : 0;
+  const stakeAmt = (lastStake.stake_pct || 0.02) * brDay;
+
+  const oddsPlayed = safeNum(oddsPlayedInput?.value);
+  const stakePlayed = safeNum(stakePlayedInput?.value) ?? stakeAmt;
 
   const bet = {
     id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now())+"_"+Math.random().toString(16).slice(2),
@@ -1330,12 +1393,11 @@ btnAddToHistory.addEventListener("click", ()=>{
     execution: {
       odds_ref: lastParsed.oddsToBet.odds_ref,
       stake_suggested: stakeAmt,
-      odds_played: safeNum(oddsPlayed.value),
-      stake_played: safeNum(stakePlayed.value) ?? stakeAmt
+      odds_played: oddsPlayed,
+      stake_played: stakePlayed
     },
-    result: "pending", // pending by default
+    result: "pending",
     profit_real: null,
-    profit_manual: false,
     raw: lastParsed.raw
   };
 
@@ -1346,18 +1408,19 @@ btnAddToHistory.addEventListener("click", ()=>{
 });
 
 /* =========================
-   Storico UI (mini-cards)
+   Storico UI (mini-cards + INLINE EDIT IN CARD)
 ========================= */
 const historyList=document.getElementById("historyList");
 const historyEmpty=document.getElementById("historyEmpty");
 const historyResultFilter=document.getElementById("historyResultFilter");
 const historyDateFilter=document.getElementById("historyDateFilter");
-
 historyResultFilter.addEventListener("change", renderHistory);
 historyDateFilter.addEventListener("change", renderHistory);
 
 let selectedBetId=null;
 let showRaw=false;
+let editingBetId=null;
+
 document.getElementById("btnToggleRaw").addEventListener("click", ()=>{
   if(!selectedBetId) return;
   showRaw = !showRaw;
@@ -1377,24 +1440,17 @@ function profitChip(b){
   if(b.result==="loss"){
     return `<span class="chip bad">Profit <b>${escapeHtml(fmtMoney(b.profit_real))}</b></span>`;
   }
-  // pending/not played not counted
   return `<span class="chip warn">Profit <b>—</b></span>`;
 }
 function formatPick(b){
-  // show "FT Next Over 1.5"
   return (b.odds_to_bet && b.odds_to_bet.label) ? b.odds_to_bet.label : `${b.odds_to_bet?.phase||""} ${b.odds_to_bet?.market||""} ${b.odds_to_bet?.line??""}`.trim();
 }
 function filterHistoryList(){
   let arr = state.history.slice();
   const rf = historyResultFilter.value;
   const df = historyDateFilter.value;
-
-  if(rf!=="all"){
-    arr = arr.filter(b=>b.result===rf);
-  }
-  if(df!=="all"){
-    arr = arr.filter(b=>inDateRange(b.date, df));
-  }
+  if(rf!=="all") arr = arr.filter(b=>b.result===rf);
+  if(df!=="all") arr = arr.filter(b=>inDateRange(b.date, df));
   return arr;
 }
 function renderHistory(){
@@ -1416,31 +1472,80 @@ function renderHistory(){
     const oddsP = (b.execution?.odds_played ?? "—");
     const badge = resultBadge(b.result);
 
+    const isEditing = (editingBetId === b.id);
+
+    const topLine = isEditing
+      ? `
+        <div class="t1">
+          <input class="mono" data-edit="date" data-id="${b.id}" type="date" value="${escapeHtml(b.date)}" style="width:auto; min-width:160px"/>
+          <span class="method">${escapeHtml(method)}</span>
+        </div>
+        <div class="t2">
+          <input data-edit="match" data-id="${b.id}" type="text" value="${escapeHtml(match)}" />
+        </div>`
+      : `
+        <div class="t1">
+          <span class="date mono">${escapeHtml(b.date)}</span>
+          <span class="method">${escapeHtml(method)}</span>
+        </div>
+        <div class="t2 mono">${escapeHtml(match)}</div>`;
+
+    const midLine = isEditing
+      ? `
+        <span class="chip">Pick <b class="mono">${escapeHtml(pick)}</b></span>
+        <span class="chip">Stake
+          <input data-edit="stake_played" data-id="${b.id}" type="number" step="0.01" value="${escapeHtml(String(b.execution?.stake_played ?? ""))}" style="width:110px"/>
+          <span class="muted">(${escapeHtml(stakeS)} sug)</span>
+        </span>
+        <span class="chip">Odds
+          <input data-edit="odds_played" data-id="${b.id}" type="number" step="0.01" value="${escapeHtml(String(b.execution?.odds_played ?? ""))}" style="width:90px"/>
+          <span class="muted">(${escapeHtml(String(oddsRef))} ref)</span>
+        </span>
+        <span class="chip">Esito
+          <select data-edit="result" data-id="${b.id}" style="width:auto">
+            <option value="win" ${b.result==="win"?"selected":""}>Vinta</option>
+            <option value="loss" ${b.result==="loss"?"selected":""}>Persa</option>
+            <option value="not_played" ${b.result==="not_played"?"selected":""}>Non giocata</option>
+            <option value="pending" ${b.result==="pending"?"selected":""}>Pending</option>
+          </select>
+        </span>
+        ${profitChip(b)}
+      `
+      : `
+        <span class="chip">Pick <b class="mono">${escapeHtml(pick)}</b></span>
+        <span class="chip">Stake <b class="mono">${escapeHtml(stakeP)}</b> <span class="muted">(${escapeHtml(stakeS)} sug)</span></span>
+        <span class="chip">Odds <b class="mono">${escapeHtml(String(oddsP))}</b> <span class="muted">(${escapeHtml(String(oddsRef))} ref)</span></span>
+        ${profitChip(b)}
+      `;
+
+    const actions = isEditing
+      ? `
+        <button class="miniBtn primary" data-act="save" data-id="${b.id}">Salva</button>
+        <button class="miniBtn" data-act="cancel" data-id="${b.id}">Annulla</button>
+        <button class="miniBtn" data-act="details" data-id="${b.id}">Dettagli</button>
+      `
+      : `
+        <button class="miniBtn primary" data-act="edit" data-id="${b.id}">Modifica</button>
+        <button class="miniBtn" data-act="details" data-id="${b.id}">Dettagli</button>
+        <button class="miniBtn danger" data-act="del" data-id="${b.id}">Elimina</button>
+      `;
+
     const el = document.createElement("div");
     el.className="betCard";
     el.innerHTML = `
       <div class="betTop">
         <div class="betTopLeft">
-          <div class="t1">
-            <span class="date mono">${escapeHtml(b.date)}</span>
-            <span class="method">${escapeHtml(method)}</span>
-          </div>
-          <div class="t2 mono">${escapeHtml(match)}</div>
+          ${topLine}
         </div>
         <div>${badge}</div>
       </div>
 
       <div class="betMid">
-        <span class="chip">Pick <b class="mono">${escapeHtml(pick)}</b></span>
-        <span class="chip">Stake <b class="mono">${escapeHtml(stakeP)}</b> <span class="muted">(${escapeHtml(stakeS)} sug)</span></span>
-        <span class="chip">Odds <b class="mono">${escapeHtml(String(oddsP))}</b> <span class="muted">(${escapeHtml(String(oddsRef))} ref)</span></span>
-        ${profitChip(b)}
+        ${midLine}
       </div>
 
       <div class="betActions">
-        <button class="miniBtn primary" data-act="edit" data-id="${b.id}">Modifica</button>
-        <button class="miniBtn" data-act="details" data-id="${b.id}">Dettagli</button>
-        <button class="miniBtn danger" data-act="del" data-id="${b.id}">Elimina</button>
+        ${actions}
       </div>
     `;
     historyList.appendChild(el);
@@ -1468,6 +1573,7 @@ historyList.addEventListener("click",(e)=>{
     }
     return;
   }
+
   if(act==="details"){
     selectedBetId=id;
     showRaw=false;
@@ -1476,12 +1582,54 @@ historyList.addEventListener("click",(e)=>{
     renderDetails(b);
     return;
   }
+
   if(act==="edit"){
-    openInlineEditor(b);
+    editingBetId = id;
+    renderHistory();
+    return;
+  }
+
+  if(act==="cancel"){
+    editingBetId = null;
+    renderHistory();
+    return;
+  }
+
+  if(act==="save"){
+    // read edited fields from DOM
+    const dateEl = document.querySelector(`[data-edit="date"][data-id="${CSS.escape(id)}"]`);
+    const matchEl = document.querySelector(`[data-edit="match"][data-id="${CSS.escape(id)}"]`);
+    const stakeEl = document.querySelector(`[data-edit="stake_played"][data-id="${CSS.escape(id)}"]`);
+    const oddsEl  = document.querySelector(`[data-edit="odds_played"][data-id="${CSS.escape(id)}"]`);
+    const resEl   = document.querySelector(`[data-edit="result"][data-id="${CSS.escape(id)}"]`);
+
+    if(dateEl && dateEl.value) b.date = dateEl.value;
+    if(matchEl && matchEl.value.trim()) b.meta.Match = matchEl.value.trim();
+
+    const sp = safeNum(stakeEl?.value);
+    const op = safeNum(oddsEl?.value);
+    if(sp!==null) b.execution.stake_played = sp;
+    if(op!==null) b.execution.odds_played = op;
+
+    if(resEl && resEl.value) b.result = resEl.value;
+
+    // recalc profit
+    if(b.result==="win" || b.result==="loss"){
+      b.profit_real = calcProfit(b.result, b.execution.stake_played, b.execution.odds_played);
+    }else{
+      b.profit_real = null;
+    }
+
+    saveState();
+    editingBetId = null;
+    renderAll();
     return;
   }
 });
 
+/* =========================
+   Details view
+========================= */
 function renderDetails(b){
   const box=document.getElementById("detailsBox");
   if(!b){
@@ -1530,9 +1678,7 @@ function renderDetails(b){
   const addProb = (phase)=>{
     const obj = b.prob?.[phase] || {};
     const keys = Object.keys(obj).sort((a,b)=>Number(a)-Number(b));
-    for(const k of keys){
-      probRows.push([`${phase}(+${k})`, String(obj[k])]);
-    }
+    for(const k of keys) probRows.push([`${phase}(+${k})`, String(obj[k])]);
   };
   addProb("HT"); addProb("FT");
   const sProb = sec("PROB", probRows.length?probRows:[["—","—"]]);
@@ -1559,152 +1705,15 @@ function renderDetails(b){
   box.innerHTML = `<div class="detailsList">${sMeta}${sState}${sProb}${sLP}${sCalc}</div>`;
 }
 
-/* ---- Inline editor modal-ish (simple, LivePick-like) ---- */
-function openInlineEditor(b){
-  // We build a small inline editor inside details box to avoid popups
-  selectedBetId = b.id;
-  showRaw = false;
-  document.getElementById("btnToggleRaw").disabled = false;
-  document.getElementById("btnToggleRaw").textContent = "Mostra JSON raw";
-
-  const box=document.getElementById("detailsBox");
-  const curRes = b.result;
-
-  // editable: date, match, odds_played, stake_played
-  // result: dropdown
-  const mkField = (label, value, key, type="text", step=null)=>`
-    <div class="kvItem">
-      <div class="k">${escapeHtml(label)}</div>
-      <div class="v">
-        <span class="inlineEdit" data-key="${escapeHtml(key)}" data-type="${escapeHtml(type)}" ${step?`data-step="${step}"`:""}>${escapeHtml(String(value ?? "—"))}</span>
-      </div>
-    </div>
-  `;
-
-  const resSelect = `
-    <select class="inlineSelect" id="editResult">
-      <option value="win" ${curRes==="win"?"selected":""}>Vinta</option>
-      <option value="loss" ${curRes==="loss"?"selected":""}>Persa</option>
-      <option value="not_played" ${curRes==="not_played"?"selected":""}>Non giocata</option>
-      <option value="pending" ${curRes==="pending"?"selected":""}>Pending</option>
-    </select>`;
-
-  const html = `
-    <div class="section">
-      <div class="sectionTitle">Modifica (clic sul valore per cambiare)</div>
-      <div class="kvList">
-        ${mkField("Data", b.date, "date", "date")}
-        ${mkField("Partita", b.meta?.Match || "", "match", "text")}
-        ${mkField("Quota reale", b.execution?.odds_played ?? "", "odds_played", "number", "0.01")}
-        ${mkField("Stake reale", b.execution?.stake_played ?? "", "stake_played", "number", "0.01")}
-        <div class="kvItem">
-          <div class="k">Esito</div>
-          <div class="v">${resSelect}</div>
-        </div>
-        <div class="kvItem">
-          <div class="k">Profitto</div>
-          <div class="v"><b class="mono">${(b.result==="win"||b.result==="loss") ? fmtMoney(b.profit_real) : "—"}</b> <span class="muted">(calcolato)</span></div>
-        </div>
-      </div>
-
-      <div class="row" style="margin-top:10px">
-        <button class="btn primary" id="btnSaveEdit">Salva</button>
-        <button class="btn" id="btnCancelEdit">Annulla</button>
-      </div>
-      <div class="help" style="margin-top:8px">Profitto non modificabile: viene ricalcolato da stake e quota reali (solo win/loss).</div>
-    </div>
-  `;
-  box.innerHTML = html;
-
-  // attach click-to-edit for fields
-  box.querySelectorAll(".inlineEdit").forEach(span=>{
-    span.addEventListener("click", ()=>{
-      const key = span.getAttribute("data-key");
-      const type = span.getAttribute("data-type") || "text";
-      const step = span.getAttribute("data-step");
-      const old = (span.textContent==="—") ? "" : span.textContent;
-
-      const inp = document.createElement("input");
-      inp.type = type;
-      if(step) inp.step = step;
-      inp.value = old;
-      inp.className = "";
-      inp.style.width = "160px";
-      span.replaceWith(inp);
-      inp.focus();
-
-      inp.addEventListener("blur", ()=>{
-        const newSpan = document.createElement("span");
-        newSpan.className = "inlineEdit";
-        newSpan.setAttribute("data-key", key);
-        newSpan.setAttribute("data-type", type);
-        if(step) newSpan.setAttribute("data-step", step);
-        newSpan.textContent = inp.value.trim() || "—";
-        inp.replaceWith(newSpan);
-        // rebind
-        newSpan.addEventListener("click", ()=>newSpan.click());
-      }, {once:true});
-    }, {once:true});
-  });
-
-  document.getElementById("btnCancelEdit").addEventListener("click", ()=>{
-    renderDetails(b);
-  });
-
-  document.getElementById("btnSaveEdit").addEventListener("click", ()=>{
-    // read values from fields: they may be spans (not converted) - easier: query section and parse.
-    const sec = box.querySelector(".section");
-    const getVal = (k)=>{
-      const node = sec.querySelector(`[data-key="${CSS.escape(k)}"]`);
-      if(!node) return null;
-      const v = node.textContent?.trim();
-      if(!v || v==="—") return "";
-      return v;
-    };
-
-    const newDate = getVal("date") || b.date;
-    const newMatch = getVal("match");
-    const newOdds = getVal("odds_played");
-    const newStake = getVal("stake_played");
-    const newRes = document.getElementById("editResult").value;
-
-    // apply
-    b.date = newDate || b.date;
-    if(typeof newMatch === "string" && newMatch.trim() !== ""){
-      b.meta.Match = newMatch.trim();
-    }
-    const op = safeNum(newOdds);
-    const sp = safeNum(newStake);
-    if(op !== null) b.execution.odds_played = op;
-    if(sp !== null) b.execution.stake_played = sp;
-
-    b.result = newRes;
-
-    // profit recalculation rules: profit not editable
-    if(b.result==="win" || b.result==="loss"){
-      b.profit_manual = false;
-      b.profit_real = calcProfit(b.result, b.execution.stake_played, b.execution.odds_played);
-    }else{
-      b.profit_manual = false;
-      b.profit_real = null;
-    }
-
-    saveState();
-    renderHistory();
-    renderDetails(b);
-    updateDailyPill();
-    renderDailyBanner();
-  });
-}
-
 /* =========================
-   Backup / Restore + quick actions
+   Backup / Restore + actions
 ========================= */
 document.getElementById("btnClearHistory").addEventListener("click", ()=>{
   if(confirm("Svuotare lo storico?")){
     state.history=[];
     saveState();
     selectedBetId=null;
+    editingBetId=null;
     document.getElementById("btnToggleRaw").disabled=true;
     document.getElementById("detailsBox").textContent="Seleziona “Dettagli” su una bet.";
     renderAll();
@@ -1714,7 +1723,6 @@ document.getElementById("btnRecalc").addEventListener("click", ()=>{
   recalcAll();
   document.getElementById("backupMsg").innerHTML = `<div class="okLine">Ricalcolo completato.</div>`;
 });
-
 document.getElementById("btnBackup").addEventListener("click", ()=>{
   const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
   const url = URL.createObjectURL(blob);
@@ -1761,26 +1769,18 @@ document.getElementById("restoreFile").addEventListener("change", async (e)=>{
 });
 
 /* =========================
-   Dashboard: totals, DD, streaks + charts
+   Dashboard
 ========================= */
 let dashRange = "all";
 let profitRange = "1m";
 
-document.getElementById("dashRangeSeg").addEventListener("click",(e)=>{
-  const b=e.target.closest("button[data-range]");
-  if(!b) return;
-  dashRange = b.getAttribute("data-range");
-  document.querySelectorAll("#dashRangeSeg button").forEach(x=>x.classList.remove("active"));
-  b.classList.add("active");
+document.getElementById("dashRangeSelect").addEventListener("change",(e)=>{
+  dashRange = e.target.value;
   renderDashboard();
 });
-document.getElementById("profitRangeSeg").addEventListener("click",(e)=>{
-  const b=e.target.closest("button[data-pr]");
-  if(!b) return;
-  profitRange = b.getAttribute("data-pr");
-  document.querySelectorAll("#profitRangeSeg button").forEach(x=>x.classList.remove("active"));
-  b.classList.add("active");
-  renderDashboard(); // redraw chart
+document.getElementById("profitRangeSelect").addEventListener("change",(e)=>{
+  profitRange = e.target.value;
+  renderDashboard();
 });
 
 document.getElementById("btnSaveBR").addEventListener("click", ()=>{
@@ -1800,8 +1800,7 @@ document.getElementById("btnNewDay").addEventListener("click", ()=>{
 });
 
 function closedBetsFiltered(range){
-  return state.history
-    .filter(b=> (b.result==="win" || b.result==="loss") && inDateRange(b.date, range));
+  return state.history.filter(b=> (b.result==="win" || b.result==="loss") && inDateRange(b.date, range));
 }
 function computeTotalsRange(range){
   const closed = closedBetsFiltered(range);
@@ -1811,7 +1810,7 @@ function computeTotalsRange(range){
   const wins = closed.filter(b=>b.result==="win").length;
   const losses = closed.filter(b=>b.result==="loss").length;
   const winrate = closed.length>0 ? wins/closed.length : null;
-  return {closedCount:closed.length, wins, losses, profit, stakeTot, roi, winrate};
+  return {closedCount:closed.length, wins, losses, profit, stakeTot, roi, winrate, closed};
 }
 function computeDrawdownFromClosed(closed){
   const sorted = closed.slice().sort((a,b)=> a.date<b.date ? -1 : (a.date>b.date ? 1 : 0));
@@ -1835,7 +1834,7 @@ function computeStreaksFromClosed(closed){
   return {maxW,maxL};
 }
 
-/* --- Donut chart (canvas) --- */
+/* donut */
 function drawDonut(wins, losses){
   const c = document.getElementById("donut");
   const ctx = c.getContext("2d");
@@ -1846,7 +1845,6 @@ function drawDonut(wins, losses){
   const winPct = total>0 ? wins/total : 0;
   const lossPct = total>0 ? losses/total : 0;
 
-  // base circle
   const cx=W/2, cy=H/2, r=Math.min(W,H)*0.28;
   const thickness=r*0.45;
 
@@ -1861,21 +1859,18 @@ function drawDonut(wins, losses){
     return end;
   }
 
-  // background
   ctx.beginPath();
   ctx.strokeStyle="rgba(255,255,255,.08)";
   ctx.lineWidth=thickness;
   ctx.arc(cx, cy, r, 0, Math.PI*2);
   ctx.stroke();
 
-  // colors
   const good="rgba(25,195,125,.95)";
   const bad="rgba(255,77,79,.95)";
   let a=-Math.PI/2;
   a = arc(winPct, a, good);
   arc(lossPct, a, bad);
 
-  // text
   ctx.fillStyle="rgba(232,238,252,.92)";
   ctx.font="700 22px "+getComputedStyle(document.body).fontFamily;
   const wr = total>0 ? Math.round(winPct*100) : 0;
@@ -1889,23 +1884,21 @@ function drawDonut(wins, losses){
   document.getElementById("lostLabel").innerHTML = `Lost: <b>${Math.round(lossPct*100)}%</b>`;
 }
 
-/* --- Profit chart (canvas) --- */
-function drawProfitChart(closed, monthsMode){
+/* profit chart: area all green/red based on final cumulative sign */
+function drawProfitChart(closed, mode){
   const c = document.getElementById("profitChart");
   const ctx = c.getContext("2d");
   const W=c.width, H=c.height;
   ctx.clearRect(0,0,W,H);
 
   let data = closed.slice().sort((a,b)=> a.date<b.date ? -1 : (a.date>b.date ? 1 : 0));
-  if(monthsMode==="1m") data = data.filter(b=>inMonthsBack(b.date,1));
-  if(monthsMode==="6m") data = data.filter(b=>inMonthsBack(b.date,6));
-  if(monthsMode==="12m") data = data.filter(b=>inMonthsBack(b.date,12));
+  if(mode==="1m") data = data.filter(b=>inMonthsBack(b.date,1));
+  if(mode==="6m") data = data.filter(b=>inMonthsBack(b.date,6));
+  if(mode==="12m") data = data.filter(b=>inMonthsBack(b.date,12));
 
-  // Build cumulative series
   let eq=0;
   const pts = data.map(b=> (eq += Number(b.profit_real)||0));
   if(pts.length===0){
-    // axes only
     ctx.strokeStyle="rgba(255,255,255,.10)";
     ctx.strokeRect(40,20,W-60,H-50);
     ctx.fillStyle="rgba(159,176,208,.95)";
@@ -1914,8 +1907,8 @@ function drawProfitChart(closed, monthsMode){
     return;
   }
 
-  const minY = Math.min(...pts, 0);
-  const maxY = Math.max(...pts, 0);
+  const minY = Math.min(...pts);
+  const maxY = Math.max(...pts);
   const pad = (maxY-minY)*0.12 || 1;
   const y0 = minY - pad;
   const y1 = maxY + pad;
@@ -1924,30 +1917,28 @@ function drawProfitChart(closed, monthsMode){
   const plotW = right-left;
   const plotH = bottom-top;
 
-  // helper map
   const xAt = (i)=> left + (pts.length===1 ? plotW/2 : (i/(pts.length-1))*plotW);
   const yAt = (v)=> top + (1-(v-y0)/(y1-y0))*plotH;
 
-  // grid + zero line
+  // grid
   ctx.strokeStyle="rgba(255,255,255,.08)";
   ctx.strokeRect(left, top, plotW, plotH);
 
-  const zeroY = yAt(0);
-  ctx.beginPath();
-  ctx.strokeStyle="rgba(255,255,255,.12)";
-  ctx.moveTo(left, zeroY);
-  ctx.lineTo(right, zeroY);
-  ctx.stroke();
+  const final = pts[pts.length-1];
+  const isPos = final >= 0;
+  const fill = isPos ? "rgba(25,195,125,.12)" : "rgba(255,77,79,.12)";
+  const line = isPos ? "rgba(25,195,125,.85)" : "rgba(255,77,79,.85)";
+  const dot = isPos ? "rgba(25,195,125,.95)" : "rgba(255,77,79,.95)";
 
-  // fill negative area
+  // fill area under curve to bottom (full color)
   ctx.beginPath();
-  ctx.moveTo(left, zeroY);
+  ctx.moveTo(left, bottom);
   for(let i=0;i<pts.length;i++){
     ctx.lineTo(xAt(i), yAt(pts[i]));
   }
-  ctx.lineTo(right, zeroY);
+  ctx.lineTo(right, bottom);
   ctx.closePath();
-  ctx.fillStyle="rgba(255,77,79,.10)";
+  ctx.fillStyle = fill;
   ctx.fill();
 
   // line
@@ -1957,12 +1948,12 @@ function drawProfitChart(closed, monthsMode){
     if(i===0) ctx.moveTo(x,y);
     else ctx.lineTo(x,y);
   }
-  ctx.strokeStyle="rgba(255,77,79,.80)";
+  ctx.strokeStyle=line;
   ctx.lineWidth=2;
   ctx.stroke();
 
   // points
-  ctx.fillStyle="rgba(255,77,79,.95)";
+  ctx.fillStyle=dot;
   for(let i=0;i<pts.length;i++){
     const x=xAt(i), y=yAt(pts[i]);
     ctx.beginPath();
@@ -1970,23 +1961,17 @@ function drawProfitChart(closed, monthsMode){
     ctx.fill();
   }
 
-  // y labels (few)
+  // labels
   ctx.fillStyle="rgba(159,176,208,.95)";
   ctx.font="600 11px "+getComputedStyle(document.body).fontFamily;
-  ctx.textAlign="left";
-  ctx.fillText(`${y1.toFixed(1)}`, 6, top+10);
-  ctx.fillText(`${y0.toFixed(1)}`, 6, bottom);
-
-  // last value
-  const last = pts[pts.length-1];
   ctx.textAlign="right";
-  ctx.fillText(`Cumulato: ${last.toFixed(2)}`, right, top-6);
+  ctx.fillText(`Cumulato: ${final.toFixed(2)}`, right, top-6);
 }
 
 function renderDashboard(){
   const t = computeTotalsRange(dashRange);
-  const dd = computeDrawdownFromClosed(closedBetsFiltered(dashRange));
-  const st = computeStreaksFromClosed(closedBetsFiltered(dashRange));
+  const dd = computeDrawdownFromClosed(t.closed);
+  const st = computeStreaksFromClosed(t.closed);
 
   const kpis=document.getElementById("dashKpis");
   kpis.innerHTML = `
@@ -1994,33 +1979,26 @@ function renderDashboard(){
     <div class="kpi"><span>Winrate</span><b>${t.winrate===null ? "—" : fmtPct(t.winrate)}</b></div>
     <div class="kpi"><span>Profitto</span><b class="${t.profit>=0?'good':'bad'}">${fmtMoney(t.profit)}</b></div>
     <div class="kpi"><span>ROI</span><b class="${(t.roi!==null && t.roi>=0)?'good':'bad'}">${t.roi===null?"—":fmtPct(t.roi)}</b></div>
-    <div class="kpi"><span>Max DD</span><b>${fmtMoney(dd.maxDD)}</b></div>
-    <div class="kpi"><span>Streak (W/L)</span><b>${st.maxW} / ${st.maxL}</b></div>
   `;
+  document.getElementById("dashMaxDD").textContent = fmtMoney(dd.maxDD);
+  document.getElementById("dashStreak").textContent = `${st.maxW} / ${st.maxL}`;
 
   drawDonut(t.wins, t.losses);
-
-  // Profit chart uses closed across ALL by default but also respects dashRange? In LivePick screenshot, chart has its own buttons.
-  // We'll filter by dashRange first, then apply 1m/6m/12m/all.
-  const closed = closedBetsFiltered(dashRange);
-  drawProfitChart(closed, profitRange);
+  drawProfitChart(t.closed, profitRange);
 }
 
 /* =========================
-   Riepilogo temporale
+   Riepilogo temporale (ROI + ROC + Stato day)
 ========================= */
-let timeGroup="day";
-document.getElementById("timeGroupSeg").addEventListener("click",(e)=>{
-  const b=e.target.closest("button[data-tg]");
-  if(!b) return;
-  timeGroup=b.getAttribute("data-tg");
-  document.querySelectorAll("#timeGroupSeg button").forEach(x=>x.classList.remove("active"));
-  b.classList.add("active");
+document.getElementById("timeGroupSelect").addEventListener("change",(e)=>{
+  timeGroup = e.target.value;
   renderTimeSummary();
 });
+let timeGroup="day";
+
 function periodKey(dateISO, mode){
   if(mode==="day") return dateISO;
-  if(mode==="week") return startOfWeekISO(dateISO); // label by week start
+  if(mode==="week") return startOfWeekISO(dateISO);
   if(mode==="month") return monthKey(dateISO);
   return dateISO;
 }
@@ -2030,13 +2008,13 @@ function periodLabel(key, mode){
   if(mode==="month") return key;
   return key;
 }
-function periodStatus(profit, br){
-  if(!br || br<=0) return {label:"—", cls:"badge neutral"};
-  const pct=profit/br;
-  if(pct>=0.03) return {label:"Target profit", cls:"badge win"};
-  if(pct<=-0.10) return {label:"Stop loss", cls:"badge loss"};
-  return {label:"Neutra", cls:"badge neutral"};
+function dayStatusFromROC(roc){
+  if(roc===null) return {label:"", cls:""};
+  if(roc>=0.03) return {label:"Target", cls:"badge win"};
+  if(roc<=-0.10) return {label:"Stop", cls:"badge loss"};
+  return {label:"", cls:""};
 }
+
 function renderTimeSummary(){
   const empty=document.getElementById("timeEmpty");
   const table=document.getElementById("timeTable");
@@ -2056,15 +2034,20 @@ function renderTimeSummary(){
   const map=new Map();
   for(const b of closed){
     const key=periodKey(b.date, timeGroup);
-    if(!map.has(key)) map.set(key,{key,bets:0,wins:0,losses:0,stake:0,profit:0, br: null});
+    if(!map.has(key)) map.set(key,{key,bets:0,wins:0,losses:0,stake:0,profit:0, brDay:null, dayKey:null});
     const o=map.get(key);
     o.bets++;
     if(b.result==="win") o.wins++; else o.losses++;
     o.stake += Number(b.execution.stake_played)||0;
     o.profit += Number(b.profit_real)||0;
 
-    // bankroll day for that bet (snapshot at time) stored in calc.bankroll_day
-    if(o.br===null && b.calc?.bankroll_day) o.br = Number(b.calc.bankroll_day);
+    // For day grouping store bankroll start of that day
+    if(timeGroup==="day"){
+      if(o.brDay===null){
+        o.dayKey = b.date;
+        o.brDay = getStartBankrollForDate(b.date);
+      }
+    }
   }
 
   const rows=[...map.values()].sort((a,b)=> a.key<b.key ? 1 : -1);
@@ -2073,9 +2056,13 @@ function renderTimeSummary(){
     const wr=closedN>0 ? r.wins/closedN : null;
     const roi=r.stake>0 ? r.profit/r.stake : null;
 
-    const status = periodStatus(r.profit, r.br);
+    // ROC only meaningful for day
+    const roc = (timeGroup==="day" && r.brDay && r.brDay>0) ? (r.profit/r.brDay) : null;
+    const status = (timeGroup==="day") ? dayStatusFromROC(roc) : {label:"", cls:""};
+
     const profitCls = r.profit>=0 ? "badge win" : "badge loss";
     const roiCls = (roi!==null && roi>=0) ? "badge win" : "badge loss";
+    const rocCls = (roc!==null && roc>=0) ? "badge win" : (roc!==null ? "badge loss" : "badge neutral");
 
     const tr=document.createElement("tr");
     tr.innerHTML = `
@@ -2084,51 +2071,22 @@ function renderTimeSummary(){
       <td class="mono">${wr===null?"—":fmtPct(wr)}</td>
       <td><span class="${profitCls}">${escapeHtml(fmtMoney(r.profit))}</span></td>
       <td><span class="${roiCls}">${roi===null?"—":escapeHtml(fmtPct(roi))}</span></td>
-      <td><span class="${status.cls}">${escapeHtml(status.label)}</span></td>
+      <td><span class="${rocCls}">${roc===null?"—":escapeHtml(fmtPct(roc))}</span></td>
+      <td>${status.label ? `<span class="${status.cls}">${escapeHtml(status.label)}</span>` : ""}</td>
     `;
     body.appendChild(tr);
   }
 }
 
 /* =========================
-   Riepilogo filtri (cards + LivePick compare)
+   Riepilogo filtri (cards only)
 ========================= */
 document.getElementById("filterSort").addEventListener("change", renderFilters);
 
-function computeTotalsAllClosed(){
-  const closed = state.history.filter(b=>b.result==="win"||b.result==="loss");
-  const profit = sum(closed.map(b=>b.profit_real));
-  const stakeTot = sum(closed.map(b=>Number(b.execution.stake_played)||0));
-  const roi = stakeTot>0 ? profit/stakeTot : null;
-  return {closedCount:closed.length, profit, stakeTot, roi};
-}
-function computeDrawdownGlobal(){
-  const closed = state.history.filter(b=>b.result==="win"||b.result==="loss");
-  return computeDrawdownFromClosed(closed);
-}
-function computeStreaksGlobal(){
-  const closed = state.history.filter(b=>b.result==="win"||b.result==="loss");
-  return computeStreaksFromClosed(closed);
-}
 function renderFilters(){
   const grid=document.getElementById("filtersGrid");
   const sort=document.getElementById("filterSort").value;
-  const metaRow=document.getElementById("filtersMetaRow");
-  const notes=document.getElementById("filtersNotes");
 
-  const totals=computeTotalsAllClosed();
-  const dd=computeDrawdownGlobal();
-  const st=computeStreaksGlobal();
-
-  metaRow.innerHTML = `
-    <div class="kpi"><span>Bet totali</span><b>${state.history.length}</b></div>
-    <div class="kpi"><span>Bet chiuse</span><b>${totals.closedCount}</b></div>
-    <div class="kpi"><span>Profitto</span><b class="${totals.profit>=0?'good':'bad'}">${fmtMoney(totals.profit)}</b></div>
-    <div class="kpi"><span>ROI</span><b class="${(totals.roi!==null && totals.roi>=0)?'good':'bad'}">${totals.roi===null?"—":fmtPct(totals.roi)}</b></div>
-  `;
-  notes.textContent = `Max DD: ${fmtMoney(dd.maxDD)} • Max win streak: ${st.maxW} • Max loss streak: ${st.maxL}`;
-
-  // group by method + pick label
   const groups=new Map();
   for(const b of state.history){
     const name = `${b.meta?.Method || "—"} • ${formatPick(b)}`;
@@ -2143,13 +2101,11 @@ function renderFilters(){
     const g=groups.get(name);
     g.bets++;
 
-    // last LP values by temporal order (date then insertion)
     if(!g.lastDate || b.date >= g.lastDate){
       g.lastDate = b.date;
       g.lastLP = b.lp || null;
     }
 
-    // odds avg (use played if exists else ref)
     const o = (b.execution?.odds_played ?? b.execution?.odds_ref);
     if(o && Number(o)>1){ g.oddsSum += Number(o); g.oddsN++; }
 
@@ -2165,15 +2121,13 @@ function renderFilters(){
     const winrate = closedN>0 ? g.wins/closedN : null;
     const roi = g.stake>0 ? g.profit/g.stake : null;
     const avgOdds = g.oddsN>0 ? g.oddsSum/g.oddsN : null;
-    // livepick compare from last bet for that filter
     const lp = g.lastLP;
     const lpWR = lp?.WR ?? null;
     const lpROI = lp?.ROI ?? null;
-    const lpProfit = lp?.Profit ?? null;
+    const lpProfit = (lp?.Profit ?? null);
     return {...g, closedN, winrate, roi, avgOdds, lpWR, lpROI, lpProfit};
   });
 
-  // sort
   arr.sort((a,b)=>{
     const va = (sort==="roi") ? (a.roi ?? -1e9)
       : (sort==="profit") ? a.profit
@@ -2195,27 +2149,22 @@ function renderFilters(){
     return;
   }
 
+  const compLine = (label, val, lpVal, delta, isPct=true)=>{
+    const v = val===null ? "—" : (isPct ? fmtPct(val) : fmtMoney(val));
+    const lpS = lpVal===null ? "" : ` (LP ${isPct?fmtPct(lpVal):fmtMoney(lpVal)})`;
+    const dS = delta===null ? "" : ` • Δ ${isPct?fmtPct(delta):fmtMoney(delta)}`;
+    return `<div class="help">${escapeHtml(label)}: <b>${escapeHtml(v)}</b>${escapeHtml(lpS)}${escapeHtml(dS)}</div>`;
+  };
+
   for(const g of arr){
-    const winPct = g.winrate===null ? "—" : fmtPct(g.winrate);
     const roiStr = g.roi===null ? "—" : fmtPct(g.roi);
     const roiCls = (g.roi!==null && g.roi>=0) ? "badge win" : "badge loss";
     const profitCls = g.profit>=0 ? "good" : "bad";
 
-    // Compare with LP (in parentheses) + delta
-    const lpwr = g.lpWR===null ? null : g.lpWR;
-    const lproi = g.lpROI===null ? null : g.lpROI;
-    const lpp = (g.lpProfit===null || g.lpProfit===undefined) ? null : Number(g.lpProfit);
-
-    const wrDelta = (g.winrate!==null && lpwr!==null) ? (g.winrate - lpwr) : null;
-    const roiDelta = (g.roi!==null && lproi!==null) ? (g.roi - lproi) : null;
-    const pDelta = (lpp!==null) ? (g.profit - lpp) : null;
-
-    const compLine = (label, val, lpVal, delta, isPct=true)=>{
-      const v = val===null ? "—" : (isPct ? fmtPct(val) : fmtMoney(val));
-      const lpS = lpVal===null ? "" : ` (LP ${isPct?fmtPct(lpVal):fmtMoney(lpVal)})`;
-      const dS = delta===null ? "" : ` • Δ ${isPct?fmtPct(delta):fmtMoney(delta)}`;
-      return `<div class="help">${escapeHtml(label)}: <b>${escapeHtml(v)}</b>${escapeHtml(lpS)}${escapeHtml(dS)}</div>`;
-    };
+    const wrDelta = (g.winrate!==null && g.lpWR!==null) ? (g.winrate - g.lpWR) : null;
+    const roiDelta = (g.roi!==null && g.lpROI!==null) ? (g.roi - g.lpROI) : null;
+    const lpProfitNum = (g.lpProfit===null || g.lpProfit===undefined) ? null : Number(g.lpProfit);
+    const pDelta = (lpProfitNum!==null) ? (g.profit - lpProfitNum) : null;
 
     const card=document.createElement("div");
     card.className="card";
@@ -2229,16 +2178,15 @@ function renderFilters(){
       </div>
 
       <div class="row">
-        <span class="badge">Vinte: <b>${g.winrate===null?"—":winPct}</b></span>
+        <span class="badge">Vinte: <b>${g.winrate===null?"—":fmtPct(g.winrate)}</b></span>
         <span class="badge">Quota media: <b class="mono">${g.avgOdds===null?"—":g.avgOdds.toFixed(2)}</b></span>
         <span class="badge">Profitto: <b class="${profitCls} mono">${fmtMoney(g.profit)}</b></span>
       </div>
 
       <div style="margin-top:8px">
-        ${compLine("% Vinte", g.winrate, lpwr, wrDelta, true)}
-        ${compLine("ROI", g.roi, lproi, roiDelta, true)}
-        ${compLine("Profit", g.profit, (lpp===null?null:lpp), pDelta, false)}
-        <div class="help">LP preso dall’ultima bet registrata per questo filtro.</div>
+        ${compLine("% Vinte", g.winrate, g.lpWR, wrDelta, true)}
+        ${compLine("ROI", g.roi, g.lpROI, roiDelta, true)}
+        ${compLine("Profit", g.profit, lpProfitNum, pDelta, false)}
       </div>
     `;
     grid.appendChild(card);
@@ -2258,11 +2206,12 @@ function renderAll(){
   renderFilters();
 }
 renderAll();
+document.getElementById("btnToggleRaw").disabled = true;
 
 /* =========================
-   Startup buttons
+   Small page-specific refresh
 ========================= */
-document.getElementById("btnToggleRaw").disabled = true;
+function openTo(page){ setPage(page); }
 </script>
 </body>
 </html>
