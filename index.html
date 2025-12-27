@@ -1,2034 +1,280 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BetTools • V3 • NEXT • Stake v1 • UI v1.5</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <style>
-    :root{
-      --bg:#070c17;
-      --panel:#0e1526;
-      --panel2:#0b1220;
-      --card:#121b2e;
-      --card2:#0f172a;
-      --border:rgba(255,255,255,.08);
-      --text:#e5e7eb;
-      --muted:#9ca3af;
-      --muted2:#6b7280;
-      --green:#34d399;
-      --red:#fb7185;
-      --yellow:#fbbf24;
-      --blue:#60a5fa;
-      --chip:rgba(255,255,255,.06);
-      --shadow: 0 14px 40px rgba(0,0,0,.45);
-      --radius:18px;
-      --radius2:14px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,system-ui,Arial,sans-serif;
-      background: radial-gradient(1200px 600px at 75% -100px, rgba(96,165,250,.25), transparent 60%),
-                  radial-gradient(900px 500px at 10% -140px, rgba(52,211,153,.18), transparent 55%),
-                  var(--bg);
-      color:var(--text);
-      -webkit-font-smoothing:antialiased;
-      overflow-x:hidden;
-    }
-    a{color:inherit}
-    .app{min-height:100vh}
-    .topbar{
-      position:sticky; top:0; z-index:50;
-      display:flex; align-items:center; justify-content:space-between;
-      padding:14px 14px;
-      background: linear-gradient(180deg, rgba(7,12,23,.92), rgba(7,12,23,.72));
-      backdrop-filter: blur(10px);
-      border-bottom:1px solid var(--border);
-    }
-    .leftTop{display:flex; align-items:center; gap:12px;}
-    .hamburger{
-      width:42px; height:42px; border-radius:14px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,.03);
-      display:grid; place-items:center;
-      cursor:pointer;
-      box-shadow: 0 10px 22px rgba(0,0,0,.25);
-    }
-    .hamburger:active{transform:scale(.98)}
-    .hamburger span{
-      display:block; width:18px; height:2px; background:rgba(229,231,235,.9);
-      margin:2px 0; border-radius:2px;
-    }
-    .brand{line-height:1.05}
-    .brand .title{font-weight:800; font-size:22px; letter-spacing:.2px}
-    .brand .sub{font-size:13px; color:var(--muted)}
-    .dayBadge{
-      display:flex; align-items:center; gap:10px;
-      padding:10px 14px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,.03);
-      color:var(--muted);
-      font-weight:700;
-      max-width:55vw;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .dot{width:10px; height:10px; border-radius:999px; background:var(--muted2); flex:0 0 auto}
-    .dot.green{background:var(--green)}
-    .dot.red{background:var(--red)}
-    .dot.yellow{background:var(--yellow)}
-    /* Sidebar */
-    .overlay{
-      position:fixed; inset:0; z-index:90;
-      background:rgba(0,0,0,.55);
-      display:none;
-    }
-    .overlay.show{display:block}
-    .sidebar{
-      position:fixed; top:0; left:0; bottom:0;
-      width:min(320px, 86vw);
-      z-index:100;
-      background:linear-gradient(180deg, rgba(14,21,38,.98), rgba(11,18,32,.98));
-      border-right:1px solid var(--border);
-      transform:translateX(-102%);
-      transition:transform .22s ease;
-      box-shadow: var(--shadow);
-      padding:14px 12px;
-    }
-    .sidebar.show{transform:translateX(0)}
-    .sidebarHeader{display:flex; align-items:center; justify-content:space-between; padding:6px 6px 12px 6px;}
-    .sidebarHeader .menuTitle{font-size:20px; font-weight:800;}
-    .closeBtn{
-      width:42px; height:42px; border-radius:14px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,.03);
-      color:var(--text);
-      display:grid; place-items:center;
-      cursor:pointer;
-    }
-    .nav{
-      display:flex; flex-direction:column; gap:10px;
-      margin-top:6px;
-    }
-    .nav button{
-      text-align:left;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,.02);
-      color:var(--text);
-      padding:14px 14px;
-      border-radius:16px;
-      font-size:16px;
-      font-weight:750;
-      cursor:pointer;
-    }
-    .nav button small{display:block; color:var(--muted); font-weight:650; margin-top:4px}
-    .nav button.active{
-      border-color:rgba(96,165,250,.55);
-      box-shadow: 0 0 0 3px rgba(96,165,250,.14);
-      background:rgba(96,165,250,.08);
-    }
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>BetTools • V3 • NEXT • Stake v1 • UI v1.5</title>
 
-    /* Layout */
-    .container{max-width:1050px; margin:0 auto; padding:14px}
-    .page{display:none; padding-bottom:80px}
-    .page.active{display:block}
-    .card{
-      background:linear-gradient(180deg, rgba(18,27,46,.92), rgba(14,21,38,.92));
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow: 0 16px 42px rgba(0,0,0,.35);
-      padding:16px;
-    }
-    .card.soft{background:rgba(255,255,255,.03); box-shadow:none}
-    .sectionTitle{font-size:26px; font-weight:900; margin:6px 0 2px 0}
-    .sectionSub{color:var(--muted); margin:0 0 14px 0; line-height:1.35}
-    .row{display:flex; gap:12px; flex-wrap:wrap}
-    .col{flex:1 1 260px}
-    .label{color:var(--muted); font-size:13px; font-weight:700; margin-bottom:6px}
-    input, textarea, select{
-      width:100%;
-      color:var(--text);
-      background:rgba(255,255,255,.03);
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:14px 14px;
-      font-size:16px;
-      outline:none;
-    }
-    textarea{min-height:150px; resize:vertical}
-    input[disabled]{opacity:.75}
-    .btn{
-      border:none;
-      border-radius:16px;
-      padding:13px 14px;
-      font-size:16px;
-      font-weight:800;
-      cursor:pointer;
-      background:rgba(255,255,255,.06);
-      color:var(--text);
-      border:1px solid var(--border);
-    }
-    .btn.primary{background:rgba(52,211,153,.14); border-color:rgba(52,211,153,.3)}
-    .btn.danger{background:rgba(251,113,133,.12); border-color:rgba(251,113,133,.25)}
-    .btn.blue{background:rgba(96,165,250,.14); border-color:rgba(96,165,250,.35)}
-    .btn:active{transform:scale(.99)}
-    .btnRow{display:flex; gap:10px; flex-wrap:wrap}
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,.03);
-      padding:8px 12px;
-      border-radius:999px;
-      color:var(--muted);
-      font-weight:800;
-      font-size:13px;
-    }
-    .pill strong{color:var(--text)}
-    .pill.good{border-color:rgba(52,211,153,.35); color:rgba(52,211,153,.95)}
-    .pill.bad{border-color:rgba(251,113,133,.35); color:rgba(251,113,133,.95)}
-    .pill.warn{border-color:rgba(251,191,36,.35); color:rgba(251,191,36,.95)}
-    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px}
-    @media (max-width:700px){ .grid2{grid-template-columns:1fr} }
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-    /* bettin.gs-like bet card */
-    .betCard{
-      display:flex; align-items:stretch; justify-content:space-between;
-      gap:12px;
-      padding:14px;
-      border-radius:18px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,.02);
-    }
-    .betLeft{min-width:0}
-    .betTop{
-      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-      color:var(--muted);
-      font-weight:800;
-      font-size:13px;
-    }
-    .tag{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:6px 10px;
-      border-radius:12px;
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--border);
-      color:var(--muted);
-      font-weight:800;
-      font-size:13px;
-    }
-    .betMatch{font-size:18px; font-weight:900; margin:8px 0 2px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-    .betPick{color:var(--muted); font-weight:800; margin:0 0 8px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-    .betMeta{display:flex; gap:12px; flex-wrap:wrap; color:var(--muted2); font-weight:800; font-size:13px}
-    .betRight{
-      display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between;
-      gap:8px; flex:0 0 auto;
-    }
-    .resultLine{display:flex; align-items:center; gap:10px; font-weight:950}
-    .resultLine .resText{font-size:16px}
-    .resultLine .amount{font-size:16px}
-    .resWon{color:rgba(52,211,153,.98)}
-    .resLost{color:rgba(251,113,133,.98)}
-    .resPend{color:rgba(251,191,36,.98)}
-    .odStake{color:var(--muted2); font-weight:850; font-size:13px}
-    .miniActions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
-    .miniActions .btn{padding:10px 12px; border-radius:14px; font-size:14px}
+<style>
+/* =========================
+   THEME
+========================= */
+:root{
+  --bg:#070c17;
+  --panel:#0e1526;
+  --card:#121b2e;
+  --border:rgba(255,255,255,.08);
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+  --green:#34d399;
+  --red:#fb7185;
+  --yellow:#fbbf24;
+  --blue:#60a5fa;
+  --radius:18px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,system-ui;
+  background:var(--bg);
+  color:var(--text);
+}
+button,input,select,textarea{
+  background:#0f172a;
+  border:1px solid var(--border);
+  border-radius:14px;
+  color:var(--text);
+  padding:12px;
+  font-size:15px;
+}
+button{cursor:pointer;font-weight:700}
+button.primary{background:rgba(52,211,153,.15);border-color:rgba(52,211,153,.35)}
+button.blue{background:rgba(96,165,250,.15);border-color:rgba(96,165,250,.35)}
+button.danger{background:rgba(251,113,133,.15);border-color:rgba(251,113,133,.35)}
+.container{max-width:1100px;margin:0 auto;padding:14px}
 
-    /* Tables */
-    table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:18px; border:1px solid var(--border)}
-    th, td{padding:12px 12px; border-bottom:1px solid var(--border); text-align:left; font-size:14px}
-    th{color:var(--muted); font-weight:900; background:rgba(255,255,255,.02)}
-    tr:last-child td{border-bottom:none}
-    td .pill{font-size:12px; padding:6px 10px}
+/* =========================
+   TOP BAR
+========================= */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px;
+  background:#070c17;
+  border-bottom:1px solid var(--border);
+}
+.brand .title{font-size:22px;font-weight:900}
+.brand .sub{font-size:13px;color:var(--muted)}
+.dayBox{
+  padding:8px 14px;border-radius:999px;
+  border:1px solid var(--border);
+  font-weight:800;
+}
 
-    /* Modal */
-    .modalOverlay{
-      position:fixed; inset:0; z-index:200;
-      background:rgba(0,0,0,.65);
-      display:none;
-      padding:18px;
-    }
-    .modalOverlay.show{display:flex; align-items:flex-end; justify-content:center}
-    .modal{
-      width:min(860px, 100%);
-      background:linear-gradient(180deg, rgba(18,27,46,.98), rgba(11,18,32,.98));
-      border:1px solid var(--border);
-      border-radius:22px;
-      box-shadow: var(--shadow);
-      max-height:84vh;
-      overflow:auto;
-    }
-    .modalHeader{
-      display:flex; justify-content:space-between; align-items:center;
-      padding:14px 14px 10px 14px;
-      border-bottom:1px solid var(--border);
-      position:sticky; top:0;
-      background:rgba(14,21,38,.92);
-      backdrop-filter: blur(10px);
-      z-index:1;
-    }
-    .modalHeader h3{margin:0; font-size:18px; font-weight:900}
-    .modalBody{padding:14px}
-    .kv{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-    @media (max-width:700px){ .kv{grid-template-columns:1fr} }
-    .kv .item{padding:12px; border-radius:16px; border:1px solid var(--border); background:rgba(255,255,255,.02)}
-    .kv .k{color:var(--muted); font-size:12px; font-weight:900}
-    .kv .v{font-size:15px; font-weight:850; margin-top:6px; word-break:break-word}
-    .hr{height:1px; background:var(--border); margin:14px 0}
-    .hint{color:var(--muted); font-weight:700; font-size:13px; line-height:1.35}
-  </style>
+/* =========================
+   BET CARD (UNIFIED)
+========================= */
+.betCard{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px;
+  border-radius:18px;
+  border:1px solid var(--border);
+  background:#0f172a;
+}
+.betLeft{min-width:0}
+.betTop{font-size:13px;color:var(--muted);font-weight:800}
+.betTag{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:12px;
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--border);
+  margin-right:6px;
+}
+.betMatch{
+  font-size:17px;font-weight:900;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.betPick{
+  font-size:14px;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.betRight{text-align:right}
+.resWon{color:var(--green);font-weight:900}
+.resLost{color:var(--red);font-weight:900}
+.resPend{color:var(--yellow);font-weight:900}
+.actions{margin-top:10px;display:flex;gap:8px;justify-content:flex-end}
+
+/* =========================
+   PAGES
+========================= */
+.page{display:none}
+.page.active{display:block}
+.sectionTitle{font-size:26px;font-weight:900;margin:10px 0}
+.sectionSub{color:var(--muted);margin-bottom:14px}
+
+/* =========================
+   KPI GRID
+========================= */
+.kpiGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.kpi{
+  background:#0f172a;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:14px;
+}
+.kpi .label{font-size:13px;color:var(--muted)}
+.kpi .value{font-size:26px;font-weight:900}
+
+/* =========================
+   MODAL
+========================= */
+.modalBg{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.7);
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  z-index:100;
+}
+.modal{
+  background:#0f172a;
+  border-radius:20px;
+  width:min(900px,100%);
+  max-height:85vh;
+  overflow:auto;
+  padding:16px;
+}
+.modal h3{margin-top:0}
+</style>
 </head>
+
 <body>
-<div class="app">
-  <div class="topbar">
-    <div class="leftTop">
-      <button class="hamburger" id="btnHamburger" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
-      <div class="brand">
-        <div class="title">BetTools</div>
-        <div class="sub">V3 • NEXT • Stake v1 • UI v1.5</div>
-      </div>
-    </div>
-    <div class="dayBadge" id="dayBadge"><span class="dot" id="dayDot"></span><span id="dayBadgeText">Giornata: neutra</span></div>
+<div class="topbar">
+  <div class="brand">
+    <div class="title">BetTools</div>
+    <div class="sub">V3 • NEXT • Stake v1 • UI v1.5</div>
+  </div>
+  <div class="dayBox" id="dayBox">Giornata: neutra</div>
+</div>
+
+<div class="container">
+
+<!-- DASHBOARD -->
+<section id="page-dashboard" class="page active">
+  <h2 class="sectionTitle">Dashboard</h2>
+
+  <!-- KPI ROW 1 -->
+  <div class="kpiGrid">
+    <div class="kpi"><div class="label">Bet chiuse</div><div class="value" id="kpiClosed">0</div></div>
+    <div class="kpi"><div class="label">Win rate</div><div class="value" id="kpiWR">0%</div></div>
   </div>
 
-  <div class="overlay" id="overlay"></div>
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebarHeader">
-      <div class="menuTitle">Menu</div>
-      <button class="closeBtn" id="btnCloseSidebar">✕</button>
-    </div>
-    <div class="nav" id="nav">
-      <button data-page="calculator" class="active">Calcolatore <small>Parse notifica + stake + aggiungi</small></button>
-      <button data-page="history">Storico <small>Lista bet + modifica + backup</small></button>
-      <button data-page="dashboard">Dashboard <small>KPI + grafici + ultime bet</small></button>
-      <button data-page="timeSummary">Riepilogo temporale <small>Giorno / settimana / mese</small></button>
-      <button data-page="filterSummary">Riepilogo filtri <small>Card ROI + trend + confronto LP</small></button>
-    </div>
-  </aside>
+  <!-- KPI ROW 2 -->
+  <div class="kpiGrid" style="margin-top:10px">
+    <div class="kpi"><div class="label">Profitto</div><div class="value" id="kpiProfit">0</div></div>
+    <div class="kpi"><div class="label">ROI</div><div class="value" id="kpiROI">0%</div></div>
+  </div>
 
-  <main class="container">
-    <!-- CALCOLATORE -->
-    <section class="page active" id="page-calculator">
-      <h2 class="sectionTitle">Calcolatore</h2>
-      <p class="sectionSub">Incolla la notifica V3. Parse → stake suggerito (sempre) → inserisci quota/stake reali e aggiungi a storico.</p>
+  <!-- KPI ROW 3 -->
+  <div class="kpiGrid" style="margin-top:10px">
+    <div class="kpi"><div class="label">Max Drawdown</div><div class="value" id="kpiDD">0</div></div>
+    <div class="kpi"><div class="label">Streak W/L</div><div class="value" id="kpiStreak">0 / 0</div></div>
+  </div>
 
-      <div class="card">
-        <div class="row">
-          <div class="col">
-            <div class="label">Notifica LivePick (V3)</div>
-            <textarea id="notifInput" placeholder="Incolla qui la notifica..."></textarea>
-          </div>
-        </div>
-        <div class="btnRow" style="margin-top:10px">
-          <button class="btn blue" id="btnParse">Parse</button>
-          <button class="btn" id="btnClear">Pulisci</button>
-        </div>
+  <h3 style="margin-top:24px">Latest Bets</h3>
+  <div id="latestList" style="display:flex;flex-direction:column;gap:10px"></div>
+</section>
 
-        <div id="parseResult" style="margin-top:14px; display:none">
-          <div class="hr"></div>
-          <div class="row">
-            <div class="col">
-              <div class="pill" id="parseOkPill">Parse OK</div>
-              <div style="margin-top:10px" class="grid2">
-                <div class="card soft">
-                  <div class="label">Stake suggerito (subito)</div>
-                  <div style="display:flex; gap:10px; flex-wrap:wrap">
-                    <div class="pill" id="pillStakeEur"><strong>€ 0,00</strong></div>
-                    <div class="pill" id="pillStakePct"><strong>0,00%</strong></div>
-                    <div class="pill" id="pillEdge">Edge: <strong>0,00%</strong></div>
-                  </div>
-                  <div style="margin-top:10px" class="hint" id="parseNotes"></div>
-                </div>
-                <div class="card soft">
-                  <div class="label">Dati da compilare (dopo)</div>
-                  <div class="grid2">
-                    <div>
-                      <div class="label">Quota reale giocata</div>
-                      <input id="realOdds" placeholder="es. 1.67" inputmode="decimal" />
-                    </div>
-                    <div>
-                      <div class="label">Stake reale giocato</div>
-                      <input id="realStake" placeholder="es. 2.00" inputmode="decimal" />
-                    </div>
-                  </div>
-                  <div style="margin-top:10px">
-                    <button class="btn primary" id="btnAddToHistory">Aggiungi a storico</button>
-                  </div>
-                  <div class="hint" style="margin-top:10px">Lo snapshot del bankroll giornaliero viene creato al primo “Aggiungi a storico” della giornata.</div>
-                </div>
-              </div>
+<!-- STORICO -->
+<section id="page-history" class="page">
+  <h2 class="sectionTitle">Storico</h2>
+  <p class="sectionSub">Grafica identica a Latest Bets</p>
+  <div id="historyList" style="display:flex;flex-direction:column;gap:10px"></div>
+</section>
 
-              <div class="hr"></div>
-              <div class="row">
-                <div class="col">
-                  <div class="label">Bankroll attuale</div>
-                  <input id="bankrollInput" placeholder="es. 40" inputmode="decimal" />
-                </div>
-                <div class="col">
-                  <div class="label">Bankroll giornaliero (oggi)</div>
-                  <input id="bankrollDay" disabled />
-                </div>
-              </div>
+</div>
 
-              <div class="hr"></div>
-              <div class="label">Dettaglio calcoli</div>
-              <div class="row">
-                <div class="col">
-                  <div class="pill">Pick: <strong id="calcPick">—</strong></div>
-                  <div class="pill">PROB usata: <strong id="calcProbLabel">—</strong></div>
-                </div>
-                <div class="col">
-                  <div class="pill">P_REF: <strong id="calcPref">—</strong></div>
-                  <div class="pill">Implied: <strong id="calcImplied">—</strong></div>
-                </div>
-                <div class="col">
-                  <div class="pill">Fonte: <strong id="calcSource">—</strong></div>
-                  <div class="pill">N arch.: <strong id="calcArchN">—</strong></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- STORICO -->
-    <section class="page" id="page-history">
-      <h2 class="sectionTitle">Storico</h2>
-      <p class="sectionSub">Lista bet (stile bettin.gs). Modifica inline. Profitto calcolato su stake/odds reali. Pending e non giocate non vengono conteggiate nelle KPI.</p>
-
-      <div class="card">
-        <div class="row">
-          <div class="col">
-            <div class="label">Filtro (Metodo)</div>
-            <select id="histMethodFilter"></select>
-          </div>
-          <div class="col">
-            <div class="label">Esito</div>
-            <select id="histOutcomeFilter">
-              <option value="all">Tutte</option>
-              <option value="won">Vinte</option>
-              <option value="lost">Perse</option>
-              <option value="pending">Pending</option>
-              <option value="not_played">Non giocate</option>
-            </select>
-          </div>
-          <div class="col">
-            <div class="label">Data</div>
-            <select id="histDateFilter">
-              <option value="all">Tutte</option>
-              <option value="today">Oggi</option>
-              <option value="yesterday">Ieri</option>
-              <option value="week">Settimana corrente</option>
-              <option value="month">Mese corrente</option>
-            </select>
-          </div>
-        </div>
-        <div class="btnRow" style="margin-top:10px">
-          <button class="btn blue" id="btnManualAdd">Aggiungi bet (manuale)</button>
-        </div>
-      </div>
-
-      <div style="height:12px"></div>
-      <div id="historyList" class="row" style="flex-direction:column; gap:12px"></div>
-
-      <div style="height:14px"></div>
-
-      <div class="card">
-        <h3 style="margin:0 0 8px 0">Backup + Restore</h3>
-        <p class="sectionSub" style="margin:0 0 12px 0">Esporta/Importa tutto lo storico in <strong>.JSON</strong>. L’import sovrascrive il database locale.</p>
-        <div class="btnRow">
-          <button class="btn" id="btnExport">Esporta JSON</button>
-          <label class="btn" for="importFile" style="cursor:pointer">Importa JSON</label>
-          <input id="importFile" type="file" accept="application/json" style="display:none"/>
-          <button class="btn danger" id="btnReset">Reset DB locale</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- DASHBOARD -->
-    <section class="page" id="page-dashboard">
-      <h2 class="sectionTitle">Dashboard</h2>
-      <p class="sectionSub">KPI compatti + grafici stile bettin.gs. Seleziona il periodo per aggiornare KPI e grafici.</p>
-
-      <div class="card">
-        <div class="row">
-          <div class="col">
-            <div class="label">Periodo</div>
-            <select id="dashPeriod">
-              <option value="all">Tutto (default)</option>
-              <option value="today">Oggi</option>
-              <option value="yesterday">Ieri</option>
-              <option value="week">Settimana corrente</option>
-              <option value="month">Mese corrente</option>
-            </select>
-          </div>
-          <div class="col">
-            <div class="label">Grafico profitto</div>
-            <select id="dashChartRange">
-              <option value="1m">Ultimi 30 giorni</option>
-              <option value="3m">3 mesi</option>
-              <option value="6m">6 mesi</option>
-              <option value="12m">12 mesi</option>
-              <option value="all">All</option>
-            </select>
-          </div>
-        </div>
-
-        <div style="height:12px"></div>
-
-        <!-- KPI 3 righe -->
-        <div class="grid2">
-          <div class="card soft">
-            <div class="label">Bet chiuse</div>
-            <div style="font-weight:950; font-size:28px" id="kpiClosed">0</div>
-          </div>
-          <div class="card soft">
-            <div class="label">Winrate</div>
-            <div style="font-weight:950; font-size:28px" id="kpiWinrate">0,00%</div>
-          </div>
-
-          <div class="card soft">
-            <div class="label">Profitto</div>
-            <div style="font-weight:950; font-size:28px" id="kpiProfit">0,00</div>
-          </div>
-          <div class="card soft">
-            <div class="label">ROI</div>
-            <div style="font-weight:950; font-size:28px" id="kpiRoi">0,00%</div>
-          </div>
-
-          <div class="card soft">
-            <div class="label">Max Drawdown</div>
-            <div style="font-weight:950; font-size:28px" id="kpiMaxDD">0,00</div>
-          </div>
-          <div class="card soft">
-            <div class="label">Streak W/L</div>
-            <div style="font-weight:950; font-size:28px" id="kpiStreak">0 / 0</div>
-          </div>
-        </div>
-      </div>
-
-      <div style="height:12px"></div>
-
-      <div class="card">
-        <div class="row" style="align-items:flex-start">
-          <div class="col">
-            <h3 style="margin:0 0 6px 0">Profit / Loss</h3>
-            <div class="hint">Daily + Total (cumulato). Area tutta verde se totale positivo, tutta rossa se negativo.</div>
-          </div>
-        </div>
-        <div style="height:12px"></div>
-        <canvas id="profitChart" height="150"></canvas>
-        <div class="hint" style="margin-top:10px">Legenda: <span style="color:var(--green); font-weight:900">Daily</span> • <span style="color:var(--yellow); font-weight:900">Total</span></div>
-      </div>
-
-      <div style="height:12px"></div>
-
-      <div class="grid2">
-        <div class="card">
-          <h3 style="margin:0 0 6px 0">Outcome Summary</h3>
-          <div class="hint">Solo bet chiuse nel periodo.</div>
-          <div style="height:12px"></div>
-          <canvas id="outcomeChart" height="160"></canvas>
-          <div id="outcomeLegend" class="hint" style="margin-top:10px"></div>
-        </div>
-        <div class="card">
-          <h3 style="margin:0 0 6px 0">Latest Bets</h3>
-          <div class="hint">Ultime bet inserite (qualsiasi esito).</div>
-          <div style="height:12px"></div>
-          <div id="latestList" style="display:flex; flex-direction:column; gap:10px"></div>
-        </div>
-      </div>
-
-      <div style="height:12px"></div>
-      <div class="card">
-        <h3 style="margin:0 0 8px 0">Bankroll</h3>
-        <p class="sectionSub" style="margin:0 0 12px 0">Impostalo una volta. Il bankroll giornaliero si “blocca” al primo inserimento della giornata.</p>
-        <div class="row">
-          <div class="col">
-            <div class="label">Bankroll attuale</div>
-            <input id="dashBankroll" placeholder="es. 40" inputmode="decimal"/>
-          </div>
-          <div class="col">
-            <div class="label">Salva</div>
-            <button class="btn primary" id="btnSaveBankroll" style="width:100%">Salva bankroll</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- RIEPILOGO TEMPORALE -->
-    <section class="page" id="page-timeSummary">
-      <h2 class="sectionTitle">Riepilogo temporale</h2>
-      <p class="sectionSub">Una riga per periodo. Stato solo per Giorno. ROC basato su bankroll inizio giornata.</p>
-
-      <div class="card">
-        <div class="row">
-          <div class="col">
-            <div class="label">Raggruppa</div>
-            <select id="timeGroup">
-              <option value="day">Giorno</option>
-              <option value="week">Settimane</option>
-              <option value="month">Mesi</option>
-            </select>
-          </div>
-        </div>
-        <div style="height:12px"></div>
-        <div style="overflow:auto">
-          <table>
-            <thead>
-              <tr>
-                <th>Periodo</th>
-                <th>Bet</th>
-                <th>Winrate</th>
-                <th>Profitto</th>
-                <th>ROI</th>
-                <th>ROC</th>
-                <th>Stato</th>
-              </tr>
-            </thead>
-            <tbody id="timeTable"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- RIEPILOGO FILTRI -->
-    <section class="page" id="page-filterSummary">
-      <h2 class="sectionTitle">Riepilogo per filtri</h2>
-      <p class="sectionSub">Card per filtro ordinate per ROI (default). Quota media calcolata solo su bet giocate (chiuse). Trend: 🟢/⚪/🔴.</p>
-
-      <div class="card">
-        <div class="row">
-          <div class="col">
-            <div class="label">Ordina</div>
-            <select id="filterSort">
-              <option value="roi">ROI (migliore → peggiore)</option>
-              <option value="profit">Profitto</option>
-              <option value="winrate">% Vinte</option>
-              <option value="method">Tipo scommessa</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div style="height:12px"></div>
-      <div id="filterCards" class="row" style="flex-direction:column; gap:12px"></div>
-    </section>
-  </main>
-
-  <!-- MODAL -->
-  <div class="modalOverlay" id="modalOverlay">
-    <div class="modal" role="dialog" aria-modal="true">
-      <div class="modalHeader">
-        <h3 id="modalTitle">Dettagli</h3>
-        <button class="closeBtn" id="btnCloseModal">✕</button>
-      </div>
-      <div class="modalBody" id="modalBody"></div>
-    </div>
+<!-- MODAL -->
+<div class="modalBg" id="modalBg">
+  <div class="modal">
+    <h3 id="modalTitle"></h3>
+    <div id="modalBody"></div>
+    <button onclick="closeModal()" style="margin-top:14px">Chiudi</button>
   </div>
 </div>
 
 <script>
 /* =========================
-   Helpers / Storage
+   MOCK STORAGE (demo)
 ========================= */
-const LS_BETS = "bt_bets_v3";
-const LS_BANKROLL = "bt_bankroll";
-const LS_DAILY = "bt_daily_snapshots"; // {YYYY-MM-DD: number}
+const bets = JSON.parse(localStorage.getItem("bets")||"[]");
 
-function nowISO(){ return new Date().toISOString(); }
-function fmt2(n){ return (Math.round((n+Number.EPSILON)*100)/100).toFixed(2).replace(".", ","); }
-function fmtPct(n){ return (Math.round((n+Number.EPSILON)*10000)/100).toFixed(2).replace(".", ",") + "%"; }
-function toNum(x){
-  if (x===null || x===undefined) return NaN;
-  if (typeof x === "number") return x;
-  const s = String(x).trim().replace(",", ".");
-  return s === "" ? NaN : Number(s);
-}
-function safeDiv(a,b){ return b===0 ? 0 : a/b; }
-function clamp(x,a,b){ return Math.max(a, Math.min(b,x)); }
-function yyyyMMdd(d){
-  const dt = (d instanceof Date) ? d : new Date(d);
-  const y = dt.getFullYear();
-  const m = String(dt.getMonth()+1).padStart(2,"0");
-  const da = String(dt.getDate()).padStart(2,"0");
-  return `${y}-${m}-${da}`;
-}
-function startOfWeek(d){
-  const dt = new Date(d);
-  const day = (dt.getDay()+6)%7; // monday=0
-  dt.setDate(dt.getDate()-day);
-  dt.setHours(0,0,0,0);
-  return dt;
-}
-function startOfMonth(d){
-  const dt = new Date(d);
-  dt.setDate(1); dt.setHours(0,0,0,0);
-  return dt;
-}
-function inCurrentWeek(d){
-  const dt = new Date(d); dt.setHours(0,0,0,0);
-  const s = startOfWeek(new Date()); const e = new Date(s); e.setDate(e.getDate()+7);
-  return dt>=s && dt<e;
-}
-function inCurrentMonth(d){
-  const dt = new Date(d); dt.setHours(0,0,0,0);
-  const s = startOfMonth(new Date()); const e = new Date(s); e.setMonth(e.getMonth()+1);
-  return dt>=s && dt<e;
-}
-function isToday(d){
-  const dt = new Date(d);
-  return yyyyMMdd(dt) === yyyyMMdd(new Date());
-}
-function isYesterday(d){
-  const y = new Date(); y.setDate(y.getDate()-1);
-  return yyyyMMdd(new Date(d)) === yyyyMMdd(y);
-}
-function loadBets(){
-  try{ return JSON.parse(localStorage.getItem(LS_BETS) || "[]"); }catch{ return []; }
-}
-function saveBets(bets){
-  localStorage.setItem(LS_BETS, JSON.stringify(bets));
-}
-function loadBankroll(){
-  return toNum(localStorage.getItem(LS_BANKROLL) || "");
-}
-function saveBankroll(v){
-  localStorage.setItem(LS_BANKROLL, String(v));
-}
-function loadDaily(){
-  try{ return JSON.parse(localStorage.getItem(LS_DAILY) || "{}"); }catch{ return {}; }
-}
-function saveDaily(obj){
-  localStorage.setItem(LS_DAILY, JSON.stringify(obj));
-}
-function downloadJSON(obj, filename){
-  const blob = new Blob([JSON.stringify(obj, null, 2)], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href=url; a.download=filename;
-  document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
+/* =========================
+   RENDER BET CARD (UNIFIED)
+========================= */
+function betCardHTML(b, withActions=false){
+  let profit = 0;
+  if(b.outcome==="won") profit = +(b.stake*(b.odds-1)).toFixed(2);
+  if(b.outcome==="lost") profit = -b.stake;
+
+  let cls="resPend", txt="Pending";
+  if(b.outcome==="won"){cls="resWon";txt="+"+profit}
+  if(b.outcome==="lost"){cls="resLost";txt=profit}
+
+  return `
+  <div class="betCard">
+    <div class="betLeft">
+      <div class="betTop">
+        <span class="betTag">${b.method}</span>${b.date}
+      </div>
+      <div class="betMatch">${b.match}</div>
+      <div class="betPick">${b.pick}</div>
+    </div>
+    <div class="betRight">
+      <div class="${cls}">${txt}</div>
+      <div style="font-size:13px;color:var(--muted)">${b.odds} | ${b.stake}</div>
+      ${withActions?`
+      <div class="actions">
+        <button class="blue" onclick="showDetails(${b.id})">Dettagli</button>
+        <button class="danger" onclick="deleteBet(${b.id})">Elimina</button>
+      </div>`:""}
+    </div>
+  </div>`;
 }
 
 /* =========================
-   Parsing (V3)
+   RENDER
 ========================= */
-function normLine(s){ return s.replace(/\s+/g," ").trim(); }
-
-function parseKeyVals(chunk){
-  // chunk like "SOT=2/1 | SOFF=3/3"
-  const out = {};
-  const parts = chunk.split("|").map(p=>p.trim()).filter(Boolean);
-  for(const p of parts){
-    const idx = p.indexOf("=");
-    if(idx>-1){
-      const k = p.slice(0, idx).trim();
-      const v = p.slice(idx+1).trim();
-      out[k] = v;
-    }
-  }
-  return out;
+function renderLatest(){
+  document.getElementById("latestList").innerHTML =
+    bets.slice(-5).reverse().map(b=>betCardHTML(b,false)).join("");
 }
-
-function parseProbBlock(s){
-  // "HT(+1=0.439,+2=0.113) | FT(+1=0.81,+2=0.473,+3=0.175)"
-  const out = {HT:{}, FT:{}};
-  const chunks = s.split("|").map(x=>x.trim());
-  for(const ch of chunks){
-    const m = ch.match(/^(HT|FT)\((.*)\)$/i);
-    if(!m) continue;
-    const phase = m[1].toUpperCase();
-    const inner = m[2];
-    const pairs = inner.split(",").map(x=>x.trim()).filter(Boolean);
-    for(const pr of pairs){
-      const mm = pr.match(/^\+?(\d+)\s*=\s*([0-9.,]+)$/);
-      if(mm){
-        out[phase]["+"+mm[1]] = toNum(mm[2]);
-      }
-    }
-  }
-  return out;
-}
-
-function parseLPBlock(s){
-  const kv = parseKeyVals(s);
-  // WR, ROI are % on livepick (66 means 66%)
-  const wr = toNum(kv.WR);
-  const roi = toNum(kv.ROI);
-  return {
-    wr: isNaN(wr)? null : (wr>1 ? wr/100 : wr), // normalize (0-1)
-    roi: isNaN(roi)? null : (roi>1 || roi<-1 ? roi/100 : roi), // normalize maybe
-    profit: isNaN(toNum(kv.Profit)) ? null : toNum(kv.Profit),
-    ao: isNaN(toNum(kv.AO)) ? null : toNum(kv.AO),
-    n: isNaN(toNum(kv.N)) ? null : Math.round(toNum(kv.N))
-  };
-}
-
-function parseNotification(text){
-  const raw = text.replace(/\r/g,"").trim();
-  if(!raw) throw new Error("Notifica vuota.");
-
-  const lines = raw.split("\n").map(l=>normLine(l)).filter(Boolean);
-  const join = lines.join(" \n");
-  const blocks = {};
-  const parts = join.split(/(?=\bMETA\s*\|)|(?=\bSTATE\s*\|)|(?=\bSTATS\s*\|)|(?=\bL10\s*\|)|(?=\bPROB\s*\|)|(?=\bPRESS\s*\|)|(?=\bLATE\s*\|)|(?=\bODDS_TO_BET\s*\|)|(?=\bLP\s*\|)/g)
-    .map(x=>x.trim()).filter(Boolean);
-
-  for(const p of parts){
-    const m = p.match(/^([A-Z0-9_]+)\s*\|\s*(.*)$/);
-    if(!m) continue;
-    blocks[m[1]] = m[2].trim();
-  }
-
-  if(!blocks.META || !blocks.STATE) throw new Error("META/STATE mancanti o formattati male.");
-
-  const meta = parseKeyVals(blocks.META);
-  const state = parseKeyVals(blocks.STATE);
-  const stats = blocks.STATS ? parseKeyVals(blocks.STATS) : {};
-  const l10 = blocks.L10 ? parseKeyVals(blocks.L10) : {};
-  const prob = blocks.PROB ? parseProbBlock(blocks.PROB) : {HT:{}, FT:{}};
-  const late = blocks.LATE ? parseKeyVals(blocks.LATE) : {};
-  const lp = blocks.LP ? parseLPBlock(blocks.LP) : null;
-
-  let oddsToBet = null, pickStr = null;
-  if(blocks.ODDS_TO_BET){
-    const m = blocks.ODDS_TO_BET.match(/^(.*)\=\s*([0-9.,]+)$/);
-    if(m){ pickStr = m[1].trim(); oddsToBet = toNum(m[2]); }
-  }
-
-  let phase = null, line = null;
-  if(pickStr){
-    const pm = pickStr.match(/\b(FT|HT)\b/i);
-    phase = pm ? pm[1].toUpperCase() : null;
-    const lm = pickStr.match(/Over\s+([0-9]+(?:\.[0-9]+)?)/i);
-    line = lm ? toNum(lm[1]) : null;
-  }
-
-  const score = (state.Score || state.SCORE || "").replace(/\s/g,"");
-  let hScore=0,aScore=0;
-  const sm = score.match(/(\d+)[-:](\d+)/);
-  if(sm){ hScore=parseInt(sm[1],10); aScore=parseInt(sm[2],10); }
-
-  let reqGoals = (line===null || isNaN(line)) ? null : (Math.floor(line)+1);
-
-  let probKey = null, probUsed = null;
-  if(phase && reqGoals!==null){
-    probKey = phase + "(+" + reqGoals + ")";
-    const bucket = (phase==="FT") ? prob.FT : prob.HT;
-    probUsed = bucket["+"+reqGoals];
-  }
-
-  const warnings = [];
-  if(probUsed!==null && (probUsed<0 || probUsed>1 || isNaN(probUsed))){
-    warnings.push(`PROB ${probKey} fuori range (0-1): ${probUsed}`);
-  }
-  if(oddsToBet===null || isNaN(oddsToBet)) warnings.push("ODDS_TO_BET mancante o non numerico.");
-
-  const method = meta.Method || meta.METHOD || "—";
-  const comp = meta.Comp || meta.COMP || "";
-  const match = meta.Match || meta.MATCH || "—";
-
-  return {
-    meta:{ver: meta.Ver||meta.VER||"V3", method, comp, match},
-    state:{
-      time: toNum(state.Time),
-      remHT: toNum(state.RemHT),
-      remFT: toNum(state.RemFT),
-      scoreH:hScore, scoreA:aScore
-    },
-    stats, l10, prob, late,
-    pick:{text: pickStr||"—", phase, line, reqGoals, probKey, probUsed, oddsToBet},
-    lp,
-    warnings,
-    raw
-  };
-}
-
-/* =========================
-   Stats / Metrics
-========================= */
-function betProfit(b){
-  const stake = toNum(b.stakeReal);
-  const odds = toNum(b.oddsReal);
-  if(b.outcome === "won") return stake*(odds-1);
-  if(b.outcome === "lost") return -stake;
-  return 0;
-}
-function isClosed(b){ return b.outcome==="won" || b.outcome==="lost"; }
-function sumStakeClosed(bets){
-  return bets.filter(isClosed).reduce((a,b)=>a+toNum(b.stakeReal||0),0);
-}
-function winrateClosed(bets){
-  const closed = bets.filter(isClosed);
-  if(!closed.length) return 0;
-  const wins = closed.filter(b=>b.outcome==="won").length;
-  return wins/closed.length;
-}
-function roiClosed(bets){
-  const closed = bets.filter(isClosed);
-  const stake = sumStakeClosed(closed);
-  const prof = closed.reduce((a,b)=>a+betProfit(b),0);
-  return safeDiv(prof, stake);
-}
-function profitClosed(bets){
-  return bets.filter(isClosed).reduce((a,b)=>a+betProfit(b),0);
-}
-function maxDrawdownFromClosed(bets){
-  const closed = bets.filter(isClosed).slice().sort((a,b)=> new Date(a.date||a.createdAt)-new Date(b.date||b.createdAt));
-  let peak = 0, cum=0, maxDD=0;
-  for(const b of closed){
-    cum += betProfit(b);
-    if(cum>peak) peak=cum;
-    const dd = peak - cum;
-    if(dd>maxDD) maxDD=dd;
-  }
-  return maxDD;
-}
-function streaksClosed(bets){
-  const closed = bets.filter(isClosed).slice().sort((a,b)=> new Date(a.date||a.createdAt)-new Date(b.date||b.createdAt));
-  let curW=0, curL=0, maxW=0, maxL=0;
-  for(const b of closed){
-    if(b.outcome==="won"){
-      curW++; curL=0;
-      if(curW>maxW) maxW=curW;
-    }else{
-      curL++; curW=0;
-      if(curL>maxL) maxL=curL;
-    }
-  }
-  return {maxW, maxL};
-}
-
-/* =========================
-   Filters / Period Selection
-========================= */
-function filterByPeriod(bets, period){
-  return bets.filter(b=>{
-    const d = new Date(b.date || b.createdAt);
-    if(period==="today") return isToday(d);
-    if(period==="yesterday") return isYesterday(d);
-    if(period==="week") return inCurrentWeek(d);
-    if(period==="month") return inCurrentMonth(d);
-    return true;
-  });
-}
-function filterByRangeDays(bets, days){
-  if(days===null) return bets;
-  const now = new Date(); now.setHours(23,59,59,999);
-  const start = new Date(now); start.setDate(start.getDate()-days+1); start.setHours(0,0,0,0);
-  return bets.filter(b=>{
-    const d = new Date(b.date || b.createdAt);
-    return d>=start && d<=now;
-  });
-}
-function groupKey(d, mode){
-  const dt = new Date(d); dt.setHours(0,0,0,0);
-  if(mode==="day") return yyyyMMdd(dt);
-  if(mode==="week"){ return "Week " + yyyyMMdd(startOfWeek(dt)); }
-  if(mode==="month"){ return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0"); }
-  return yyyyMMdd(dt);
-}
-
-/* =========================
-   Stake v1
-========================= */
-function computeStakeSuggestion(parsed){
-  const bets = loadBets();
-  const method = parsed.meta.method;
-
-  const methodClosed = bets.filter(b=>b.method===method && isClosed(b));
-  const archN = methodClosed.length;
-  const archWR = winrateClosed(methodClosed);
-
-  const lp = parsed.lp;
-  const lpWR = lp && lp.wr!==null ? lp.wr : null;
-  const lpN = lp && lp.n!==null ? lp.n : null;
-
-  const odds = parsed.pick.oddsToBet;
-  const implied = odds ? 1/odds : null;
-
-  const pModel = parsed.pick.probUsed;
-  let pRef = pModel;
-
-  let source = "MATCH";
-  if(archN>=50 && !isNaN(archWR)){
-    pRef = 0.6*archWR + 0.4*(pModel ?? archWR);
-    source = "ARCHIVIO/MATCH";
-  }else if(lpWR!==null && !isNaN(lpWR)){
-    pRef = 0.6*lpWR + 0.4*(pModel ?? lpWR);
-    source = "LP/MATCH";
-  }
-
-  const minPct = 0.02;
-  const maxPct = 0.05;
-  let edge = (pRef!==null && implied!==null) ? (pRef - implied) : 0;
-
-  let pct = minPct + (maxPct-minPct)*clamp((edge + 0.02)/0.15, 0, 1);
-
-  const notes = [];
-  if(archN < 50){
-    pct = Math.min(pct, 0.04);
-    notes.push("N<50: cap stake al 4% (mai massimo stake)");
-  }
-  if(lpN!==null && lpN < 500){
-    pct = pct * 0.8;
-    notes.push("LP.N<500: stake ridotto del 20%");
-  }
-
-  pct = clamp(pct, minPct, maxPct);
-
-  const daily = loadDaily();
-  const todayKey = yyyyMMdd(new Date());
-  const brStored = daily[todayKey];
-  const brInput = loadBankroll();
-  const brDay = (brStored!==undefined) ? brStored : (isNaN(brInput)? 0 : brInput);
-
-  const stakeEur = brDay * pct;
-
-  return {pct, stakeEur, pRef, implied, edge, source, archN, archWR, lpWR, notes};
-}
-
-/* =========================
-   UI / Navigation
-========================= */
-const sidebar = document.getElementById("sidebar");
-const overlay = document.getElementById("overlay");
-function openSidebar(){ sidebar.classList.add("show"); overlay.classList.add("show"); }
-function closeSidebar(){ sidebar.classList.remove("show"); overlay.classList.remove("show"); }
-
-document.getElementById("btnHamburger").addEventListener("click", openSidebar);
-document.getElementById("btnCloseSidebar").addEventListener("click", closeSidebar);
-overlay.addEventListener("click", closeSidebar);
-
-document.getElementById("nav").addEventListener("click", (e)=>{
-  const btn = e.target.closest("button[data-page]");
-  if(!btn) return;
-  const page = btn.dataset.page;
-  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active", b===btn));
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById("page-"+page).classList.add("active");
-  closeSidebar();
-  refreshAll();
-});
-
-function setDayBadge(){
-  const daily = loadDaily();
-  const key = yyyyMMdd(new Date());
-  const br0 = daily[key];
-  const bets = loadBets();
-  const dayClosed = bets.filter(b=>isClosed(b) && (b.date? b.date===key : yyyyMMdd(b.createdAt)===key));
-  const profit = profitClosed(dayClosed);
-  const dot = document.getElementById("dayDot");
-  const text = document.getElementById("dayBadgeText");
-
-  dot.className = "dot";
-  let label = "Giornata: neutra";
-  if(br0!==undefined && br0>0){
-    const roc = profit / br0;
-    if(roc >= 0.03){
-      dot.classList.add("green"); label = "Target profit raggiunto";
-    }else if(roc <= -0.10){
-      dot.classList.add("red"); label = "Stop loss raggiunto";
-    }else{
-      dot.classList.add("dot");
-      label = "Giornata: neutra";
-    }
-  }
-  text.textContent = label;
-}
-
-/* =========================
-   Modal
-========================= */
-const modalOverlay = document.getElementById("modalOverlay");
-const modalTitle = document.getElementById("modalTitle");
-const modalBody = document.getElementById("modalBody");
-document.getElementById("btnCloseModal").addEventListener("click", ()=>modalOverlay.classList.remove("show"));
-modalOverlay.addEventListener("click", (e)=>{ if(e.target===modalOverlay) modalOverlay.classList.remove("show"); });
-
-function openModal(title, html){
-  modalTitle.textContent = title;
-  modalBody.innerHTML = html;
-  modalOverlay.classList.add("show");
-}
-
-/* =========================
-   Calculator actions
-========================= */
-let lastParsed = null;
-let lastStake = null;
-
-function updateBankrollDayUI(){
-  const key = yyyyMMdd(new Date());
-  const daily = loadDaily();
-  const brDay = daily[key];
-  document.getElementById("bankrollDay").value = (brDay!==undefined) ? fmt2(brDay) : "";
-}
-
-document.getElementById("btnParse").addEventListener("click", ()=>{
-  try{
-    const txt = document.getElementById("notifInput").value;
-    lastParsed = parseNotification(txt);
-    lastStake = computeStakeSuggestion(lastParsed);
-
-    document.getElementById("parseResult").style.display = "block";
-    document.getElementById("parseOkPill").textContent = "Parse OK • " + lastParsed.meta.match;
-
-    const notes = [];
-    if(lastParsed.warnings.length){
-      notes.push("Warning:");
-      lastParsed.warnings.forEach(w=>notes.push("• "+w));
-    }
-    if(lastStake.archN===0) notes.push("• Archivio: nessuna bet chiusa per questo filtro (N=0)");
-    lastStake.notes.forEach(n=>notes.push("• "+n));
-    if(lastStake.edge < 0) notes.push("• Edge negativo: stake comunque proposto (min 2%).");
-
-    document.getElementById("parseNotes").textContent = notes.join("\n");
-
-    document.getElementById("pillStakeEur").innerHTML = "Stake: <strong>€ "+fmt2(lastStake.stakeEur)+"</strong>";
-    document.getElementById("pillStakePct").innerHTML = "Stake%: <strong>"+fmtPct(lastStake.pct)+"</strong>";
-    document.getElementById("pillEdge").innerHTML = "Edge: <strong>"+fmtPct(lastStake.edge)+"</strong>";
-    document.getElementById("pillEdge").classList.remove("good","bad");
-    document.getElementById("pillEdge").classList.add(lastStake.edge>=0 ? "good" : "bad");
-
-    document.getElementById("calcPick").textContent = `${lastParsed.pick.text} @ ${lastParsed.pick.oddsToBet ?? "—"}`;
-    document.getElementById("calcProbLabel").textContent = lastParsed.pick.probKey || "—";
-    document.getElementById("calcPref").textContent = (lastStake.pRef==null || isNaN(lastStake.pRef)) ? "—" : fmtPct(lastStake.pRef);
-    document.getElementById("calcImplied").textContent = (lastStake.implied==null || isNaN(lastStake.implied)) ? "—" : fmtPct(lastStake.implied);
-    document.getElementById("calcSource").textContent = lastStake.source;
-    document.getElementById("calcArchN").textContent = String(lastStake.archN);
-
-    const br = loadBankroll();
-    if(!isNaN(br)) document.getElementById("bankrollInput").value = String(br);
-    updateBankrollDayUI();
-
-    setDayBadge();
-  }catch(err){
-    alert(err.message || String(err));
-  }
-});
-
-document.getElementById("btnClear").addEventListener("click", ()=>{
-  document.getElementById("notifInput").value = "";
-  document.getElementById("parseResult").style.display = "none";
-  lastParsed = null; lastStake = null;
-});
-
-document.getElementById("bankrollInput").addEventListener("change", ()=>{
-  const v = toNum(document.getElementById("bankrollInput").value);
-  if(!isNaN(v) && v>0) saveBankroll(v);
-  refreshAll();
-});
-
-document.getElementById("btnAddToHistory").addEventListener("click", ()=>{
-  if(!lastParsed || !lastStake) return alert("Prima fai Parse.");
-  const oddsReal = toNum(document.getElementById("realOdds").value);
-  const stakeReal = toNum(document.getElementById("realStake").value);
-  if(isNaN(oddsReal) || oddsReal<=1) return alert("Inserisci quota reale valida (>1).");
-  if(isNaN(stakeReal) || stakeReal<=0) return alert("Inserisci stake reale valido (>0).");
-
-  const key = yyyyMMdd(new Date());
-  const daily = loadDaily();
-  if(daily[key]===undefined){
-    const br = toNum(document.getElementById("bankrollInput").value);
-    if(isNaN(br) || br<=0) return alert("Inserisci Bankroll attuale valido per creare snapshot giornaliero.");
-    daily[key] = br;
-    saveDaily(daily);
-  }
-
-  const bet = {
-    id: crypto.randomUUID ? crypto.randomUUID() : ("id_"+Math.random().toString(16).slice(2)),
-    createdAt: nowISO(),
-    date: key,
-    method: lastParsed.meta.method,
-    competition: lastParsed.meta.comp,
-    match: lastParsed.meta.match,
-    pickText: lastParsed.pick.text,
-    phase: lastParsed.pick.phase,
-    line: lastParsed.pick.line,
-    reqGoals: lastParsed.pick.reqGoals,
-    probKey: lastParsed.pick.probKey,
-    probUsed: lastParsed.pick.probUsed,
-    oddsRef: lastParsed.pick.oddsToBet,
-    stakeSuggested: lastStake.stakeEur,
-    stakePct: lastStake.pct,
-    pRef: lastStake.pRef,
-    implied: lastStake.implied,
-    edge: lastStake.edge,
-    source: lastStake.source,
-    lp: lastParsed.lp,
-    outcome: "pending",
-    oddsReal: oddsReal,
-    stakeReal: stakeReal,
-    details: lastParsed
-  };
-
-  const bets = loadBets();
-  bets.push(bet);
-  saveBets(bets);
-
-  document.getElementById("realOdds").value="";
-  document.getElementById("realStake").value="";
-  refreshAll();
-  alert("Aggiunta a storico (pending). Ora puoi modificarne l'esito dallo Storico.");
-});
-
-/* =========================
-   History UI (cards + edit)
-========================= */
-function ensureMethodFilterOptions(selectEl, includeAll=true){
-  const bets = loadBets();
-  const methods = [...new Set(bets.map(b=>b.method).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
-  const cur = selectEl.value;
-  selectEl.innerHTML = "";
-  if(includeAll){
-    const opt = document.createElement("option");
-    opt.value="all"; opt.textContent="Tutte";
-    selectEl.appendChild(opt);
-  }
-  for(const m of methods){
-    const opt = document.createElement("option");
-    opt.value=m; opt.textContent=m;
-    selectEl.appendChild(opt);
-  }
-  if(cur && [...selectEl.options].some(o=>o.value===cur)) selectEl.value=cur;
-}
-
-function outcomeLabel(outcome, profit){
-  if(outcome==="won") return {txt:`Won ${fmt2(profit)}`, cls:"resWon", dot:"green"};
-  if(outcome==="lost") return {txt:`Lost ${fmt2(Math.abs(profit))}`, cls:"resLost", dot:"red"};
-  if(outcome==="not_played") return {txt:"Not played", cls:"resPend", dot:"yellow"};
-  return {txt:"Not settled", cls:"resPend", dot:"yellow"};
-}
-
 function renderHistory(){
-  const list = document.getElementById("historyList");
-  list.innerHTML = "";
-
-  const betsAll = loadBets().slice().sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
-
-  ensureMethodFilterOptions(document.getElementById("histMethodFilter"), true);
-
-  const mf = document.getElementById("histMethodFilter").value || "all";
-  const of = document.getElementById("histOutcomeFilter").value || "all";
-  const df = document.getElementById("histDateFilter").value || "all";
-
-  let bets = betsAll;
-  if(mf!=="all") bets = bets.filter(b=>b.method===mf);
-  if(of!=="all") bets = bets.filter(b=>b.outcome===of);
-  bets = filterByPeriod(bets, df);
-
-  if(!bets.length){
-    list.innerHTML = `<div class="card soft"><div class="hint">Nessuna bet con i filtri selezionati.</div></div>`;
-    return;
-  }
-
-  for(const b of bets){
-    const profit = betProfit(b);
-    const ol = outcomeLabel(b.outcome, profit);
-
-    const el = document.createElement("div");
-    el.className = "betCard";
-
-    el.innerHTML = `
-      <div class="betLeft">
-        <div class="betTop">
-          <span class="tag">${b.method}</span>
-          <span>${b.date || yyyyMMdd(b.createdAt)}</span>
-        </div>
-        <div class="betMatch" title="${b.match}">${b.match}</div>
-        <div class="betPick" title="${b.pickText}">${b.pickText}</div>
-        <div class="betMeta">
-          <span>Odds | Stake</span>
-          <span><strong>${toNum(b.oddsReal).toFixed(2)}</strong> | <strong>${toNum(b.stakeReal).toFixed(2)}</strong></span>
-        </div>
-      </div>
-      <div class="betRight">
-        <div class="resultLine ${ol.cls}">
-          <span class="resText">${ol.txt}</span>
-          <span class="dot ${ol.dot}"></span>
-        </div>
-        <div class="miniActions">
-          <button class="btn blue" data-act="edit" data-id="${b.id}">Modifica</button>
-          <button class="btn" data-act="details" data-id="${b.id}">Dettagli</button>
-          <button class="btn danger" data-act="delete" data-id="${b.id}">Elimina</button>
-        </div>
-      </div>
-    `;
-    list.appendChild(el);
-  }
+  document.getElementById("historyList").innerHTML =
+    bets.slice().reverse().map(b=>betCardHTML(b,true)).join("");
 }
 
-document.getElementById("historyList").addEventListener("click", (e)=>{
-  const btn = e.target.closest("button[data-act]");
-  if(!btn) return;
-  const id = btn.dataset.id;
-  const act = btn.dataset.act;
-  const bets = loadBets();
+/* =========================
+   DETAILS = FULL NOTIFICATION
+========================= */
+function showDetails(id){
   const b = bets.find(x=>x.id===id);
   if(!b) return;
-
-  if(act==="delete"){
-    if(!confirm("Eliminare questa bet?")) return;
-    saveBets(bets.filter(x=>x.id!==id));
-    refreshAll();
-    return;
-  }
-  if(act==="details"){
-    const flat = [];
-    flat.push(["Metodo", b.method]);
-    flat.push(["Match", b.match]);
-    flat.push(["Pick", b.pickText]);
-    flat.push(["Data", b.date]);
-    flat.push(["Esito", b.outcome]);
-    flat.push(["Quota reale", b.oddsReal]);
-    flat.push(["Stake reale", b.stakeReal]);
-    flat.push(["Profitto", fmt2(betProfit(b))]);
-    flat.push(["Stake suggerito", (b.stakeSuggested!=null?fmt2(b.stakeSuggested):"—") + (b.stakePct!=null? (" ("+fmtPct(b.stakePct)+")"):"")]);
-    flat.push(["Odds ref", b.oddsRef ?? "—"]);
-    flat.push(["PROB usata", (b.probKey??"—") + (b.probUsed!=null? (" = "+b.probUsed):"")]);
-    flat.push(["P_REF", b.pRef!=null? fmtPct(b.pRef):"—"]);
-    flat.push(["Implied", b.implied!=null? fmtPct(b.implied):"—"]);
-    flat.push(["Edge", b.edge!=null? fmtPct(b.edge):"—"]);
-    if(b.lp){
-      flat.push(["LP WR", b.lp.wr!=null? fmtPct(b.lp.wr):"—"]);
-      flat.push(["LP ROI", b.lp.roi!=null? fmtPct(b.lp.roi):"—"]);
-      flat.push(["LP Profit", b.lp.profit!=null? b.lp.profit:"—"]);
-      flat.push(["LP AO", b.lp.ao!=null? b.lp.ao:"—"]);
-      flat.push(["LP N", b.lp.n!=null? b.lp.n:"—"]);
-    }
-    const html = `<div class="kv">${flat.map(([k,v])=>`
-      <div class="item"><div class="k">${k}</div><div class="v">${v}</div></div>
-    `).join("")}</div>`;
-    openModal("Dettagli bet", html);
-    return;
-  }
-  if(act==="edit"){
-    const methods = [...new Set(loadBets().map(x=>x.method).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
-    const picks = [...new Set(loadBets().map(x=>x.pickText).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
-    const html = `
-      <div class="kv">
-        <div class="item"><div class="k">Data</div><div class="v"><input id="edDate" value="${b.date||""}"></div></div>
-        <div class="item"><div class="k">Partita</div><div class="v"><input id="edMatch" value="${(b.match||"").replace(/"/g,"&quot;")}"></div></div>
-
-        <div class="item"><div class="k">Filtro (Metodo)</div><div class="v">
-          <select id="edMethod">
-            ${methods.map(m=>`<option ${m===b.method?"selected":""} value="${m}">${m}</option>`).join("")}
-            <option value="__new__">+ Aggiungi nuovo…</option>
-          </select>
-          <input id="edMethodNew" style="margin-top:10px; display:none" placeholder="Nuovo filtro…">
-        </div></div>
-
-        <div class="item"><div class="k">Pick</div><div class="v">
-          <select id="edPick">
-            ${picks.map(p=>`<option ${p===b.pickText?"selected":""} value="${p}">${p}</option>`).join("")}
-            <option value="__new__">+ Aggiungi nuovo…</option>
-          </select>
-          <input id="edPickNew" style="margin-top:10px; display:none" placeholder="Nuova pick…">
-        </div></div>
-
-        <div class="item"><div class="k">Quota reale</div><div class="v"><input id="edOdds" value="${b.oddsReal}"></div></div>
-        <div class="item"><div class="k">Stake reale</div><div class="v"><input id="edStake" value="${b.stakeReal}"></div></div>
-
-        <div class="item"><div class="k">Esito</div><div class="v">
-          <select id="edOutcome">
-            <option value="pending" ${b.outcome==="pending"?"selected":""}>Pending</option>
-            <option value="won" ${b.outcome==="won"?"selected":""}>Vinta</option>
-            <option value="lost" ${b.outcome==="lost"?"selected":""}>Persa</option>
-            <option value="not_played" ${b.outcome==="not_played"?"selected":""}>Non giocata</option>
-          </select>
-          <div class="hint" style="margin-top:10px">Profitto NON è modificabile: viene ricalcolato.</div>
-        </div></div>
-      </div>
-      <div class="hr"></div>
-      <div class="btnRow">
-        <button class="btn primary" id="btnSaveEdit">Salva</button>
-        <button class="btn" id="btnCancelEdit">Annulla</button>
-      </div>
-    `;
-    openModal("Modifica bet", html);
-
-    setTimeout(()=>{
-      const edMethod = document.getElementById("edMethod");
-      const edMethodNew = document.getElementById("edMethodNew");
-      edMethod.addEventListener("change", ()=>{
-        edMethodNew.style.display = (edMethod.value==="__new__") ? "block" : "none";
-      });
-      const edPick = document.getElementById("edPick");
-      const edPickNew = document.getElementById("edPickNew");
-      edPick.addEventListener("change", ()=>{
-        edPickNew.style.display = (edPick.value==="__new__") ? "block" : "none";
-      });
-
-      document.getElementById("btnCancelEdit").addEventListener("click", ()=>modalOverlay.classList.remove("show"));
-      document.getElementById("btnSaveEdit").addEventListener("click", ()=>{
-        const nd = document.getElementById("edDate").value.trim() || b.date;
-        const nm = document.getElementById("edMatch").value.trim() || b.match;
-
-        let nMethod = edMethod.value;
-        if(nMethod==="__new__") nMethod = edMethodNew.value.trim() || b.method;
-
-        let nPick = edPick.value;
-        if(nPick==="__new__") nPick = edPickNew.value.trim() || b.pickText;
-
-        const nOdds = toNum(document.getElementById("edOdds").value);
-        const nStake = toNum(document.getElementById("edStake").value);
-        const nOut = document.getElementById("edOutcome").value;
-
-        if(isNaN(nOdds) || nOdds<=1) return alert("Quota reale non valida (>1).");
-        if(isNaN(nStake) || nStake<=0) return alert("Stake reale non valido (>0).");
-
-        b.date = nd;
-        b.match = nm;
-        b.method = nMethod;
-        b.pickText = nPick;
-        b.oddsReal = nOdds;
-        b.stakeReal = nStake;
-        b.outcome = nOut;
-
-        saveBets(bets);
-        modalOverlay.classList.remove("show");
-        refreshAll();
-      });
-    }, 0);
-  }
-});
-
-document.getElementById("histMethodFilter").addEventListener("change", renderHistory);
-document.getElementById("histOutcomeFilter").addEventListener("change", renderHistory);
-document.getElementById("histDateFilter").addEventListener("change", renderHistory);
-
-/* Manual add */
-document.getElementById("btnManualAdd").addEventListener("click", ()=>{
-  const bets = loadBets();
-  const methods = [...new Set(bets.map(x=>x.method).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
-  const picks = [...new Set(bets.map(x=>x.pickText).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
-  const today = yyyyMMdd(new Date());
-
-  const html = `
-    <div class="hint">Aggiungi una bet con info minime. Esito di default: Pending.</div>
-    <div class="hr"></div>
-    <div class="kv">
-      <div class="item"><div class="k">Data</div><div class="v"><input id="maDate" value="${today}"></div></div>
-      <div class="item"><div class="k">Partita</div><div class="v"><input id="maMatch" placeholder="Home-Away"></div></div>
-
-      <div class="item"><div class="k">Filtro (Metodo)</div><div class="v">
-        <select id="maMethod">
-          ${methods.map(m=>`<option value="${m}">${m}</option>`).join("")}
-          <option value="__new__">+ Aggiungi nuovo…</option>
-        </select>
-        <input id="maMethodNew" style="margin-top:10px; display:none" placeholder="Nuovo filtro…">
-      </div></div>
-
-      <div class="item"><div class="k">Pick</div><div class="v">
-        <select id="maPick">
-          ${picks.map(p=>`<option value="${p}">${p}</option>`).join("")}
-          <option value="__new__">+ Aggiungi nuova…</option>
-        </select>
-        <input id="maPickNew" style="margin-top:10px; display:none" placeholder="Nuova pick…">
-      </div></div>
-
-      <div class="item"><div class="k">Quota reale giocata</div><div class="v"><input id="maOdds" placeholder="es. 1.72"></div></div>
-      <div class="item"><div class="k">Stake reale giocato</div><div class="v"><input id="maStake" placeholder="es. 2.00"></div></div>
-    </div>
-    <div class="hr"></div>
-    <div class="btnRow">
-      <button class="btn primary" id="btnCreateManual">Crea</button>
-      <button class="btn" id="btnCancelManual">Annulla</button>
-    </div>
-  `;
-  openModal("Aggiungi bet manuale", html);
-
-  setTimeout(()=>{
-    const maMethod = document.getElementById("maMethod");
-    const maMethodNew = document.getElementById("maMethodNew");
-    maMethod.addEventListener("change", ()=>{ maMethodNew.style.display = maMethod.value==="__new__" ? "block":"none"; });
-
-    const maPick = document.getElementById("maPick");
-    const maPickNew = document.getElementById("maPickNew");
-    maPick.addEventListener("change", ()=>{ maPickNew.style.display = maPick.value==="__new__" ? "block":"none"; });
-
-    document.getElementById("btnCancelManual").addEventListener("click", ()=>modalOverlay.classList.remove("show"));
-    document.getElementById("btnCreateManual").addEventListener("click", ()=>{
-      const date = document.getElementById("maDate").value.trim() || today;
-      const match = document.getElementById("maMatch").value.trim();
-      let method = maMethod.value;
-      if(method==="__new__") method = maMethodNew.value.trim();
-      let pick = maPick.value;
-      if(pick==="__new__") pick = maPickNew.value.trim();
-      const odds = toNum(document.getElementById("maOdds").value);
-      const stake = toNum(document.getElementById("maStake").value);
-
-      if(!match) return alert("Inserisci la partita.");
-      if(!method) return alert("Inserisci il filtro.");
-      if(!pick) return alert("Inserisci la pick.");
-      if(isNaN(odds) || odds<=1) return alert("Quota non valida (>1).");
-      if(isNaN(stake) || stake<=0) return alert("Stake non valido (>0).");
-
-      bets.push({
-        id: crypto.randomUUID ? crypto.randomUUID() : ("id_"+Math.random().toString(16).slice(2)),
-        createdAt: nowISO(),
-        date,
-        method,
-        competition:"",
-        match,
-        pickText: pick,
-        phase: null,
-        line: null,
-        reqGoals: null,
-        probKey: null,
-        probUsed: null,
-        oddsRef: null,
-        stakeSuggested: null,
-        stakePct: null,
-        pRef: null,
-        implied: null,
-        edge: null,
-        source: "MANUAL",
-        lp: null,
-        outcome: "pending",
-        oddsReal: odds,
-        stakeReal: stake,
-        details: null
-      });
-      saveBets(bets);
-      modalOverlay.classList.remove("show");
-      refreshAll();
-    });
-  },0);
-});
-
-/* Backup/Restore */
-document.getElementById("btnExport").addEventListener("click", ()=>{
-  const payload = {
-    exportedAt: nowISO(),
-    bets: loadBets(),
-    bankroll: localStorage.getItem(LS_BANKROLL),
-    dailySnapshots: loadDaily()
-  };
-  downloadJSON(payload, "BetTools_backup.json");
-});
-document.getElementById("importFile").addEventListener("change", async (e)=>{
-  const file = e.target.files && e.target.files[0];
-  if(!file) return;
-  try{
-    const txt = await file.text();
-    const obj = JSON.parse(txt);
-    if(!obj || !Array.isArray(obj.bets)) throw new Error("JSON non valido (manca bets).");
-    if(!confirm("Importa e sovrascrivi il DB locale?")) return;
-    saveBets(obj.bets);
-    if(obj.bankroll!==undefined && obj.bankroll!==null) localStorage.setItem(LS_BANKROLL, String(obj.bankroll));
-    if(obj.dailySnapshots) saveDaily(obj.dailySnapshots);
-    alert("Import completato.");
-    refreshAll();
-  }catch(err){
-    alert("Errore import: " + (err.message || err));
-  }finally{
-    e.target.value="";
-  }
-});
-document.getElementById("btnReset").addEventListener("click", ()=>{
-  if(!confirm("Reset totale del DB locale?")) return;
-  localStorage.removeItem(LS_BETS);
-  localStorage.removeItem(LS_DAILY);
-  localStorage.removeItem(LS_BANKROLL);
-  refreshAll();
-});
-
-/* =========================
-   Dashboard charts
-========================= */
-let profitChart=null, outcomeChart=null;
-
-function makeDailySeries(bets){
-  const closed = bets.filter(isClosed).slice().sort((a,b)=> new Date(a.date||a.createdAt)-new Date(b.date||b.createdAt));
-  if(!closed.length) return {labels:[], daily:[], total:[]};
-
-  const map = new Map();
-  for(const b of closed){
-    const k = b.date || yyyyMMdd(b.createdAt);
-    map.set(k, (map.get(k)||0) + betProfit(b));
-  }
-  const labels = [...map.keys()].sort();
-  let cum=0;
-  const daily = labels.map(k=>map.get(k));
-  const total = labels.map((k,i)=>{ cum += daily[i]; return cum; });
-  return {labels, daily, total, totalLast: total[total.length-1]};
+  document.getElementById("modalTitle").innerText="Dettagli Bet";
+  document.getElementById("modalBody").innerHTML =
+    "<pre style='white-space:pre-wrap;font-size:13px'>"+JSON.stringify(b.notification,null,2)+"</pre>";
+  document.getElementById("modalBg").style.display="flex";
+}
+function closeModal(){
+  document.getElementById("modalBg").style.display="none";
+}
+function deleteBet(id){
+  if(!confirm("Eliminare bet?"))return;
+  localStorage.setItem("bets",JSON.stringify(bets.filter(b=>b.id!==id)));
+  location.reload();
 }
 
-function renderProfitChart(){
-  const betsAll = loadBets();
-  const period = document.getElementById("dashPeriod").value || "all";
-  const range = document.getElementById("dashChartRange").value || "1m";
-
-  let bets = filterByPeriod(betsAll, period);
-  if(range==="1m") bets = filterByRangeDays(bets, 30);
-  if(range==="3m") bets = filterByRangeDays(bets, 90);
-  if(range==="6m") bets = filterByRangeDays(bets, 180);
-  if(range==="12m") bets = filterByRangeDays(bets, 365);
-
-  const s = makeDailySeries(bets);
-  const ctx = document.getElementById("profitChart");
-
-  const positive = (s.totalLast||0) >= 0;
-
-  const data = {
-    labels: s.labels,
-    datasets: [
-      {
-        label:"Daily",
-        data: s.daily,
-        borderWidth:2,
-        tension:.25,
-        pointRadius:0,
-        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--green').trim(),
-      },
-      {
-        label:"Total",
-        data: s.total,
-        borderWidth:2,
-        tension:.25,
-        pointRadius:2,
-        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--yellow').trim(),
-        fill: {
-          target: 'origin',
-          above: positive ? 'rgba(52,211,153,.12)' : 'rgba(251,113,133,.12)',
-          below: positive ? 'rgba(52,211,153,.12)' : 'rgba(251,113,133,.12)'
-        }
-      }
-    ]
-  };
-
-  const options = {
-    responsive:true,
-    plugins:{
-      legend:{display:false},
-      tooltip:{
-        callbacks:{
-          label:(ctx)=>{
-            const v = ctx.parsed.y;
-            return `${ctx.dataset.label}: ${v>=0?"+":""}${v.toFixed(2)}`;
-          }
-        }
-      }
-    },
-    scales:{
-      x:{ticks:{color:'rgba(156,163,175,.85)'} , grid:{color:'rgba(255,255,255,.06)'}},
-      y:{ticks:{color:'rgba(156,163,175,.85)'} , grid:{color:'rgba(255,255,255,.06)'}}
-    }
-  };
-
-  if(profitChart){ profitChart.destroy(); }
-  profitChart = new Chart(ctx, {type:"line", data, options});
-}
-
-function renderOutcomeChart(){
-  const betsAll = loadBets();
-  const period = document.getElementById("dashPeriod").value || "all";
-  const bets = filterByPeriod(betsAll, period).filter(isClosed);
-
-  const won = bets.filter(b=>b.outcome==="won").length;
-  const lost = bets.filter(b=>b.outcome==="lost").length;
-  const total = won+lost;
-
-  const ctx = document.getElementById("outcomeChart");
-  const data = {
-    labels:["Won","Lost"],
-    datasets:[{
-      data:[won, lost],
-      borderWidth:2,
-      borderColor:"rgba(255,255,255,.08)",
-      backgroundColor:[
-        "rgba(52,211,153,.85)",
-        "rgba(251,113,133,.85)"
-      ],
-      cutout:"68%"
-    }]
-  };
-  const options = {
-    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>`${c.label}: ${c.raw}`}}},
-  };
-  if(outcomeChart){ outcomeChart.destroy(); }
-  outcomeChart = new Chart(ctx, {type:"doughnut", data, options});
-
-  const wr = total? won/total : 0;
-  document.getElementById("outcomeLegend").innerHTML = `
-    <div><span class="dot green"></span> Won <strong>${fmtPct(wr)}</strong></div>
-    <div style="margin-top:6px"><span class="dot red"></span> Lost <strong>${fmtPct(1-wr)}</strong></div>
-  `;
-}
-
-function renderLatest(){
-  const list = document.getElementById("latestList");
-  list.innerHTML = "";
-  const bets = loadBets().slice().sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt)).slice(0,8);
-  if(!bets.length){
-    list.innerHTML = `<div class="hint">Nessuna bet.</div>`;
-    return;
-  }
-  for(const b of bets){
-    const profit = betProfit(b);
-    const ol = outcomeLabel(b.outcome, profit);
-    const row = document.createElement("div");
-    row.className="betCard";
-    row.style.padding="12px";
-    row.innerHTML = `
-      <div class="betLeft">
-        <div class="betTop"><span class="tag">${b.method}</span><span>${b.date || yyyyMMdd(b.createdAt)}</span></div>
-        <div class="betMatch" style="font-size:16px" title="${b.match}">${b.match}</div>
-        <div class="betPick" style="margin:0" title="${b.pickText}">${b.pickText}</div>
-      </div>
-      <div class="betRight">
-        <div class="resultLine ${ol.cls}">
-          <span class="amount">${(b.outcome==="won")?"+":(b.outcome==="lost")?"-":""}${fmt2(Math.abs(profit))}</span>
-          <span class="dot ${ol.dot}"></span>
-        </div>
-        <div class="odStake">${toNum(b.oddsReal).toFixed(2)} | ${toNum(b.stakeReal).toFixed(2)}</div>
-      </div>
-    `;
-    list.appendChild(row);
-  }
-}
-
-/* KPI */
-function renderDashboardKPI(){
-  const betsAll = loadBets();
-  const period = document.getElementById("dashPeriod").value || "all";
-  const bets = filterByPeriod(betsAll, period);
-
-  const closed = bets.filter(isClosed);
-  const wr = winrateClosed(bets);
-  const prof = profitClosed(bets);
-  const roi = roiClosed(bets);
-  const dd = maxDrawdownFromClosed(bets);
-  const st = streaksClosed(bets);
-
-  const kpiProfit = document.getElementById("kpiProfit");
-  const kpiRoi = document.getElementById("kpiRoi");
-
-  document.getElementById("kpiClosed").textContent = String(closed.length);
-  document.getElementById("kpiWinrate").textContent = fmtPct(wr);
-
-  kpiProfit.textContent = (prof>=0? "" : "−") + fmt2(Math.abs(prof));
-  kpiProfit.style.color = prof>=0 ? "rgba(52,211,153,.98)" : "rgba(251,113,133,.98)";
-
-  kpiRoi.textContent = fmtPct(roi);
-  kpiRoi.style.color = roi>=0 ? "rgba(52,211,153,.98)" : "rgba(251,113,133,.98)";
-
-  document.getElementById("kpiMaxDD").textContent = fmt2(dd);
-  document.getElementById("kpiStreak").textContent = `${st.maxW} / ${st.maxL}`;
-}
-
-/* Bankroll save */
-document.getElementById("btnSaveBankroll").addEventListener("click", ()=>{
-  const v = toNum(document.getElementById("dashBankroll").value);
-  if(isNaN(v) || v<=0) return alert("Bankroll non valido.");
-  saveBankroll(v);
-  alert("Bankroll salvato.");
-  refreshAll();
-});
-
-/* =========================
-   Time Summary
-========================= */
-function renderTimeSummary(){
-  const mode = document.getElementById("timeGroup").value;
-  const bets = loadBets().filter(isClosed);
-  const daily = loadDaily();
-  const groups = new Map();
-
-  for(const b of bets){
-    const k = groupKey(b.date || b.createdAt, mode);
-    if(!groups.has(k)) groups.set(k, []);
-    groups.get(k).push(b);
-  }
-
-  const keys = [...groups.keys()].sort((a,b)=> a.localeCompare(b));
-  const tbody = document.getElementById("timeTable");
-  tbody.innerHTML = "";
-
-  for(const k of keys){
-    const arr = groups.get(k);
-    const wr = winrateClosed(arr);
-    const prof = profitClosed(arr);
-    const roi = roiClosed(arr);
-
-    let roc = null;
-    if(mode==="day"){
-      const br0 = daily[k];
-      roc = (br0!==undefined && br0>0) ? (prof/br0) : null;
-    }else{
-      const daysIn = [...new Set(arr.map(x=>x.date))].filter(Boolean);
-      let cap=0, ok=true;
-      for(const d of daysIn){
-        if(daily[d]===undefined){ ok=false; break; }
-        cap += daily[d];
-      }
-      roc = (ok && cap>0) ? (prof/cap) : null;
-    }
-
-    let statusHtml = `<span class="pill">—</span>`;
-    if(mode==="day" && roc!==null){
-      if(roc>=0.03) statusHtml = `<span class="pill good"><span class="dot green"></span>Target</span>`;
-      else if(roc<=-0.10) statusHtml = `<span class="pill bad"><span class="dot red"></span>Stop</span>`;
-      else statusHtml = `<span class="pill"><span class="dot"></span>Neutro</span>`;
-    }
-
-    const profHtml = `<span class="pill ${prof>=0?"good":"bad"}">${(prof>=0?"+":"−")}${fmt2(Math.abs(prof))}</span>`;
-    const roiHtml = `<span class="pill ${roi>=0?"good":"bad"}">${fmtPct(roi)}</span>`;
-    const rocHtml = (roc===null) ? `<span class="pill">—</span>` : `<span class="pill ${roc>=0?"good":"bad"}">${fmtPct(roc)}</span>`;
-
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${k}</td>
-      <td>${arr.length}</td>
-      <td>${fmtPct(wr)}</td>
-      <td>${profHtml}</td>
-      <td>${roiHtml}</td>
-      <td>${rocHtml}</td>
-      <td>${statusHtml}</td>
-    `;
-    tbody.appendChild(tr);
-  }
-
-  if(!keys.length){
-    tbody.innerHTML = `<tr><td colspan="7" class="hint">Nessuna bet chiusa.</td></tr>`;
-  }
-}
-document.getElementById("timeGroup").addEventListener("change", ()=>{ renderTimeSummary(); });
-
-/* =========================
-   Filter Summary (+ trend + detail)
-========================= */
-function avgOddsClosed(bets){
-  const closed = bets.filter(isClosed);
-  if(!closed.length) return 0;
-  return closed.reduce((a,b)=>a+toNum(b.oddsReal||0),0)/closed.length;
-}
-
-function getLPFromLastBet(methodBets){
-  const withLP = methodBets.filter(b=>b.lp && b.lp.wr!=null);
-  if(!withLP.length) return null;
-  withLP.sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
-  return withLP[0].lp;
-}
-
-function trendLabel(methodBets){
-  const all = methodBets.filter(isClosed);
-  const roiAll = roiClosed(all);
-
-  const r3 = roiClosed(filterByRangeDays(all, 90));
-  const r6 = roiClosed(filterByRangeDays(all, 180));
-
-  if(all.length < 10) return {txt:"⚪ Laterale", cls:"pill"};
-
-  if(r3 > r6 && r6 >= roiAll) return {txt:"🟢 In miglioramento", cls:"pill good"};
-  if(r3 < r6 && r6 <= roiAll) return {txt:"🔴 In peggioramento", cls:"pill bad"};
-  return {txt:"⚪ Laterale", cls:"pill"};
-}
-
-function renderFilterSummary(){
-  const container = document.getElementById("filterCards");
-  container.innerHTML = "";
-  const betsAll = loadBets();
-  const methods = [...new Set(betsAll.map(b=>b.method).filter(Boolean))];
-
-  const cards = [];
-  for(const m of methods){
-    const mBets = betsAll.filter(b=>b.method===m);
-    const closed = mBets.filter(isClosed);
-
-    const profit = profitClosed(mBets);
-    const roi = roiClosed(mBets);
-    const wr = winrateClosed(mBets);
-    const avgOdds = avgOddsClosed(mBets);
-    const dd = maxDrawdownFromClosed(mBets);
-    const st = streaksClosed(mBets);
-    const lp = getLPFromLastBet(mBets);
-    const tr = trendLabel(mBets);
-
-    cards.push({m, mBets, closedN: closed.length, winPct: wr, profit, roi, avgOdds, dd, st, lp, trend: tr});
-  }
-
-  const sort = document.getElementById("filterSort").value || "roi";
-  cards.sort((a,b)=>{
-    if(sort==="profit") return b.profit - a.profit;
-    if(sort==="winrate") return b.winPct - a.winPct;
-    if(sort==="method") return a.m.localeCompare(b.m);
-    return b.roi - a.roi;
-  });
-
-  if(!cards.length){
-    container.innerHTML = `<div class="card soft"><div class="hint">Nessun filtro presente (aggiungi bet).</div></div>`;
-    return;
-  }
-
-  for(const c of cards){
-    const lpWR = c.lp && c.lp.wr!=null ? c.lp.wr : null;
-    const lpROI = c.lp && c.lp.roi!=null ? c.lp.roi : null;
-    const lpProf = c.lp && c.lp.profit!=null ? c.lp.profit : null;
-
-    const dWR = (lpWR!=null) ? (c.winPct - lpWR) : null;
-    const dROI = (lpROI!=null) ? (c.roi - lpROI) : null;
-    const dProf = (lpProf!=null) ? (c.profit - lpProf) : null;
-
-    const el = document.createElement("div");
-    el.className = "card";
-    el.innerHTML = `
-      <div style="display:flex; justify-content:space-between; gap:12px; align-items:flex-start; flex-wrap:wrap">
-        <div style="min-width:0">
-          <div style="font-size:22px; font-weight:950; line-height:1.2">${c.m}</div>
-          <div class="hint" style="margin-top:6px">${c.closedN} bet chiuse</div>
-        </div>
-        <div class="pill ${c.roi>=0?"good":"bad"}">ROI <strong>${fmtPct(c.roi)}</strong></div>
-      </div>
-
-      <div style="height:10px"></div>
-
-      <div class="grid2">
-        <div class="pill">Vinte: <strong>${fmtPct(c.winPct)}</strong></div>
-        <div class="pill">Quota media: <strong>${avgOddsClosed(c.mBets).toFixed(2)}</strong></div>
-        <div class="pill">Profitto: <strong>${(c.profit>=0?"+":"−")}${fmt2(Math.abs(c.profit))}</strong></div>
-        <div class="${c.trend.cls}">Trend: <strong>${c.trend.txt}</strong></div>
-      </div>
-
-      <div style="height:10px"></div>
-      <div class="hint">Max DD: ${fmt2(c.dd)} • Max win streak: ${c.st.maxW} • Max loss streak: ${c.st.maxL}</div>
-
-      <div style="height:10px"></div>
-      <div class="hint">
-        % Vinte: <strong>${fmtPct(c.winPct)}</strong>
-        ${lpWR!=null ? ` (LP ${fmtPct(lpWR)}) • Δ ${fmtPct(dWR)}` : ""}
-        <br/>
-        ROI: <strong>${fmtPct(c.roi)}</strong>
-        ${lpROI!=null ? ` (LP ${fmtPct(lpROI)}) • Δ ${fmtPct(dROI)}` : ""}
-        <br/>
-        Profit: <strong>${(c.profit>=0?"+":"−")}${fmt2(Math.abs(c.profit))}</strong>
-        ${lpProf!=null ? ` (LP ${lpProf>=0?"+":"−"}${fmt2(Math.abs(lpProf))}) • Δ ${(dProf>=0?"+":"−")}${fmt2(Math.abs(dProf))}` : ""}
-      </div>
-
-      <div style="height:12px"></div>
-      <div class="btnRow">
-        <button class="btn blue" data-act="filterDetails" data-method="${c.m}">Dettagli</button>
-      </div>
-    `;
-    container.appendChild(el);
-  }
-}
-
-document.getElementById("filterCards").addEventListener("click", (e)=>{
-  const btn = e.target.closest("button[data-act='filterDetails']");
-  if(!btn) return;
-  const method = btn.dataset.method;
-  openFilterDetails(method);
-});
-
-function openFilterDetails(method){
-  const betsAll = loadBets().filter(b=>b.method===method);
-  const closed = betsAll.filter(isClosed);
-
-  const wr = winrateClosed(betsAll);
-  const prof = profitClosed(betsAll);
-  const roi = roiClosed(betsAll);
-  const dd = maxDrawdownFromClosed(betsAll);
-  const st = streaksClosed(betsAll);
-
-  const html = `
-    <div class="grid2">
-      <div class="pill">Bet chiuse: <strong>${closed.length}</strong></div>
-      <div class="pill">Winrate: <strong>${fmtPct(wr)}</strong></div>
-      <div class="pill ${prof>=0?"good":"bad"}">Profitto: <strong>${(prof>=0?"+":"−")}${fmt2(Math.abs(prof))}</strong></div>
-      <div class="pill ${roi>=0?"good":"bad"}">ROI: <strong>${fmtPct(roi)}</strong></div>
-      <div class="pill">Max DD: <strong>${fmt2(dd)}</strong></div>
-      <div class="pill">Streak W/L: <strong>${st.maxW} / ${st.maxL}</strong></div>
-    </div>
-    <div class="hr"></div>
-    <h4 style="margin:0 0 10px 0">Profit / Loss (Filtro)</h4>
-    <div class="hint">Cumulato bet chiuse del filtro.</div>
-    <div style="height:10px"></div>
-    <canvas id="filterChart" height="140"></canvas>
-    <div class="hr"></div>
-    <h4 style="margin:0 0 10px 0">Performance per periodo</h4>
-    <div style="overflow:auto">
-      <table>
-        <thead><tr><th>Periodo</th><th>Bet</th><th>Winrate</th><th>ROI</th></tr></thead>
-        <tbody>
-          ${["1 mese:30","3 mesi:90","6 mesi:180","12 mesi:365"].map(x=>{
-            const [lab,days] = x.split(":");
-            const arr = filterByRangeDays(closed, parseInt(days,10));
-            const w = winrateClosed(arr);
-            const r = roiClosed(arr);
-            return `<tr><td>${lab}</td><td>${arr.length}</td><td>${fmtPct(w)}</td><td><span class="pill ${r>=0?"good":"bad"}">${fmtPct(r)}</span></td></tr>`;
-          }).join("")}
-        </tbody>
-      </table>
-    </div>
-  `;
-  openModal("Dettaglio filtro", html);
-
-  setTimeout(()=>{
-    const s = makeDailySeries(closed);
-    const ctx = document.getElementById("filterChart");
-    if(!ctx) return;
-    const positive = (s.totalLast||0) >= 0;
-
-    const data = {
-      labels: s.labels,
-      datasets: [
-        { label:"Total", data:s.total, borderWidth:2, tension:.25, pointRadius:0,
-          borderColor: getComputedStyle(document.documentElement).getPropertyValue('--yellow').trim(),
-          fill:{ target:'origin',
-                above: positive ? 'rgba(52,211,153,.12)' : 'rgba(251,113,133,.12)',
-                below: positive ? 'rgba(52,211,153,.12)' : 'rgba(251,113,133,.12)' }
-        }
-      ]
-    };
-    const options = {
-      plugins:{legend:{display:false}},
-      scales:{
-        x:{ticks:{color:'rgba(156,163,175,.85)'}, grid:{color:'rgba(255,255,255,.06)'}},
-        y:{ticks:{color:'rgba(156,163,175,.85)'}, grid:{color:'rgba(255,255,255,.06)'}}
-      }
-    };
-    new Chart(ctx, {type:"line", data, options});
-  },0);
-}
-
-/* =========================
-   Global refresh
-========================= */
-function refreshAll(){
-  const br = loadBankroll();
-  if(!isNaN(br)){
-    document.getElementById("dashBankroll").value = String(br);
-    document.getElementById("bankrollInput").value = String(br);
-  }
-
-  setDayBadge();
-  updateBankrollDayUI();
-
-  renderHistory();
-  renderDashboardKPI();
-  renderProfitChart();
-  renderOutcomeChart();
-  renderLatest();
-  renderTimeSummary();
-  renderFilterSummary();
-}
-
-document.getElementById("dashPeriod").addEventListener("change", refreshAll);
-document.getElementById("dashChartRange").addEventListener("change", refreshAll);
-document.getElementById("filterSort").addEventListener("change", renderFilterSummary);
-
-ensureMethodFilterOptions(document.getElementById("histMethodFilter"), true);
-refreshAll();
+renderLatest();
+renderHistory();
 </script>
 </body>
 </html>
