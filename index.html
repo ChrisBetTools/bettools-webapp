@@ -205,8 +205,10 @@
     .badge.pending{border-color:rgba(255,209,102,.55); color:rgba(255,209,102,.95); background:rgba(255,209,102,.10)}
     .badge.neutral{border-color:rgba(124,143,183,.55); color:rgba(159,176,208,.95); background:rgba(124,143,183,.10)}
 
-    /* History card list (bettin.gs-ish compact) */
+    /* History card list */
     .list{display:flex; flex-direction:column; gap:10px}
+
+    /* === Betting.gs-style mini cards readability fix (v1.6.1) === */
     .betCard{
       border:1px solid rgba(255,255,255,.10);
       background:rgba(255,255,255,.03);
@@ -219,21 +221,21 @@
     .betTopLeft{min-width:0}
     .betTopLeft .t1{
       display:flex; gap:8px; flex-wrap:wrap; align-items:center;
-      font-size:13px; font-weight:700;
+      font-size:13px; font-weight:750;
     }
     .betTopLeft .t1 .date{color:rgba(232,238,252,.92)}
     .betTopLeft .t1 .method{color:var(--muted); font-weight:650}
-    /* FIX leggibilità: niente ellipsis, wrap consentito */
     .betTopLeft .t2{
-      margin-top:4px;
+      margin-top:6px;
       color:rgba(232,238,252,.92);
       font-size:13px;
-      white-space:normal;
-      overflow:visible;
-      text-overflow:clip;
-      overflow-wrap:anywhere;
-      word-break:break-word;
+      white-space:normal;       /* FIX: era nowrap */
+      overflow:visible;         /* FIX */
+      text-overflow:unset;      /* FIX */
+      word-break:break-word;    /* FIX */
+      line-height:1.25;
     }
+
     .betMid{
       margin-top:8px;
       display:flex; flex-wrap:wrap; gap:10px;
@@ -269,14 +271,80 @@
     .miniBtn.primary{border-color:rgba(90,169,255,.55); background:rgba(90,169,255,.14)}
     .miniBtn.danger{border-color:rgba(255,77,79,.55); background:rgba(255,77,79,.12)}
 
-    /* Dashboard compact KPI grid */
+    /* Calc action block (v1.6.1: compact) */
+    .actionBlock{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+      border-radius:14px;
+      padding:12px;
+      margin-top:10px;
+    }
+    .stakeBig{
+      display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      margin-bottom:6px;
+    }
+    .stakeBig .label{color:var(--muted); font-size:12px}
+    .stakeBig .value{
+      font-size:28px;
+      font-weight:900;
+      letter-spacing:.2px;
+      font-family:var(--mono);
+    }
+    .stakeBig .sub{color:var(--muted); font-size:12px}
+    .stakeBig .right{
+      display:flex; flex-direction:column; align-items:flex-end; gap:6px;
+    }
+    .stakeBig .right .pillMini{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+
+    /* Details list */
+    .detailsList{display:flex; flex-direction:column; gap:10px}
+    .section{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+      border-radius:14px;
+      padding:10px;
+    }
+    .sectionTitle{font-weight:750; font-size:13px; margin-bottom:8px}
+    .kvList{display:flex; flex-direction:column; gap:6px}
+    .kvItem{display:flex; justify-content:space-between; gap:10px; font-size:12px}
+    .kvItem .k{color:var(--muted)}
+    .kvItem .v{color:var(--text); font-family:var(--mono); text-align:right; overflow-wrap:anywhere}
+
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+    }
+    th, td{
+      padding:10px 10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      text-align:left;
+      font-size:13px;
+      vertical-align:top;
+    }
+    th{color:var(--muted); font-weight:700; background:rgba(255,255,255,.03)}
+    tr:last-child td{border-bottom:none}
+
+    /* Dashboard compact KPI grid (v1.6.1: 2x2 also on mobile) */
     .kpiGrid{
       display:grid;
-      grid-template-columns:1fr;
+      grid-template-columns:1fr 1fr; /* FIX: was 1 column on mobile */
       gap:10px;
     }
-    @media (min-width:700px){
-      .kpiGrid{grid-template-columns:1fr 1fr}
+    @media (max-width:360px){
+      .kpiGrid{grid-template-columns:1fr} /* only tiny phones */
     }
     .kpi{
       padding:10px 12px;
@@ -288,24 +356,7 @@
     .kpi b{display:block; font-size:16px; margin-top:2px}
     .kpi b.good{color:rgba(25,195,125,.95)}
     .kpi b.bad{color:rgba(255,77,79,.95)}
-
-    /* Chart */
     canvas{width:100%; height:auto; border-radius:14px;}
-    .legend{
-      display:flex; flex-wrap:wrap; gap:8px; align-items:center;
-      margin-top:8px;
-    }
-    .legItem{
-      display:flex; gap:8px; align-items:center;
-      padding:6px 8px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.04);
-      font-size:12px; color:var(--muted);
-    }
-    .sw{width:14px; height:3px; border-radius:3px; background:rgba(255,255,255,.50)}
-    .sw.eq{background:rgba(25,195,125,.90)}
-    .sw.dd{background:rgba(159,176,208,.85)}
-    .sw.st{background:rgba(90,169,255,.90)}
   </style>
 </head>
 
@@ -314,7 +365,7 @@
     <div class="hamburger" id="hamburger" aria-label="Apri menu" title="Menu"><span></span></div>
     <div class="brand">
       <b>BetTools</b>
-      <small>V3 • NEXT • Stake v1 • UI v1.6</small>
+      <small>V3 • NEXT • Stake v1 • UI v1.6.1</small>
     </div>
     <div class="spacer"></div>
     <div class="pill" id="pillDaily">
@@ -355,7 +406,7 @@
           <div class="cardHeader">
             <div>
               <b>Notifica LivePick (V3)</b><br/>
-              <small>Può andare a capo: il parser regge. NEXT: usa PROB Phase(+needed).</small>
+              <small>Incolla notifica. UI v1.6.1: action block compatto.</small>
             </div>
           </div>
 
@@ -370,7 +421,7 @@
 
           <div id="parseMsg" class="help" style="margin-top:10px"></div>
 
-          <!-- ACTION BLOCK: always shown after parse -->
+          <!-- ACTION BLOCK -->
           <div id="actionWrap"></div>
         </div>
 
@@ -382,7 +433,7 @@
             </div>
           </div>
 
-          <div class="kvGrid">
+          <div class="kvGrid" style="margin-top:4px">
             <div>
               <label>Bankroll attuale</label>
               <input id="bankrollInput" type="number" min="0" step="0.01" />
@@ -442,7 +493,7 @@
           <div class="cardHeader">
             <div>
               <b>Dettagli bet</b><br/>
-              <small>Vista leggibile completa (tutti i campi della notifica).</small>
+              <small>Se clicchi “Dettagli” vedi TUTTI i campi arrivati dalla notifica.</small>
             </div>
             <div class="row">
               <button class="btn" id="btnToggleRaw" disabled>Mostra JSON raw</button>
@@ -506,45 +557,38 @@
         </div>
       </div>
 
-      <!-- Latest bets (read-only) -->
-      <div class="card" style="margin-top:12px">
-        <div class="cardHeader">
-          <div>
-            <b>Latest Bets</b><br/>
-            <small>Ultime 5 (read-only).</small>
+      <div class="grid two" style="margin-top:12px">
+        <div class="card">
+          <div class="cardHeader">
+            <div>
+              <b>Win Rate</b><br/>
+              <small>Solo bet chiuse.</small>
+            </div>
           </div>
-        </div>
-        <div id="dashLatestList" class="list"></div>
-        <div id="dashLatestEmpty" class="help"></div>
-      </div>
-
-      <!-- Main chart: 3 lines (bettin.gs style) -->
-      <div class="card" style="margin-top:12px">
-        <div class="cardHeader">
-          <div>
-            <b>Performance</b><br/>
-            <small>Equity • Drawdown • Stake/Exposure.</small>
-          </div>
-          <div class="row">
-            <select id="profitRangeSelect" style="width:auto; min-width:140px">
-              <option value="1m" selected>1m</option>
-              <option value="6m">6m</option>
-              <option value="12m">12m</option>
-              <option value="all">all</option>
-            </select>
+          <canvas id="donut" width="520" height="360"></canvas>
+          <div class="row" style="margin-top:8px; justify-content:space-between">
+            <div class="badge win" id="wonLabel">Won: —</div>
+            <div class="badge loss" id="lostLabel">Lost: —</div>
           </div>
         </div>
 
-        <canvas id="mainChart" width="980" height="380"></canvas>
-
-        <div class="legend">
-          <div class="legItem"><span class="sw eq"></span>Equity (cumulato)</div>
-          <div class="legItem"><span class="sw dd"></span>Drawdown</div>
-          <div class="legItem"><span class="sw st"></span>Stake / Exposure</div>
-        </div>
-
-        <div class="help" style="margin-top:8px">
-          Equity/Drawdown asse sinistro • Stake/Exposure asse destro.
+        <div class="card">
+          <div class="cardHeader">
+            <div>
+              <b>Profit Chart</b><br/>
+              <small>Cumulato bet chiuse.</small>
+            </div>
+            <div class="row">
+              <select id="profitRangeSelect" style="width:auto; min-width:140px">
+                <option value="1m" selected>1m</option>
+                <option value="6m">6m</option>
+                <option value="12m">12m</option>
+                <option value="all">all</option>
+              </select>
+            </div>
+          </div>
+          <canvas id="profitChart" width="820" height="360"></canvas>
+          <div class="help" style="margin-top:8px">Area tutta verde se cumulato finale > 0, tutta rossa se < 0.</div>
         </div>
       </div>
 
@@ -642,9 +686,9 @@
 /* =========================
    State
 ========================= */
-const STORAGE_KEY = "bettools_v3_uiv13";
+const STORAGE_KEY = "bettools_v3_uiv161";
 const DEFAULT_STATE = {
-  version: "V3_SIMPLIFIED_UI16",
+  version: "V3_SIMPLIFIED_UI161",
   settings: { bankroll: 1000 },
   dailySnapshot: { date: null, bankroll: null },
   history: []
@@ -717,7 +761,7 @@ function escapeHtml(s){
 }
 function startOfWeekISO(dISO){
   const d = new Date(dISO+"T00:00:00");
-  const day = (d.getDay()+6)%7; // Mon=0..Sun=6
+  const day = (d.getDay()+6)%7;
   d.setDate(d.getDate()-day);
   return d.toISOString().slice(0,10);
 }
@@ -883,7 +927,6 @@ function parseODDSTOBET(chunk){
   return { label, phase, market, line, odds_ref: odds };
 }
 function parseLP(chunk){
-  // WR/ROI arrivano SEMPRE come percentuali => sempre /100
   const kv = parsePipeKVs(chunk);
   const wr = safeNum(kv.WR);
   const roi = safeNum(kv.ROI);
@@ -957,7 +1000,7 @@ function parseNotification(text){
 }
 
 /* =========================
-   Stake v1 (NEXT logic) — ALWAYS RETURNS STAKE%
+   Stake v1 (NEXT logic)
 ========================= */
 function betKeyFromParsed(parsed){
   const m = parsed.meta.Method || "";
@@ -968,7 +1011,7 @@ function betKeyFromParsed(parsed){
 }
 function neededGoalsFromLine_NEXT(line){
   if(line===null) return null;
-  return Math.floor(line) + 1; // 1.5->2, 2.5->3
+  return Math.floor(line) + 1;
 }
 function pickMatchProbability_NEXT(parsed){
   const phase = parsed.oddsToBet.phase;
@@ -1004,7 +1047,6 @@ function calcStakeV1(parsed){
   if(lpWR===null) warnings.push("LP.WR non disponibile");
   if(P_ARCH===null) warnings.push("Archivio: nessuna bet chiusa per questo filtro (N=0)");
 
-  // P_REF logic
   let P_REF=null, source="LP/MATCH";
   if(N < 50){
     if(lpWR!==null && P_MATCH!==null) P_REF = 0.6*lpWR + 0.4*P_MATCH;
@@ -1018,16 +1060,12 @@ function calcStakeV1(parsed){
     const w=(N-30)/40;
     const left = (lpWR!==null && P_MATCH!==null) ? (0.6*lpWR + 0.4*P_MATCH) : ((lpWR!==null)?lpWR:P_MATCH);
     const right = (P_ARCH!==null && P_MATCH!==null) ? (0.6*P_ARCH + 0.4*P_MATCH) : ((P_ARCH!==null)?P_ARCH:P_MATCH);
-    if(left!==null && right!==null) {
-      P_REF = (1-w)*left + w*right;
-      source="BLEND";
-    }
+    if(left!==null && right!==null) { P_REF = (1-w)*left + w*right; source="BLEND"; }
   }
 
   const implied = (odds>1) ? 1/odds : null;
   const edge = (P_REF!==null && implied!==null) ? (P_REF - implied) : null;
 
-  // --- ALWAYS suggest stake% between 2% and 5% ---
   let stakePct = 0.02;
   let kelly = null;
 
@@ -1055,8 +1093,7 @@ function calcStakeV1(parsed){
   }
 
   return {
-    ok:true,
-    key, source,
+    ok:true, key, source,
     N_archive:N,
     P_REF, implied, edge,
     kelly,
@@ -1167,8 +1204,6 @@ const btnAddToHistory=document.getElementById("btnAddToHistory");
 
 let lastParsed=null;
 let lastStake=null;
-
-// action inputs (created after parse)
 let oddsPlayedInput=null;
 let stakePlayedInput=null;
 
@@ -1224,19 +1259,8 @@ btnParse.addEventListener("click", ()=>{
 
   const stakeAmt = (lastStake.stake_pct || 0.02) * brBase;
 
-  const pRef = lastStake.P_REF!==null ? fmtPct(lastStake.P_REF) : "—";
-  const implied = lastStake.implied!==null ? fmtPct(lastStake.implied) : "—";
-  const edge = lastStake.edge!==null ? fmtPct(lastStake.edge) : "—";
+  /* v1.6.1: ACTION BLOCK COMPACT — show ONLY stake + fields */
   const needed = lastStake.needed_goals ?? "—";
-
-  const edgeNeg = (lastStake.edge!==null && lastStake.edge<=0);
-  const edgeTag = edgeNeg
-    ? `<span class="badge loss">Edge: ${escapeHtml(edge)} (negativo)</span>`
-    : `<span class="badge win">Edge: ${escapeHtml(edge)}</span>`;
-
-  // ✅ FIX SCOPE: odds_played prefill automatico = odds_ref
-  const oddsRef = lastParsed.oddsToBet.odds_ref;
-
   actionWrap.innerHTML = `
     <div class="actionBlock">
       <div class="stakeBig">
@@ -1251,36 +1275,16 @@ btnParse.addEventListener("click", ()=>{
         </div>
       </div>
 
-      <div class="row" style="margin-top:8px">
-        <span class="badge">${escapeHtml(lastParsed.oddsToBet.label)} @ <b class="mono">${escapeHtml(String(lastParsed.oddsToBet.odds_ref))}</b></span>
-        <span class="badge">P_REF: <b class="mono">${escapeHtml(pRef)}</b></span>
-        <span class="badge">Implied: <b class="mono">${escapeHtml(implied)}</b></span>
-        ${edgeTag}
-      </div>
-
-      <div class="grid two" style="margin-top:12px">
+      <div class="grid two" style="margin-top:10px">
         <div>
           <label>Quota reale giocata (dopo)</label>
-          <input id="oddsPlayed" type="number" min="1" step="0.01" placeholder="es: 1.40" value="${escapeHtml(String(oddsRef ?? ""))}" />
+          <input id="oddsPlayed" type="number" min="1" step="0.01" placeholder="es: 1.40" />
         </div>
         <div>
           <label>Stake reale giocato (dopo)</label>
-          <input id="stakePlayed" type="number" min="0" step="0.01" placeholder="es: ${stakeAmt.toFixed(2)}" value="${stakeAmt.toFixed(2)}" />
+          <input id="stakePlayed" type="number" min="0" step="0.01" placeholder="${stakeAmt.toFixed(2)}" value="${stakeAmt.toFixed(2)}" />
         </div>
       </div>
-
-      <details class="collapse">
-        <summary>Dettagli calcolo</summary>
-        <div class="row" style="margin-top:10px">
-          <span class="badge">P_REF: <b class="mono">${escapeHtml(pRef)}</b></span>
-          <span class="badge">Implied: <b class="mono">${escapeHtml(implied)}</b></span>
-          <span class="badge">Edge: <b class="mono">${escapeHtml(edge)}</b></span>
-          <span class="badge">Needed goals (NEXT): <b class="mono">${escapeHtml(String(needed))}</b></span>
-        </div>
-        <div class="help" style="margin-top:10px">
-          Nota: anche con edge negativo lo stake viene fornito (min 2%) con warning.
-        </div>
-      </details>
     </div>
   `;
 
@@ -1344,7 +1348,7 @@ btnAddToHistory.addEventListener("click", ()=>{
 });
 
 /* =========================
-   Storico UI (mini-cards + INLINE EDIT IN CARD)
+   Storico UI (mini-cards + inline edit)
 ========================= */
 const historyList=document.getElementById("historyList");
 const historyEmpty=document.getElementById("historyEmpty");
@@ -1371,12 +1375,12 @@ function resultBadge(res){
 }
 function profitChip(b){
   if(b.result==="win"){
-    return `<span class="chip good">P/L <b>+${escapeHtml(fmtMoney(b.profit_real))}</b></span>`;
+    return `<span class="chip good">Profit <b>+${escapeHtml(fmtMoney(b.profit_real))}</b></span>`;
   }
   if(b.result==="loss"){
-    return `<span class="chip bad">P/L <b>${escapeHtml(fmtMoney(b.profit_real))}</b></span>`;
+    return `<span class="chip bad">Profit <b>${escapeHtml(fmtMoney(b.profit_real))}</b></span>`;
   }
-  return `<span class="chip warn">P/L <b>—</b></span>`;
+  return `<span class="chip warn">Profit <b>—</b></span>`;
 }
 function formatPick(b){
   return (b.odds_to_bet && b.odds_to_bet.label) ? b.odds_to_bet.label : `${b.odds_to_bet?.phase||""} ${b.odds_to_bet?.market||""} ${b.odds_to_bet?.line??""}`.trim();
@@ -1389,87 +1393,6 @@ function filterHistoryList(){
   if(df!=="all") arr = arr.filter(b=>inDateRange(b.date, df));
   return arr;
 }
-
-/* Shared renderer: same look as Dashboard Latest Bets */
-function renderBetCardHTML(b, opts){
-  const {withActions, isEditing} = opts;
-  const pick = formatPick(b);
-  const method = b.meta?.Method || "—";
-  const match = b.meta?.Match || "—";
-  const stakeS = fmtMoney(b.execution?.stake_suggested);
-  const stakeP = fmtMoney(b.execution?.stake_played);
-  const oddsRef = b.execution?.odds_ref ?? "—";
-  const oddsP = (b.execution?.odds_played ?? "—");
-  const badge = resultBadge(b.result);
-
-  const topLine = isEditing
-    ? `
-      <div class="t1">
-        <input class="mono" data-edit="date" data-id="${b.id}" type="date" value="${escapeHtml(b.date)}" style="width:auto; min-width:160px"/>
-        <span class="method">${escapeHtml(method)}</span>
-      </div>
-      <div class="t2">
-        <input data-edit="match" data-id="${b.id}" type="text" value="${escapeHtml(match)}" />
-      </div>`
-    : `
-      <div class="t1">
-        <span class="date mono">${escapeHtml(b.date)}</span>
-        <span class="method">${escapeHtml(method)}</span>
-      </div>
-      <div class="t2 mono">${escapeHtml(match)}</div>`;
-
-  const midLine = isEditing
-    ? `
-      <span class="chip">Pick <b class="mono">${escapeHtml(pick)}</b></span>
-      <span class="chip">Stake
-        <input data-edit="stake_played" data-id="${b.id}" type="number" step="0.01" value="${escapeHtml(String(b.execution?.stake_played ?? ""))}" style="width:110px"/>
-        <span class="muted">(${escapeHtml(stakeS)} sug)</span>
-      </span>
-      <span class="chip">Odds
-        <input data-edit="odds_played" data-id="${b.id}" type="number" step="0.01" value="${escapeHtml(String(b.execution?.odds_played ?? ""))}" style="width:90px"/>
-        <span class="muted">(${escapeHtml(String(oddsRef))} ref)</span>
-      </span>
-      <span class="chip">Esito
-        <select data-edit="result" data-id="${b.id}" style="width:auto">
-          <option value="win" ${b.result==="win"?"selected":""}>Vinta</option>
-          <option value="loss" ${b.result==="loss"?"selected":""}>Persa</option>
-          <option value="not_played" ${b.result==="not_played"?"selected":""}>Non giocata</option>
-          <option value="pending" ${b.result==="pending"?"selected":""}>Pending</option>
-        </select>
-      </span>
-      ${profitChip(b)}
-    `
-    : `
-      <span class="chip">Pick <b class="mono">${escapeHtml(pick)}</b></span>
-      <span class="chip">Stake <b class="mono">${escapeHtml(stakeP)}</b> <span class="muted">(${escapeHtml(stakeS)} sug)</span></span>
-      <span class="chip">Odds <b class="mono">${escapeHtml(String(oddsP))}</b> <span class="muted">(${escapeHtml(String(oddsRef))} ref)</span></span>
-      ${profitChip(b)}
-    `;
-
-  const actions = !withActions ? "" : (isEditing
-    ? `
-      <button class="miniBtn primary" data-act="save" data-id="${b.id}">Salva</button>
-      <button class="miniBtn" data-act="cancel" data-id="${b.id}">Annulla</button>
-      <button class="miniBtn" data-act="details" data-id="${b.id}">Dettagli</button>
-    `
-    : `
-      <button class="miniBtn primary" data-act="edit" data-id="${b.id}">Modifica</button>
-      <button class="miniBtn" data-act="details" data-id="${b.id}">Dettagli</button>
-      <button class="miniBtn danger" data-act="del" data-id="${b.id}">Elimina</button>
-    `);
-
-  return `
-    <div class="betCard">
-      <div class="betTop">
-        <div class="betTopLeft">${topLine}</div>
-        <div>${badge}</div>
-      </div>
-      <div class="betMid">${midLine}</div>
-      ${withActions ? `<div class="betActions">${actions}</div>` : ``}
-    </div>
-  `;
-}
-
 function renderHistory(){
   const arr = filterHistoryList();
   historyList.innerHTML="";
@@ -1478,11 +1401,93 @@ function renderHistory(){
     historyEmpty.textContent="Nessuna bet da mostrare.";
     return;
   }
+
   for(const b of arr){
+    const pick = formatPick(b);
+    const method = b.meta?.Method || "—";
+    const match = b.meta?.Match || "—";
+    const stakeS = fmtMoney(b.execution?.stake_suggested);
+    const stakeP = fmtMoney(b.execution?.stake_played);
+    const oddsRef = b.execution?.odds_ref ?? "—";
+    const oddsP = (b.execution?.odds_played ?? "—");
+    const badge = resultBadge(b.result);
     const isEditing = (editingBetId === b.id);
+
+    const topLine = isEditing
+      ? `
+        <div class="t1">
+          <input class="mono" data-edit="date" data-id="${b.id}" type="date" value="${escapeHtml(b.date)}" style="width:auto; min-width:160px"/>
+          <span class="method">${escapeHtml(method)}</span>
+        </div>
+        <div class="t2">
+          <input data-edit="match" data-id="${b.id}" type="text" value="${escapeHtml(match)}" />
+        </div>`
+      : `
+        <div class="t1">
+          <span class="date mono">${escapeHtml(b.date)}</span>
+          <span class="method">${escapeHtml(method)}</span>
+        </div>
+        <div class="t2 mono">${escapeHtml(match)}</div>`;
+
+    const midLine = isEditing
+      ? `
+        <span class="chip">Pick <b class="mono">${escapeHtml(pick)}</b></span>
+        <span class="chip">Stake
+          <input data-edit="stake_played" data-id="${b.id}" type="number" step="0.01" value="${escapeHtml(String(b.execution?.stake_played ?? ""))}" style="width:110px"/>
+          <span class="muted">(${escapeHtml(stakeS)} sug)</span>
+        </span>
+        <span class="chip">Odds
+          <input data-edit="odds_played" data-id="${b.id}" type="number" step="0.01" value="${escapeHtml(String(b.execution?.odds_played ?? ""))}" style="width:90px"/>
+          <span class="muted">(${escapeHtml(String(oddsRef))} ref)</span>
+        </span>
+        <span class="chip">Esito
+          <select data-edit="result" data-id="${b.id}" style="width:auto">
+            <option value="win" ${b.result==="win"?"selected":""}>Vinta</option>
+            <option value="loss" ${b.result==="loss"?"selected":""}>Persa</option>
+            <option value="not_played" ${b.result==="not_played"?"selected":""}>Non giocata</option>
+            <option value="pending" ${b.result==="pending"?"selected":""}>Pending</option>
+          </select>
+        </span>
+        ${profitChip(b)}
+      `
+      : `
+        <span class="chip">Pick <b class="mono">${escapeHtml(pick)}</b></span>
+        <span class="chip">Stake <b class="mono">${escapeHtml(stakeP)}</b> <span class="muted">(${escapeHtml(stakeS)} sug)</span></span>
+        <span class="chip">Odds <b class="mono">${escapeHtml(String(oddsP))}</b> <span class="muted">(${escapeHtml(String(oddsRef))} ref)</span></span>
+        ${profitChip(b)}
+      `;
+
+    const actions = isEditing
+      ? `
+        <button class="miniBtn primary" data-act="save" data-id="${b.id}">Salva</button>
+        <button class="miniBtn" data-act="cancel" data-id="${b.id}">Annulla</button>
+        <button class="miniBtn" data-act="details" data-id="${b.id}">Dettagli</button>
+      `
+      : `
+        <button class="miniBtn primary" data-act="edit" data-id="${b.id}">Modifica</button>
+        <button class="miniBtn" data-act="details" data-id="${b.id}">Dettagli</button>
+        <button class="miniBtn danger" data-act="del" data-id="${b.id}">Elimina</button>
+      `;
+
     const el = document.createElement("div");
-    el.innerHTML = renderBetCardHTML(b, {withActions:true, isEditing});
-    historyList.appendChild(el.firstElementChild);
+    el.className="betCard";
+    el.innerHTML = `
+      <div class="betTop">
+        <div class="betTopLeft">
+          ${topLine}
+        </div>
+        <div>${badge}</div>
+      </div>
+
+      <div class="betMid">
+        ${midLine}
+      </div>
+
+      <div class="betActions">
+        ${actions}
+      </div>
+    `;
+    historyList.appendChild(el);
   }
 }
 
@@ -1543,7 +1548,6 @@ historyList.addEventListener("click",(e)=>{
     const op = safeNum(oddsEl?.value);
     if(sp!==null) b.execution.stake_played = sp;
     if(op!==null) b.execution.odds_played = op;
-
     if(resEl && resEl.value) b.result = resEl.value;
 
     if(b.result==="win" || b.result==="loss"){
@@ -1560,29 +1564,8 @@ historyList.addEventListener("click",(e)=>{
 });
 
 /* =========================
-   Details view (FULL fields from notification)
+   Details view
 ========================= */
-function flattenObject(obj, prefix=""){
-  const out=[];
-  if(obj===null || obj===undefined) return out;
-  if(typeof obj !== "object") return [[prefix || "value", String(obj)]];
-  if(Array.isArray(obj)){
-    obj.forEach((v,i)=>{
-      out.push(...flattenObject(v, prefix ? `${prefix}[${i}]` : `[${i}]`));
-    });
-    return out;
-  }
-  for(const k of Object.keys(obj)){
-    const v = obj[k];
-    const key = prefix ? `${prefix}.${k}` : k;
-    if(v && typeof v==="object"){
-      out.push(...flattenObject(v, key));
-    }else{
-      out.push([key, v===null || v===undefined ? "—" : String(v)]);
-    }
-  }
-  return out;
-}
 function renderDetails(b){
   const box=document.getElementById("detailsBox");
   if(!b){
@@ -1600,45 +1583,101 @@ function renderDetails(b){
     <div class="section">
       <div class="sectionTitle">${escapeHtml(title)}</div>
       <div class="kvList">
-        ${rows.length ? rows.map(([k,v])=>`
+        ${rows.map(([k,v])=>`
           <div class="kvItem"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v)}</div></div>
-        `).join("") : `<div class="help">—</div>`}
+        `).join("")}
       </div>
     </div>`;
 
-  const sInfo = sec("INFO", [
+  const sMeta = sec("INFO", [
     ["Data", b.date],
     ["Metodo", b.meta?.Method || "—"],
     ["Competizione", b.meta?.Comp || "—"],
     ["Match", b.meta?.Match || "—"],
     ["Pick", formatPick(b)],
+    ["Odds ref", String(b.execution?.odds_ref ?? "—")],
+    ["Odds reale", String(b.execution?.odds_played ?? "—")],
+    ["Stake suggerito", fmtMoney(b.execution?.stake_suggested)],
+    ["Stake reale", fmtMoney(b.execution?.stake_played)],
     ["Esito", b.result],
-    ["P/L", (b.result==="win"||b.result==="loss") ? fmtMoney(b.profit_real) : "—"]
+    ["Profitto", (b.result==="win"||b.result==="loss") ? fmtMoney(b.profit_real) : "—"]
   ]);
 
-  const sMeta = sec("META", flattenObject(b.meta,"").map(([k,v])=>[k,v]));
-  const sState = sec("STATE", flattenObject(b.state,"").map(([k,v])=>[k,v]));
-  const sStats = sec("STATS", flattenObject(b.stats,"").map(([k,v])=>[k,v]));
-  const sL10 = sec("L10", flattenObject(b.l10,"").map(([k,v])=>[k,v]));
-  const sProb = sec("PROB", flattenObject(b.prob,"").map(([k,v])=>[k,v]));
-  const sPress = sec("PRESS", flattenObject(b.press,"").map(([k,v])=>[k,v]));
-  const sLate = sec("LATE", flattenObject(b.late,"").map(([k,v])=>[k,v]));
-  const sOddsToBet = sec("ODDS_TO_BET", flattenObject(b.odds_to_bet,"").map(([k,v])=>[k,v]));
-  const sLP = sec("LP", [
+  const sState = sec("STATE", [
+    ["Time", String(b.state?.Time ?? "—")],
+    ["RemHT", String(b.state?.RemHT ?? "—")],
+    ["RemFT", String(b.state?.RemFT ?? "—")],
+    ["Score", b.state?.ScoreRaw || "—"]
+  ]);
+
+  const sStats = sec("STATS", b.stats ? [
+    ["SOT (H/A)", `${b.stats.SOT?.home ?? "—"} / ${b.stats.SOT?.away ?? "—"}`],
+    ["SOFF (H/A)", `${b.stats.SOFF?.home ?? "—"} / ${b.stats.SOFF?.away ?? "—"}`],
+    ["COR (H/A)", `${b.stats.COR?.home ?? "—"} / ${b.stats.COR?.away ?? "—"}`],
+    ["ATT (H/A)", `${b.stats.ATT?.home ?? "—"} / ${b.stats.ATT?.away ?? "—"}`],
+    ["DATT (H/A)", `${b.stats.DATT?.home ?? "—"} / ${b.stats.DATT?.away ?? "—"}`]
+  ] : [["—","—"]]);
+
+  const sL10 = sec("L10", b.l10 ? [
+    ["SOT (H/A)", `${b.l10.SOT?.home ?? "—"} / ${b.l10.SOT?.away ?? "—"}`],
+    ["SOFF (H/A)", `${b.l10.SOFF?.home ?? "—"} / ${b.l10.SOFF?.away ?? "—"}`],
+    ["COR (H/A)", `${b.l10.COR?.home ?? "—"} / ${b.l10.COR?.away ?? "—"}`],
+    ["ATT (H/A)", `${b.l10.ATT?.home ?? "—"} / ${b.l10.ATT?.away ?? "—"}`],
+    ["DATT (H/A)", `${b.l10.DATT?.home ?? "—"} / ${b.l10.DATT?.away ?? "—"}`]
+  ] : [["—","—"]]);
+
+  const probRows = [];
+  const addProb = (phase)=>{
+    const obj = b.prob?.[phase] || {};
+    const keys = Object.keys(obj).sort((a,b)=>Number(a)-Number(b));
+    for(const k of keys) probRows.push([`${phase}(+${k})`, String(obj[k])]);
+  };
+  addProb("HT"); addProb("FT");
+  const sProb = sec("PROB", probRows.length?probRows:[["—","—"]]);
+
+  const sPress = sec("PRESS", b.press ? [
+    ["GPI M(all)", String(b.press.GPI?.M_all ?? "—")],
+    ["GPI M(l10)", String(b.press.GPI?.M_l10 ?? "—")],
+    ["GMS H(all/l10)", `${b.press.GMS?.H_all ?? "—"} / ${b.press.GMS?.H_l10 ?? "—"}`],
+    ["GMS A(all/l10)", `${b.press.GMS?.A_all ?? "—"} / ${b.press.GMS?.A_l10 ?? "—"}`],
+    ["GMS M(all/l10)", `${b.press.GMS?.M_all ?? "—"} / ${b.press.GMS?.M_l10 ?? "—"}`],
+    ["SI M(all/l10)", `${b.press.SI?.M_all ?? "—"} / ${b.press.SI?.M_l10 ?? "—"}`]
+  ] : [["—","—"]]);
+
+  const sLate = sec("LATE", b.late ? [
+    ["AT", String(b.late.AT ?? "—")],
+    ["L10", String(b.late.L10 ?? "—")],
+    ["L5", String(b.late.L5 ?? "—")]
+  ] : [["—","—"]]);
+
+  const sOdds = sec("ODDS_TO_BET", b.odds_to_bet ? [
+    ["Label", b.odds_to_bet.label ?? "—"],
+    ["Phase", b.odds_to_bet.phase ?? "—"],
+    ["Market", b.odds_to_bet.market ?? "—"],
+    ["Line", String(b.odds_to_bet.line ?? "—")],
+    ["Odds ref", String(b.odds_to_bet.odds_ref ?? "—")]
+  ] : [["—","—"]]);
+
+  const sLP = sec("LIVEPICK", [
     ["WR", b.lp?.WR===null ? "—" : (b.lp.WR*100).toFixed(2)+"%"],
     ["ROI", b.lp?.ROI===null ? "—" : (b.lp.ROI*100).toFixed(2)+"%"],
-    ...flattenObject(b.lp,"").filter(([k])=>!["WR","ROI"].includes(k)).map(([k,v])=>[k,v])
+    ["Profit", String(b.lp?.Profit ?? "—")],
+    ["AO", String(b.lp?.AO ?? "—")],
+    ["N", String(b.lp?.N ?? "—")]
   ]);
-  const sCalc = sec("CALC", flattenObject(b.calc,"").map(([k,v])=>[k,v]));
-  const sExec = sec("EXECUTION", flattenObject(b.execution,"").map(([k,v])=>[k,v]));
-  const sRaw = `
-    <div class="section">
-      <div class="sectionTitle">RAW NOTIFICA</div>
-      <pre class="mono" style="white-space:pre-wrap;margin:0">${escapeHtml(String(b.raw||""))}</pre>
-    </div>
-  `;
 
-  box.innerHTML = `<div class="detailsList">${sInfo}${sMeta}${sState}${sStats}${sL10}${sProb}${sPress}${sLate}${sOddsToBet}${sLP}${sCalc}${sExec}${sRaw}</div>`;
+  const sCalc = sec("CALC", [
+    ["Fonte stake", b.calc?.stake_source || "—"],
+    ["N arch", String(b.calc?.N_archive_at_bet ?? "—")],
+    ["P_REF", b.calc?.P_REF===null ? "—" : (b.calc.P_REF*100).toFixed(2)+"%"],
+    ["Implied", b.calc?.implied_prob===null ? "—" : (b.calc.implied_prob*100).toFixed(2)+"%"],
+    ["Edge", b.calc?.edge===null ? "—" : (b.calc.edge*100).toFixed(2)+"%"],
+    ["Stake% sugg", b.calc?.stake_suggested_pct===null ? "—" : (b.calc.stake_suggested_pct*100).toFixed(2)+"%"],
+    ["Bankroll day", b.calc?.bankroll_day===null ? "—" : fmtMoney(b.calc.bankroll_day)],
+    ["Needed goals (NEXT)", String(b.calc?.needed_goals ?? "—")]
+  ]);
+
+  box.innerHTML = `<div class="detailsList">${sMeta}${sState}${sStats}${sL10}${sProb}${sPress}${sLate}${sOdds}${sLP}${sCalc}</div>`;
 }
 
 /* =========================
@@ -1705,7 +1744,7 @@ document.getElementById("restoreFile").addEventListener("change", async (e)=>{
 });
 
 /* =========================
-   Dashboard (3-lines chart + latest bets)
+   Dashboard
 ========================= */
 let dashRange = "all";
 let profitRange = "1m";
@@ -1770,26 +1809,57 @@ function computeStreaksFromClosed(closed){
   return {maxW,maxL};
 }
 
-function renderLatestBets(){
-  const list = document.getElementById("dashLatestList");
-  const empty = document.getElementById("dashLatestEmpty");
-  list.innerHTML=""; empty.textContent="";
+function drawDonut(wins, losses){
+  const c = document.getElementById("donut");
+  const ctx = c.getContext("2d");
+  const W=c.width, H=c.height;
+  ctx.clearRect(0,0,W,H);
 
-  const last5 = state.history.slice(0,5);
-  if(last5.length===0){
-    empty.textContent = "Nessuna bet registrata.";
-    return;
+  const total = wins+losses;
+  const winPct = total>0 ? wins/total : 0;
+  const lossPct = total>0 ? losses/total : 0;
+
+  const cx=W/2, cy=H/2, r=Math.min(W,H)*0.28;
+  const thickness=r*0.45;
+
+  function arc(pct, start, color){
+    const end = start + pct*Math.PI*2;
+    ctx.beginPath();
+    ctx.strokeStyle=color;
+    ctx.lineWidth=thickness;
+    ctx.lineCap="butt";
+    ctx.arc(cx, cy, r, start, end);
+    ctx.stroke();
+    return end;
   }
-  for(const b of last5){
-    const el = document.createElement("div");
-    el.innerHTML = renderBetCardHTML(b, {withActions:false, isEditing:false});
-    list.appendChild(el.firstElementChild);
-  }
+
+  ctx.beginPath();
+  ctx.strokeStyle="rgba(255,255,255,.08)";
+  ctx.lineWidth=thickness;
+  ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.stroke();
+
+  const good="rgba(25,195,125,.95)";
+  const bad="rgba(255,77,79,.95)";
+  let a=-Math.PI/2;
+  a = arc(winPct, a, good);
+  arc(lossPct, a, bad);
+
+  ctx.fillStyle="rgba(232,238,252,.92)";
+  ctx.font="700 22px "+getComputedStyle(document.body).fontFamily;
+  const wr = total>0 ? Math.round(winPct*100) : 0;
+  ctx.textAlign="center";
+  ctx.fillText(`${wr}%`, cx, cy+8);
+  ctx.font="600 12px "+getComputedStyle(document.body).fontFamily;
+  ctx.fillStyle="rgba(159,176,208,.95)";
+  ctx.fillText("Win Rate", cx, cy+28);
+
+  document.getElementById("wonLabel").innerHTML = `Won: <b>${Math.round(winPct*100)}%</b>`;
+  document.getElementById("lostLabel").innerHTML = `Lost: <b>${Math.round(lossPct*100)}%</b>`;
 }
 
-/* Main chart: 3 series (equity, dd, stake) with dual axes */
-function drawMainChart(closed, mode){
-  const c = document.getElementById("mainChart");
+function drawProfitChart(closed, mode){
+  const c = document.getElementById("profitChart");
   const ctx = c.getContext("2d");
   const W=c.width, H=c.height;
   ctx.clearRect(0,0,W,H);
@@ -1799,136 +1869,71 @@ function drawMainChart(closed, mode){
   if(mode==="6m") data = data.filter(b=>inMonthsBack(b.date,6));
   if(mode==="12m") data = data.filter(b=>inMonthsBack(b.date,12));
 
-  if(data.length===0){
+  let eq=0;
+  const pts = data.map(b=> (eq += Number(b.profit_real)||0));
+  if(pts.length===0){
     ctx.strokeStyle="rgba(255,255,255,.10)";
-    ctx.strokeRect(52,20,W-84,H-54);
+    ctx.strokeRect(40,20,W-60,H-50);
     ctx.fillStyle="rgba(159,176,208,.95)";
     ctx.font="600 12px "+getComputedStyle(document.body).fontFamily;
-    ctx.fillText("Nessun dato nel periodo", 60, 42);
+    ctx.fillText("Nessun dato nel periodo", 50, 40);
     return;
   }
 
-  // series
-  let eq=0, peak=0;
-  const equity=[];
-  const drawdown=[];
-  const stake=[];
-  for(const b of data){
-    eq += Number(b.profit_real)||0;
-    if(eq>peak) peak=eq;
-    equity.push(eq);
-    drawdown.push(eq-peak); // <= 0
-    stake.push(Number(b.execution?.stake_played)||0);
-  }
+  const minY = Math.min(...pts);
+  const maxY = Math.max(...pts);
+  const pad = (maxY-minY)*0.12 || 1;
+  const y0 = minY - pad;
+  const y1 = maxY + pad;
 
-  const left=52, top=20, right=W-22, bottom=H-34;
+  const left=40, top=20, right=W-20, bottom=H-30;
   const plotW = right-left;
   const plotH = bottom-top;
 
-  const xAt = (i)=> left + (equity.length===1 ? plotW/2 : (i/(equity.length-1))*plotW);
+  const xAt = (i)=> left + (pts.length===1 ? plotW/2 : (i/(pts.length-1))*plotW);
+  const yAt = (v)=> top + (1-(v-y0)/(y1-y0))*plotH;
 
-  // y scale left (equity + dd)
-  const leftMin = Math.min(...equity, ...drawdown, 0);
-  const leftMax = Math.max(...equity, 0);
-  const leftPad = (leftMax-leftMin)*0.12 || 1;
-  const y0L = leftMin - leftPad;
-  const y1L = leftMax + leftPad;
-  const yAtL = (v)=> top + (1-(v-y0L)/(y1L-y0L))*plotH;
-
-  // y scale right (stake)
-  const rMin = 0;
-  const rMax = Math.max(...stake, 1);
-  const rPad = (rMax-rMin)*0.12 || 1;
-  const y0R = rMin;
-  const y1R = rMax + rPad;
-  const yAtR = (v)=> top + (1-(v-y0R)/(y1R-y0R))*plotH;
-
-  // grid + axes
   ctx.strokeStyle="rgba(255,255,255,.08)";
   ctx.strokeRect(left, top, plotW, plotH);
 
-  // horizontal grid lines + labels
-  const ticks = 4;
-  ctx.font="600 11px "+getComputedStyle(document.body).fontFamily;
-  ctx.fillStyle="rgba(159,176,208,.95)";
+  const final = pts[pts.length-1];
+  const isPos = final >= 0;
+  const fill = isPos ? "rgba(25,195,125,.12)" : "rgba(255,77,79,.12)";
+  const line = isPos ? "rgba(25,195,125,.85)" : "rgba(255,77,79,.85)";
+  const dot = isPos ? "rgba(25,195,125,.95)" : "rgba(255,77,79,.95)";
 
-  for(let i=0;i<=ticks;i++){
-    const t = i/ticks;
-    const y = top + t*plotH;
-    ctx.strokeStyle="rgba(255,255,255,.06)";
-    ctx.beginPath();
-    ctx.moveTo(left, y);
-    ctx.lineTo(right, y);
-    ctx.stroke();
-
-    // left label
-    const vL = y1L - t*(y1L-y0L);
-    ctx.textAlign="right";
-    ctx.fillText(vL.toFixed(0), left-8, y+4);
-
-    // right label
-    const vR = y1R - t*(y1R-y0R);
-    ctx.textAlign="left";
-    ctx.fillText(vR.toFixed(0), right+6, y+4);
+  ctx.beginPath();
+  ctx.moveTo(left, bottom);
+  for(let i=0;i<pts.length;i++){
+    ctx.lineTo(xAt(i), yAt(pts[i]));
   }
+  ctx.lineTo(right, bottom);
+  ctx.closePath();
+  ctx.fillStyle = fill;
+  ctx.fill();
 
-  // colors
-  const eqLine = "rgba(25,195,125,.90)";
-  const eqFill = "rgba(25,195,125,.10)";
-  const ddLine = "rgba(159,176,208,.85)";
-  const ddFill = "rgba(159,176,208,.08)";
-  const stLine = "rgba(90,169,255,.90)";
-  const stFill = "rgba(90,169,255,.08)";
+  ctx.beginPath();
+  for(let i=0;i<pts.length;i++){
+    const x=xAt(i), y=yAt(pts[i]);
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle=line;
+  ctx.lineWidth=2;
+  ctx.stroke();
 
-  // area fills (bettin.gs-like soft)
-  function fillArea(series, yAt, color){
+  ctx.fillStyle=dot;
+  for(let i=0;i<pts.length;i++){
+    const x=xAt(i), y=yAt(pts[i]);
     ctx.beginPath();
-    ctx.moveTo(left, bottom);
-    for(let i=0;i<series.length;i++){
-      ctx.lineTo(xAt(i), yAt(series[i]));
-    }
-    ctx.lineTo(right, bottom);
-    ctx.closePath();
-    ctx.fillStyle = color;
+    ctx.arc(x,y,3,0,Math.PI*2);
     ctx.fill();
   }
-  fillArea(equity, yAtL, eqFill);
-  fillArea(drawdown, yAtL, ddFill);
-  fillArea(stake, yAtR, stFill);
 
-  function drawLine(series, yAt, color, width=2){
-    ctx.beginPath();
-    for(let i=0;i<series.length;i++){
-      const x=xAt(i), y=yAt(series[i]);
-      if(i===0) ctx.moveTo(x,y);
-      else ctx.lineTo(x,y);
-    }
-    ctx.strokeStyle=color;
-    ctx.lineWidth=width;
-    ctx.stroke();
-  }
-  drawLine(equity, yAtL, eqLine, 2.2);
-  drawLine(drawdown, yAtL, ddLine, 2.0);
-  drawLine(stake, yAtR, stLine, 2.0);
-
-  // last point labels
-  const eqLast = equity[equity.length-1];
-  const ddLast = drawdown[drawdown.length-1];
-  const stLast = stake[stake.length-1];
-
-  ctx.textAlign="right";
-  ctx.fillStyle="rgba(232,238,252,.92)";
-  ctx.font="700 12px "+getComputedStyle(document.body).fontFamily;
-  ctx.fillText(`Equity: ${eqLast.toFixed(2)}`, right, top-6);
-
-  ctx.textAlign="left";
   ctx.fillStyle="rgba(159,176,208,.95)";
-  ctx.font="600 12px "+getComputedStyle(document.body).fontFamily;
-  ctx.fillText(`DD: ${ddLast.toFixed(2)}`, left, top-6);
-
-  ctx.textAlign="left";
-  ctx.fillStyle="rgba(90,169,255,.95)";
-  ctx.fillText(`Stake: ${stLast.toFixed(2)}`, left, bottom+22);
+  ctx.font="600 11px "+getComputedStyle(document.body).fontFamily;
+  ctx.textAlign="right";
+  ctx.fillText(`Cumulato: ${final.toFixed(2)}`, right, top-6);
 }
 
 function renderDashboard(){
@@ -1946,12 +1951,12 @@ function renderDashboard(){
   document.getElementById("dashMaxDD").textContent = fmtMoney(dd.maxDD);
   document.getElementById("dashStreak").textContent = `${st.maxW} / ${st.maxL}`;
 
-  renderLatestBets();
-  drawMainChart(t.closed, profitRange);
+  drawDonut(t.wins, t.losses);
+  drawProfitChart(t.closed, profitRange);
 }
 
 /* =========================
-   Riepilogo temporale (ROI + ROC + Stato day)
+   Riepilogo temporale
 ========================= */
 document.getElementById("timeGroupSelect").addEventListener("change",(e)=>{
   timeGroup = e.target.value;
@@ -2017,7 +2022,6 @@ function renderTimeSummary(){
     const closedN=r.wins+r.losses;
     const wr=closedN>0 ? r.wins/closedN : null;
     const roi=r.stake>0 ? r.profit/r.stake : null;
-
     const roc = (timeGroup==="day" && r.brDay && r.brDay>0) ? (r.profit/r.brDay) : null;
     const status = (timeGroup==="day") ? dayStatusFromROC(roc) : {label:"", cls:""};
 
@@ -2040,7 +2044,7 @@ function renderTimeSummary(){
 }
 
 /* =========================
-   Riepilogo filtri (cards only)
+   Riepilogo filtri
 ========================= */
 document.getElementById("filterSort").addEventListener("change", renderFilters);
 
@@ -2168,6 +2172,12 @@ function renderAll(){
 }
 renderAll();
 document.getElementById("btnToggleRaw").disabled = true;
-</script>
+
+/* =========================
+   Small page-specific refresh
+========================= */
+function openTo(page){ setPage(page); }
+  </script>
 </body>
 </html>
+
