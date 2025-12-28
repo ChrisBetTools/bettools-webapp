@@ -205,8 +205,10 @@
     .badge.pending{border-color:rgba(255,209,102,.55); color:rgba(255,209,102,.95); background:rgba(255,209,102,.10)}
     .badge.neutral{border-color:rgba(124,143,183,.55); color:rgba(159,176,208,.95); background:rgba(124,143,183,.10)}
 
-    /* History / Latest list */
+    /* History card list */
     .list{display:flex; flex-direction:column; gap:10px}
+
+    /* === unified Bet Card (used by Dashboard Latest + Storico) === */
     .betCard{
       border:1px solid rgba(255,255,255,.10);
       background:rgba(255,255,255,.03);
@@ -223,15 +225,15 @@
     }
     .betTopLeft .t1 .date{color:rgba(232,238,252,.92)}
     .betTopLeft .t1 .method{color:var(--muted); font-weight:650}
-    /* FIX: leggibilità (niente ellissi, va a capo) */
     .betTopLeft .t2{
       margin-top:4px;
       color:rgba(232,238,252,.92);
       font-size:13px;
-      white-space:normal;
+      white-space:normal;             /* FIX iPhone leggibilità */
       overflow:visible;
       text-overflow:unset;
       overflow-wrap:anywhere;
+      word-break:break-word;
     }
     .betMid{
       margin-top:8px;
@@ -251,6 +253,7 @@
     .chip.good b{color:rgba(25,195,125,.95)}
     .chip.bad b{color:rgba(255,77,79,.95)}
     .chip.warn b{color:rgba(255,209,102,.95)}
+
     .betActions{
       margin-top:10px;
       display:flex; gap:8px; flex-wrap:wrap;
@@ -267,6 +270,22 @@
     }
     .miniBtn.primary{border-color:rgba(90,169,255,.55); background:rgba(90,169,255,.14)}
     .miniBtn.danger{border-color:rgba(255,77,79,.55); background:rgba(255,77,79,.12)}
+
+    /* Inline confirm (no browser popup) */
+    .inlineConfirm{
+      margin-top:10px;
+      border:1px solid rgba(255,209,102,.35);
+      background:rgba(255,209,102,.08);
+      border-radius:12px;
+      padding:10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      color:rgba(255,209,102,.95);
+      font-size:12px;
+    }
 
     /* Calc action block */
     .actionBlock{
@@ -384,7 +403,7 @@
     <div class="hamburger" id="hamburger" aria-label="Apri menu" title="Menu"><span></span></div>
     <div class="brand">
       <b>BetTools</b>
-      <small>V3 • NEXT • Stake v1 • UI v1.3</small>
+      <small>V3 • NEXT • Stake v1 • UI v1.5</small>
     </div>
     <div class="spacer"></div>
     <div class="pill" id="pillDaily">
@@ -442,6 +461,8 @@
 
           <!-- ACTION BLOCK: always shown after parse -->
           <div id="actionWrap"></div>
+
+          <div id="resetAllConfirm" style="display:none"></div>
         </div>
 
         <div class="card">
@@ -503,6 +524,7 @@
           </div>
         </div>
 
+        <!-- IDENTICO a Latest Bets (Dashboard) + sotto i bottoni Modifica/Dettagli/Elimina -->
         <div id="historyList" class="list"></div>
         <div id="historyEmpty" class="help"></div>
       </div>
@@ -512,7 +534,7 @@
           <div class="cardHeader">
             <div>
               <b>Dettagli bet</b><br/>
-              <small>Vista completa: tutti i campi della notifica.</small>
+              <small>Vista completa: tutti i campi arrivati dalla notifica.</small>
             </div>
             <div class="row">
               <button class="btn" id="btnToggleRaw" disabled>Mostra JSON raw</button>
@@ -542,6 +564,7 @@
             <button class="btn" id="btnRecalc">Ricalcola</button>
           </div>
 
+          <div id="clearHistoryConfirm" style="display:none"></div>
           <div class="help" style="margin-top:10px" id="backupMsg"></div>
         </div>
       </div>
@@ -574,6 +597,18 @@
           <span class="badge">Max DD: <b class="mono" id="dashMaxDD">—</b></span>
           <span class="badge">Streak W/L: <b class="mono" id="dashStreak">—</b></span>
         </div>
+      </div>
+
+      <!-- Latest Bets: grafica di riferimento (Storico deve essere identico) -->
+      <div class="card" style="margin-top:12px">
+        <div class="cardHeader">
+          <div>
+            <b>Latest Bets</b><br/>
+            <small>Ultime bet (grafica di riferimento per Storico).</small>
+          </div>
+        </div>
+        <div id="latestList" class="list"></div>
+        <div id="latestEmpty" class="help"></div>
       </div>
 
       <div class="grid two" style="margin-top:12px">
@@ -611,18 +646,6 @@
         </div>
       </div>
 
-      <!-- LATEST BETS (stessa grafica dello Storico) -->
-      <div class="card" style="margin-top:12px">
-        <div class="cardHeader">
-          <div>
-            <b>Latest Bets</b><br/>
-            <small>Stessa grafica dello Storico. Qui senza bottoni.</small>
-          </div>
-        </div>
-        <div id="dashLatestList" class="list"></div>
-        <div id="dashLatestEmpty" class="help"></div>
-      </div>
-
       <div class="card" style="margin-top:12px">
         <div class="cardHeader">
           <div>
@@ -643,6 +666,7 @@
             </div>
           </div>
         </div>
+        <div id="newDayConfirm" style="display:none"></div>
         <div class="help" id="dashMsg" style="margin-top:8px"></div>
       </div>
     </section>
@@ -717,9 +741,9 @@
 /* =========================
    State
 ========================= */
-const STORAGE_KEY = "bettools_v3_uiv13";
+const STORAGE_KEY = "bettools_v3_uiv13"; // lasciato uguale per non perdere i dati
 const DEFAULT_STATE = {
-  version: "V3_SIMPLIFIED_UI13",
+  version: "V3_SIMPLIFIED_UI15",
   settings: { bankroll: 1000 },
   dailySnapshot: { date: null, bankroll: null },
   history: []
@@ -739,7 +763,7 @@ function loadState(){
   }
 }
 function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-function resetAll(){
+function resetAllHard(){
   localStorage.removeItem(STORAGE_KEY);
   state = structuredClone(DEFAULT_STATE);
   saveState();
@@ -1113,7 +1137,6 @@ function calcStakeV1(parsed){
       let kAdj = 0.5 * kelly;
       stakePct = clamp(kAdj, 0.02, 0.05);
     }else{
-      // edge <= 0 -> keep min stake but warn
       stakePct = 0.02;
       warnings.push("Edge negativo: stake impostato al minimo (2%)");
     }
@@ -1230,6 +1253,138 @@ function recalcAll(){
 }
 
 /* =========================
+   Unified Bet Card Renderer
+   - Same graphic for Dashboard Latest + Storico
+   - Storico adds the 3 buttons under the card
+========================= */
+let editingBetId=null;
+let deleteConfirmId=null;
+
+function resultBadge(res){
+  if(res==="win") return `<span class="badge win">Vinta</span>`;
+  if(res==="loss") return `<span class="badge loss">Persa</span>`;
+  if(res==="not_played") return `<span class="badge pending">Non giocata</span>`;
+  return `<span class="badge neutral">Pending</span>`;
+}
+function profitChip(b){
+  if(b.result==="win"){
+    return `<span class="chip good">Profit <b>+${escapeHtml(fmtMoney(b.profit_real))}</b></span>`;
+  }
+  if(b.result==="loss"){
+    return `<span class="chip bad">Profit <b>${escapeHtml(fmtMoney(b.profit_real))}</b></span>`;
+  }
+  return `<span class="chip warn">Profit <b>—</b></span>`;
+}
+function formatPick(b){
+  return (b.odds_to_bet && b.odds_to_bet.label) ? b.odds_to_bet.label : `${b.odds_to_bet?.phase||""} ${b.odds_to_bet?.market||""} ${b.odds_to_bet?.line??""}`.trim();
+}
+function renderBetCardHTML(b, {context}){
+  const pick = formatPick(b);
+  const method = b.meta?.Method || "—";
+  const match = b.meta?.Match || "—";
+  const stakeS = fmtMoney(b.execution?.stake_suggested);
+  const stakeP = fmtMoney(b.execution?.stake_played);
+  const oddsRef = b.execution?.odds_ref ?? "—";
+  const oddsP = (b.execution?.odds_played ?? "—");
+  const badge = resultBadge(b.result);
+
+  const isEditing = (editingBetId === b.id && context==="storico");
+
+  const topLine = isEditing
+    ? `
+      <div class="t1">
+        <input class="mono" data-edit="date" data-id="${b.id}" type="date" value="${escapeHtml(b.date)}" style="width:auto; min-width:160px"/>
+        <span class="method">${escapeHtml(method)}</span>
+      </div>
+      <div class="t2">
+        <input data-edit="match" data-id="${b.id}" type="text" value="${escapeHtml(match)}" />
+      </div>`
+    : `
+      <div class="t1">
+        <span class="date mono">${escapeHtml(b.date)}</span>
+        <span class="method">${escapeHtml(method)}</span>
+      </div>
+      <div class="t2 mono">${escapeHtml(match)}</div>`;
+
+  const midLine = isEditing
+    ? `
+      <span class="chip">Pick <b class="mono">${escapeHtml(pick)}</b></span>
+      <span class="chip">Stake
+        <input data-edit="stake_played" data-id="${b.id}" type="number" step="0.01" value="${escapeHtml(String(b.execution?.stake_played ?? ""))}" style="width:110px"/>
+        <span class="muted">(${escapeHtml(stakeS)} sug)</span>
+      </span>
+      <span class="chip">Odds
+        <input data-edit="odds_played" data-id="${b.id}" type="number" step="0.01" value="${escapeHtml(String(b.execution?.odds_played ?? ""))}" style="width:90px"/>
+        <span class="muted">(${escapeHtml(String(oddsRef))} ref)</span>
+      </span>
+      <span class="chip">Esito
+        <select data-edit="result" data-id="${b.id}" style="width:auto">
+          <option value="win" ${b.result==="win"?"selected":""}>Vinta</option>
+          <option value="loss" ${b.result==="loss"?"selected":""}>Persa</option>
+          <option value="not_played" ${b.result==="not_played"?"selected":""}>Non giocata</option>
+          <option value="pending" ${b.result==="pending"?"selected":""}>Pending</option>
+        </select>
+      </span>
+      ${profitChip(b)}
+    `
+    : `
+      <span class="chip">Pick <b class="mono">${escapeHtml(pick)}</b></span>
+      <span class="chip">Stake <b class="mono">${escapeHtml(stakeP)}</b> <span class="muted">(${escapeHtml(stakeS)} sug)</span></span>
+      <span class="chip">Odds <b class="mono">${escapeHtml(String(oddsP))}</b> <span class="muted">(${escapeHtml(String(oddsRef))} ref)</span></span>
+      ${profitChip(b)}
+    `;
+
+  // Actions only in Storico (as requested)
+  let actionsHTML = "";
+  if(context==="storico"){
+    actionsHTML = isEditing
+      ? `
+        <div class="betActions">
+          <button class="miniBtn primary" data-act="save" data-id="${b.id}">Salva</button>
+          <button class="miniBtn" data-act="cancel" data-id="${b.id}">Annulla</button>
+          <button class="miniBtn" data-act="details" data-id="${b.id}">Dettagli</button>
+        </div>
+      `
+      : `
+        <div class="betActions">
+          <button class="miniBtn primary" data-act="edit" data-id="${b.id}">Modifica</button>
+          <button class="miniBtn" data-act="details" data-id="${b.id}">Dettagli</button>
+          <button class="miniBtn danger" data-act="del" data-id="${b.id}">Elimina</button>
+        </div>
+      `;
+
+    if(deleteConfirmId === b.id){
+      actionsHTML += `
+        <div class="inlineConfirm">
+          <div>Eliminare questa bet?</div>
+          <div class="row">
+            <button class="miniBtn danger" data-act="del_confirm" data-id="${b.id}">Conferma</button>
+            <button class="miniBtn" data-act="del_cancel" data-id="${b.id}">Annulla</button>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  return `
+    <div class="betCard">
+      <div class="betTop">
+        <div class="betTopLeft">
+          ${topLine}
+        </div>
+        <div>${badge}</div>
+      </div>
+
+      <div class="betMid">
+        ${midLine}
+      </div>
+
+      ${actionsHTML}
+    </div>
+  `;
+}
+
+/* =========================
    Calcolatore UI
 ========================= */
 const lpText=document.getElementById("lpText");
@@ -1244,6 +1399,8 @@ const btnAddToHistory=document.getElementById("btnAddToHistory");
 
 let lastParsed=null;
 let lastStake=null;
+
+// action inputs (created after parse)
 let oddsPlayedInput=null;
 let stakePlayedInput=null;
 
@@ -1268,8 +1425,34 @@ btnClear.addEventListener("click", ()=>{
   parseMsg.innerHTML=""; actionWrap.innerHTML="";
   btnAddToHistory.disabled=true;
 });
+
+function showInlineConfirm(targetEl, text, onConfirm){
+  targetEl.style.display="";
+  targetEl.innerHTML = `
+    <div class="inlineConfirm">
+      <div>${escapeHtml(text)}</div>
+      <div class="row">
+        <button class="miniBtn danger" id="ic_yes">Conferma</button>
+        <button class="miniBtn" id="ic_no">Annulla</button>
+      </div>
+    </div>
+  `;
+  targetEl.querySelector("#ic_yes").addEventListener("click", ()=>{
+    targetEl.style.display="none";
+    targetEl.innerHTML="";
+    onConfirm();
+  });
+  targetEl.querySelector("#ic_no").addEventListener("click", ()=>{
+    targetEl.style.display="none";
+    targetEl.innerHTML="";
+  });
+}
+
 btnResetAll.addEventListener("click", ()=>{
-  if(confirm("Sicuro di voler resettare TUTTO? (storico + impostazioni + snapshot)")) resetAll();
+  const target = document.getElementById("resetAllConfirm");
+  showInlineConfirm(target, "Sicuro di voler resettare TUTTO? (storico + impostazioni + snapshot)", ()=>{
+    resetAllHard();
+  });
 });
 
 btnParse.addEventListener("click", ()=>{
@@ -1294,6 +1477,7 @@ btnParse.addEventListener("click", ()=>{
 
   syncBankrollInputs();
 
+  // base bankroll for stake: daily snapshot if exists else current bankroll
   const brBase = (state.dailySnapshot.date===todayISO() && state.dailySnapshot.bankroll!==null)
     ? Number(state.dailySnapshot.bankroll) : Number(state.settings.bankroll||0);
 
@@ -1416,7 +1600,7 @@ btnAddToHistory.addEventListener("click", ()=>{
 });
 
 /* =========================
-   Storico UI (cards + INLINE EDIT)
+   Storico UI (same graphics as Latest Bets + actions)
 ========================= */
 const historyList=document.getElementById("historyList");
 const historyEmpty=document.getElementById("historyEmpty");
@@ -1427,7 +1611,6 @@ historyDateFilter.addEventListener("change", renderHistory);
 
 let selectedBetId=null;
 let showRaw=false;
-let editingBetId=null;
 
 document.getElementById("btnToggleRaw").addEventListener("click", ()=>{
   if(!selectedBetId) return;
@@ -1435,24 +1618,6 @@ document.getElementById("btnToggleRaw").addEventListener("click", ()=>{
   renderDetails(state.history.find(b=>b.id===selectedBetId));
 });
 
-function resultBadge(res){
-  if(res==="win") return `<span class="badge win">Vinta</span>`;
-  if(res==="loss") return `<span class="badge loss">Persa</span>`;
-  if(res==="not_played") return `<span class="badge pending">Non giocata</span>`;
-  return `<span class="badge neutral">Pending</span>`;
-}
-function profitChip(b){
-  if(b.result==="win"){
-    return `<span class="chip good">Profit <b>+${escapeHtml(fmtMoney(b.profit_real))}</b></span>`;
-  }
-  if(b.result==="loss"){
-    return `<span class="chip bad">Profit <b>${escapeHtml(fmtMoney(b.profit_real))}</b></span>`;
-  }
-  return `<span class="chip warn">Profit <b>—</b></span>`;
-}
-function formatPick(b){
-  return (b.odds_to_bet && b.odds_to_bet.label) ? b.odds_to_bet.label : `${b.odds_to_bet?.phase||""} ${b.odds_to_bet?.market||""} ${b.odds_to_bet?.line??""}`.trim();
-}
 function filterHistoryList(){
   let arr = state.history.slice();
   const rf = historyResultFilter.value;
@@ -1461,7 +1626,6 @@ function filterHistoryList(){
   if(df!=="all") arr = arr.filter(b=>inDateRange(b.date, df));
   return arr;
 }
-
 function renderHistory(){
   const arr = filterHistoryList();
   historyList.innerHTML="";
@@ -1470,95 +1634,10 @@ function renderHistory(){
     historyEmpty.textContent="Nessuna bet da mostrare.";
     return;
   }
-
   for(const b of arr){
-    const pick = formatPick(b);
-    const method = b.meta?.Method || "—";
-    const match = b.meta?.Match || "—";
-    const stakeS = fmtMoney(b.execution?.stake_suggested);
-    const stakeP = fmtMoney(b.execution?.stake_played);
-    const oddsRef = b.execution?.odds_ref ?? "—";
-    const oddsP = (b.execution?.odds_played ?? "—");
-    const badge = resultBadge(b.result);
-
-    const isEditing = (editingBetId === b.id);
-
-    const topLine = isEditing
-      ? `
-        <div class="t1">
-          <input class="mono" data-edit="date" data-id="${b.id}" type="date" value="${escapeHtml(b.date)}" style="width:auto; min-width:160px"/>
-          <span class="method">${escapeHtml(method)}</span>
-        </div>
-        <div class="t2">
-          <input data-edit="match" data-id="${b.id}" type="text" value="${escapeHtml(match)}" />
-        </div>`
-      : `
-        <div class="t1">
-          <span class="date mono">${escapeHtml(b.date)}</span>
-          <span class="method">${escapeHtml(method)}</span>
-        </div>
-        <div class="t2 mono">${escapeHtml(match)}</div>`;
-
-    const midLine = isEditing
-      ? `
-        <span class="chip">Pick <b class="mono">${escapeHtml(pick)}</b></span>
-        <span class="chip">Stake
-          <input data-edit="stake_played" data-id="${b.id}" type="number" step="0.01" value="${escapeHtml(String(b.execution?.stake_played ?? ""))}" style="width:110px"/>
-          <span class="muted">(${escapeHtml(stakeS)} sug)</span>
-        </span>
-        <span class="chip">Odds
-          <input data-edit="odds_played" data-id="${b.id}" type="number" step="0.01" value="${escapeHtml(String(b.execution?.odds_played ?? ""))}" style="width:90px"/>
-          <span class="muted">(${escapeHtml(String(oddsRef))} ref)</span>
-        </span>
-        <span class="chip">Esito
-          <select data-edit="result" data-id="${b.id}" style="width:auto">
-            <option value="win" ${b.result==="win"?"selected":""}>Vinta</option>
-            <option value="loss" ${b.result==="loss"?"selected":""}>Persa</option>
-            <option value="not_played" ${b.result==="not_played"?"selected":""}>Non giocata</option>
-            <option value="pending" ${b.result==="pending"?"selected":""}>Pending</option>
-          </select>
-        </span>
-        ${profitChip(b)}
-      `
-      : `
-        <span class="chip">Pick <b class="mono">${escapeHtml(pick)}</b></span>
-        <span class="chip">Stake <b class="mono">${escapeHtml(stakeP)}</b> <span class="muted">(${escapeHtml(stakeS)} sug)</span></span>
-        <span class="chip">Odds <b class="mono">${escapeHtml(String(oddsP))}</b> <span class="muted">(${escapeHtml(String(oddsRef))} ref)</span></span>
-        ${profitChip(b)}
-      `;
-
-    /* REQ: sotto ogni bet 3 pulsanti Modifica/Dettagli/Elimina (quando NON in edit) */
-    const actions = isEditing
-      ? `
-        <button class="miniBtn primary" data-act="save" data-id="${b.id}">Salva</button>
-        <button class="miniBtn" data-act="cancel" data-id="${b.id}">Annulla</button>
-        <button class="miniBtn" data-act="details" data-id="${b.id}">Dettagli</button>
-      `
-      : `
-        <button class="miniBtn primary" data-act="edit" data-id="${b.id}">Modifica</button>
-        <button class="miniBtn" data-act="details" data-id="${b.id}">Dettagli</button>
-        <button class="miniBtn danger" data-act="del" data-id="${b.id}">Elimina</button>
-      `;
-
-    const el = document.createElement("div");
-    el.className="betCard";
-    el.innerHTML = `
-      <div class="betTop">
-        <div class="betTopLeft">
-          ${topLine}
-        </div>
-        <div>${badge}</div>
-      </div>
-
-      <div class="betMid">
-        ${midLine}
-      </div>
-
-      <div class="betActions">
-        ${actions}
-      </div>
-    `;
-    historyList.appendChild(el);
+    const wrap = document.createElement("div");
+    wrap.innerHTML = renderBetCardHTML(b, {context:"storico"});
+    historyList.appendChild(wrap.firstElementChild);
   }
 }
 
@@ -1571,16 +1650,26 @@ historyList.addEventListener("click",(e)=>{
   if(!b) return;
 
   if(act==="del"){
-    if(confirm("Eliminare questa bet?")){
-      state.history = state.history.filter(x=>x.id!==id);
-      saveState();
-      if(selectedBetId===id){
-        selectedBetId=null;
-        document.getElementById("btnToggleRaw").disabled=true;
-        document.getElementById("detailsBox").textContent="Seleziona “Dettagli” su una bet.";
-      }
-      renderAll();
+    deleteConfirmId = id; // open inline confirm
+    renderHistory();
+    return;
+  }
+  if(act==="del_cancel"){
+    deleteConfirmId = null;
+    renderHistory();
+    return;
+  }
+  if(act==="del_confirm"){
+    state.history = state.history.filter(x=>x.id!==id);
+    saveState();
+    if(selectedBetId===id){
+      selectedBetId=null;
+      document.getElementById("btnToggleRaw").disabled=true;
+      document.getElementById("detailsBox").textContent="Seleziona “Dettagli” su una bet.";
     }
+    deleteConfirmId=null;
+    editingBetId=null;
+    renderAll();
     return;
   }
 
@@ -1595,6 +1684,7 @@ historyList.addEventListener("click",(e)=>{
 
   if(act==="edit"){
     editingBetId = id;
+    deleteConfirmId=null;
     renderHistory();
     return;
   }
@@ -1636,7 +1726,7 @@ historyList.addEventListener("click",(e)=>{
 });
 
 /* =========================
-   Details view (REQ: tutti i campi della notifica)
+   Details view — FULL FIELDS FROM NOTIFICATION
 ========================= */
 function renderDetails(b){
   const box=document.getElementById("detailsBox");
@@ -1645,7 +1735,7 @@ function renderDetails(b){
     return;
   }
   if(showRaw){
-    document.getElementById("btnToggleRaw").textContent="Mostra vista leggibile";
+    document.getElementById("btnToggleRaw").textContent="Mostra vista completa";
     box.innerHTML = `<pre class="mono" style="white-space:pre-wrap;margin:0">${escapeHtml(JSON.stringify(b,null,2))}</pre>`;
     return;
   }
@@ -1661,15 +1751,33 @@ function renderDetails(b){
       </div>
     </div>`;
 
-  const sMeta = sec("META", [
+  const sINFO = sec("INFO", [
     ["Data", b.date],
-    ["Ver", b.meta?.Ver || "—"],
     ["Metodo", b.meta?.Method || "—"],
     ["Competizione", b.meta?.Comp || "—"],
     ["Match", b.meta?.Match || "—"],
+    ["Pick (label)", formatPick(b)],
+    ["Esito", b.result],
+    ["Profitto", (b.result==="win"||b.result==="loss") ? fmtMoney(b.profit_real) : "—"]
   ]);
 
-  const sOddsToBet = sec("ODDS_TO_BET", [
+  const sMETA = sec("META (da notifica)", [
+    ["Ver", b.meta?.Ver ?? "—"],
+    ["Method", b.meta?.Method ?? "—"],
+    ["Comp", b.meta?.Comp ?? "—"],
+    ["Match", b.meta?.Match ?? "—"]
+  ]);
+
+  const sSTATE = sec("STATE (da notifica)", [
+    ["Time", String(b.state?.Time ?? "—")],
+    ["RemHT", String(b.state?.RemHT ?? "—")],
+    ["RemFT", String(b.state?.RemFT ?? "—")],
+    ["Score", b.state?.ScoreRaw || "—"],
+    ["ScoreHome", String(b.state?.ScoreHome ?? "—")],
+    ["ScoreAway", String(b.state?.ScoreAway ?? "—")]
+  ]);
+
+  const sODDS = sec("ODDS_TO_BET (da notifica)", [
     ["Label", b.odds_to_bet?.label ?? "—"],
     ["Phase", b.odds_to_bet?.phase ?? "—"],
     ["Market", b.odds_to_bet?.market ?? "—"],
@@ -1677,19 +1785,12 @@ function renderDetails(b){
     ["Odds ref", String(b.odds_to_bet?.odds_ref ?? "—")]
   ]);
 
-  const sExecution = sec("EXECUTION", [
-    ["Stake suggerito", fmtMoney(b.execution?.stake_suggested)],
-    ["Stake reale", fmtMoney(b.execution?.stake_played)],
-    ["Odds reale", String(b.execution?.odds_played ?? "—")],
-    ["Esito", b.result],
-    ["Profitto", (b.result==="win"||b.result==="loss") ? fmtMoney(b.profit_real) : "—"]
-  ]);
-
-  const sState = sec("STATE", [
-    ["Time", String(b.state?.Time ?? "—")],
-    ["RemHT", String(b.state?.RemHT ?? "—")],
-    ["RemFT", String(b.state?.RemFT ?? "—")],
-    ["Score", b.state?.ScoreRaw || "—"]
+  const sLP = sec("LP (da notifica)", [
+    ["WR", b.lp?.WR===null ? "—" : (b.lp.WR*100).toFixed(2)+"%"],
+    ["ROI", b.lp?.ROI===null ? "—" : (b.lp.ROI*100).toFixed(2)+"%"],
+    ["Profit", String(b.lp?.Profit ?? "—")],
+    ["AO", String(b.lp?.AO ?? "—")],
+    ["N", String(b.lp?.N ?? "—")]
   ]);
 
   const probRows = [];
@@ -1699,48 +1800,40 @@ function renderDetails(b){
     for(const k of keys) probRows.push([`${phase}(+${k})`, String(obj[k])]);
   };
   addProb("HT"); addProb("FT");
-  const sProb = sec("PROB", probRows.length?probRows:[["—","—"]]);
+  const sPROB = sec("PROB (da notifica)", probRows.length?probRows:[["—","—"]]);
 
   const statsRows = (label, obj)=>{
     if(!obj) return sec(label, [["—","—"]]);
-    const row = (k, v)=>[k, v===null ? "—" : `${v.home ?? "—"} / ${v.away ?? "—"}`];
+    const row = (k, ha)=>[k, (ha?.home===null && ha?.away===null) ? "—" : `${ha.home ?? "—"} / ${ha.away ?? "—"}`];
     return sec(label, [
-      row("SOT (H/A)", obj.SOT),
-      row("SOFF (H/A)", obj.SOFF),
-      row("COR (H/A)", obj.COR),
-      row("ATT (H/A)", obj.ATT),
-      row("DATT (H/A)", obj.DATT),
+      row("SOT", obj.SOT),
+      row("SOFF", obj.SOFF),
+      row("COR", obj.COR),
+      row("ATT", obj.ATT),
+      row("DATT", obj.DATT),
     ]);
   };
-  const sStats = statsRows("STATS", b.stats);
-  const sL10   = statsRows("L10", b.l10);
+  const sSTATS = statsRows("STATS (da notifica)", b.stats);
+  const sL10 = statsRows("L10 (da notifica)", b.l10);
 
   const press = b.press;
-  const sPress = sec("PRESS", press ? [
-    ["GPI M(all)", String(press.GPI?.M_all ?? "—")],
-    ["GPI M(l10)", String(press.GPI?.M_l10 ?? "—")],
-    ["GMS H(all/l10)", `${press.GMS?.H_all ?? "—"} / ${press.GMS?.H_l10 ?? "—"}`],
-    ["GMS A(all/l10)", `${press.GMS?.A_all ?? "—"} / ${press.GMS?.A_l10 ?? "—"}`],
-    ["GMS M(all/l10)", `${press.GMS?.M_all ?? "—"} / ${press.GMS?.M_l10 ?? "—"}`],
-    ["SI M(all/l10)", `${press.SI?.M_all ?? "—"} / ${press.SI?.M_l10 ?? "—"}`],
+  const sPRESS = sec("PRESS (da notifica)", press ? [
+    ["GPI M", String(press.GPI?.M_all ?? "—")],
+    ["GPI L10", String(press.GPI?.M_l10 ?? "—")],
+    ["GMS H", `${press.GMS?.H_all ?? "—"} / ${press.GMS?.H_l10 ?? "—"}`],
+    ["GMS A", `${press.GMS?.A_all ?? "—"} / ${press.GMS?.A_l10 ?? "—"}`],
+    ["GMS M", `${press.GMS?.M_all ?? "—"} / ${press.GMS?.M_l10 ?? "—"}`],
+    ["SI M", `${press.SI?.M_all ?? "—"} / ${press.SI?.M_l10 ?? "—"}`],
   ] : [["—","—"]]);
 
   const late = b.late;
-  const sLate = sec("LATE", late ? [
+  const sLATE = sec("LATE (da notifica)", late ? [
     ["AT", String(late.AT ?? "—")],
     ["L10", String(late.L10 ?? "—")],
     ["L5", String(late.L5 ?? "—")],
   ] : [["—","—"]]);
 
-  const sLP = sec("LP", [
-    ["WR", b.lp?.WR===null ? "—" : (b.lp.WR*100).toFixed(2)+"%"],
-    ["ROI", b.lp?.ROI===null ? "—" : (b.lp.ROI*100).toFixed(2)+"%"],
-    ["Profit", String(b.lp?.Profit ?? "—")],
-    ["AO", String(b.lp?.AO ?? "—")],
-    ["N", String(b.lp?.N ?? "—")]
-  ]);
-
-  const sCalc = sec("CALC", [
+  const sCALC = sec("CALC (app)", [
     ["Fonte stake", b.calc?.stake_source || "—"],
     ["N arch", String(b.calc?.N_archive_at_bet ?? "—")],
     ["P_REF", b.calc?.P_REF===null ? "—" : (b.calc.P_REF*100).toFixed(2)+"%"],
@@ -1751,29 +1844,52 @@ function renderDetails(b){
     ["Needed goals (NEXT)", String(b.calc?.needed_goals ?? "—")]
   ]);
 
-  const sRaw = `
+  const sEXEC = sec("EXECUTION (app)", [
+    ["Odds ref", String(b.execution?.odds_ref ?? "—")],
+    ["Odds giocata", String(b.execution?.odds_played ?? "—")],
+    ["Stake suggerito", fmtMoney(b.execution?.stake_suggested)],
+    ["Stake giocato", fmtMoney(b.execution?.stake_played)]
+  ]);
+
+  const sRAW = `
     <div class="section">
-      <div class="sectionTitle">RAW NOTIFICA</div>
-      <pre class="mono" style="white-space:pre-wrap;margin:0">${escapeHtml(b.raw || "—")}</pre>
+      <div class="sectionTitle">RAW (testo notifica)</div>
+      <pre class="mono" style="white-space:pre-wrap;margin:0;color:rgba(232,238,252,.92)">${escapeHtml(b.raw ?? "—")}</pre>
     </div>
   `;
 
-  box.innerHTML = `<div class="detailsList">${sMeta}${sOddsToBet}${sExecution}${sState}${sStats}${sL10}${sPress}${sLate}${sProb}${sLP}${sCalc}${sRaw}</div>`;
+  box.innerHTML = `<div class="detailsList">
+    ${sINFO}
+    ${sMETA}
+    ${sSTATE}
+    ${sSTATS}
+    ${sL10}
+    ${sPROB}
+    ${sPRESS}
+    ${sLATE}
+    ${sODDS}
+    ${sLP}
+    ${sCALC}
+    ${sEXEC}
+    ${sRAW}
+  </div>`;
 }
 
 /* =========================
-   Backup / Restore + actions
+   Backup / Restore + actions (no browser popup)
 ========================= */
 document.getElementById("btnClearHistory").addEventListener("click", ()=>{
-  if(confirm("Svuotare lo storico?")){
+  const target = document.getElementById("clearHistoryConfirm");
+  showInlineConfirm(target, "Svuotare lo storico?", ()=>{
     state.history=[];
     saveState();
     selectedBetId=null;
     editingBetId=null;
+    deleteConfirmId=null;
     document.getElementById("btnToggleRaw").disabled=true;
     document.getElementById("detailsBox").textContent="Seleziona “Dettagli” su una bet.";
     renderAll();
-  }
+  });
 });
 document.getElementById("btnRecalc").addEventListener("click", ()=>{
   recalcAll();
@@ -1796,27 +1912,25 @@ document.getElementById("restoreFile").addEventListener("change", async (e)=>{
   try{
     const text = await file.text();
     const incoming = JSON.parse(text);
-    const replace = confirm("OK = Sostituisci tutto.\nAnnulla = Unisci (merge).");
-    if(replace){
-      state = incoming;
-    }else{
-      const cur = loadState();
-      const merged = structuredClone(cur);
-      merged.settings = incoming.settings || merged.settings;
-      merged.dailySnapshot = incoming.dailySnapshot || merged.dailySnapshot;
-      const incHist = Array.isArray(incoming.history) ? incoming.history : [];
-      const ids = new Set((merged.history||[]).map(b=>b.id));
-      for(const b of incHist){
-        if(b && b.id && !ids.has(b.id)){
-          merged.history.push(b);
-          ids.add(b.id);
-        }
+
+    // merge by default to avoid data loss
+    const cur = loadState();
+    const merged = structuredClone(cur);
+    merged.settings = incoming.settings || merged.settings;
+    merged.dailySnapshot = incoming.dailySnapshot || merged.dailySnapshot;
+    const incHist = Array.isArray(incoming.history) ? incoming.history : [];
+    const ids = new Set((merged.history||[]).map(b=>b.id));
+    for(const b of incHist){
+      if(b && b.id && !ids.has(b.id)){
+        merged.history.push(b);
+        ids.add(b.id);
       }
-      state = merged;
     }
+    state = merged;
+
     saveState();
     renderAll();
-    document.getElementById("backupMsg").innerHTML = `<div class="okLine">Restore completato.</div>`;
+    document.getElementById("backupMsg").innerHTML = `<div class="okLine">Restore completato (merge).</div>`;
   }catch(err){
     document.getElementById("backupMsg").innerHTML = `<div class="errLine">Errore restore: file non valido.</div>`;
   }finally{
@@ -1847,12 +1961,13 @@ document.getElementById("btnSaveBR").addEventListener("click", ()=>{
   document.getElementById("dashMsg").innerHTML = `<div class="okLine">Bankroll salvato: ${fmtMoney(v)}</div>`;
 });
 document.getElementById("btnNewDay").addEventListener("click", ()=>{
-  if(confirm("Reset snapshot giornaliero?")){
+  const target = document.getElementById("newDayConfirm");
+  showInlineConfirm(target, "Reset snapshot giornaliero?", ()=>{
     state.dailySnapshot.date=null;
     state.dailySnapshot.bankroll=null;
     saveState();
     renderAll();
-  }
+  });
 });
 
 function closedBetsFiltered(range){
@@ -2019,53 +2134,21 @@ function drawProfitChart(closed, mode){
   ctx.fillText(`Cumulato: ${final.toFixed(2)}`, right, top-6);
 }
 
-/* Latest Bets list - stessa grafica dello Storico, senza bottoni */
-function renderDashLatest(){
-  const list = document.getElementById("dashLatestList");
-  const empty = document.getElementById("dashLatestEmpty");
-  if(!list || !empty) return;
-
+function renderLatestBets(){
+  const list = document.getElementById("latestList");
+  const empty = document.getElementById("latestEmpty");
   list.innerHTML="";
   empty.textContent="";
 
   const arr = state.history.slice(0, 6);
   if(arr.length===0){
-    empty.textContent="Nessuna bet da mostrare.";
+    empty.textContent="Nessuna bet ancora.";
     return;
   }
-
   for(const b of arr){
-    const pick = formatPick(b);
-    const method = b.meta?.Method || "—";
-    const match = b.meta?.Match || "—";
-    const stakeS = fmtMoney(b.execution?.stake_suggested);
-    const stakeP = fmtMoney(b.execution?.stake_played);
-    const oddsRef = b.execution?.odds_ref ?? "—";
-    const oddsP = (b.execution?.odds_played ?? "—");
-    const badge = resultBadge(b.result);
-
-    const el = document.createElement("div");
-    el.className="betCard";
-    el.innerHTML = `
-      <div class="betTop">
-        <div class="betTopLeft">
-          <div class="t1">
-            <span class="date mono">${escapeHtml(b.date)}</span>
-            <span class="method">${escapeHtml(method)}</span>
-          </div>
-          <div class="t2 mono">${escapeHtml(match)}</div>
-        </div>
-        <div>${badge}</div>
-      </div>
-
-      <div class="betMid">
-        <span class="chip">Pick <b class="mono">${escapeHtml(pick)}</b></span>
-        <span class="chip">Stake <b class="mono">${escapeHtml(stakeP)}</b> <span class="muted">(${escapeHtml(stakeS)} sug)</span></span>
-        <span class="chip">Odds <b class="mono">${escapeHtml(String(oddsP))}</b> <span class="muted">(${escapeHtml(String(oddsRef))} ref)</span></span>
-        ${profitChip(b)}
-      </div>
-    `;
-    list.appendChild(el);
+    const wrap = document.createElement("div");
+    wrap.innerHTML = renderBetCardHTML(b, {context:"dash"});
+    list.appendChild(wrap.firstElementChild);
   }
 }
 
@@ -2086,7 +2169,7 @@ function renderDashboard(){
 
   drawDonut(t.wins, t.losses);
   drawProfitChart(t.closed, profitRange);
-  renderDashLatest();
+  renderLatestBets();
 }
 
 /* =========================
@@ -2156,7 +2239,6 @@ function renderTimeSummary(){
     const closedN=r.wins+r.losses;
     const wr=closedN>0 ? r.wins/closedN : null;
     const roi=r.stake>0 ? r.profit/r.stake : null;
-
     const roc = (timeGroup==="day" && r.brDay && r.brDay>0) ? (r.profit/r.brDay) : null;
     const status = (timeGroup==="day") ? dayStatusFromROC(roc) : {label:"", cls:""};
 
@@ -2206,8 +2288,10 @@ function renderFilters(){
       g.lastLP = b.lp || null;
     }
 
+    // quota media SOLO per giocate (stake > 0)
     const o = (b.execution?.odds_played ?? b.execution?.odds_ref);
-    if(o && Number(o)>1){ g.oddsSum += Number(o); g.oddsN++; }
+    const st = Number(b.execution?.stake_played)||0;
+    if(st>0 && o && Number(o)>1){ g.oddsSum += Number(o); g.oddsN++; }
 
     if(b.result==="win"||b.result==="loss"){
       g.stake += Number(b.execution.stake_played)||0;
