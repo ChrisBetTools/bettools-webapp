@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>BetTools — index v1.6.2</title>
+  <title>BetTools — index v1.6.3 (Poisson Advanced)</title>
   <style>
     :root{
       --bg:#0b1220;
@@ -373,7 +373,7 @@
     <div class="hamburger" id="hamburger" aria-label="Apri menu" title="Menu"><span></span></div>
     <div class="brand">
       <b>BetTools</b>
-      <small>V3 • NEXT • Stake v1 • UI v1.6.2</small>
+      <small>V3 • ADVANCED • Stake v1.6.3</small>
     </div>
     <div class="spacer"></div>
     <div class="pill" id="pillDaily">
@@ -399,12 +399,11 @@
 
     <div class="sideFooter">
       <div><b class="mono">Notifica V3</b></div>
-      <div>Parser robusto: a capo/spazi ok. NEXT: soglia dipende solo dalla line.</div>
+      <div>Parser robusto. Algoritmo "Poisson Advanced" (SOT, SOFF, COR, SI) con gestione Multi-Goal.</div>
     </div>
   </aside>
 
   <main class="main">
-    <!-- CALCOLATORE -->
     <section class="page active" id="page-calc">
       <h1>Calcolatore</h1>
       <div id="dailyBannerWrap"></div>
@@ -429,7 +428,6 @@
 
           <div id="parseMsg" class="help" style="margin-top:10px"></div>
 
-          <!-- ACTION BLOCK -->
           <div id="actionWrap"></div>
         </div>
 
@@ -464,7 +462,6 @@
       </div>
     </section>
 
-    <!-- STORICO -->
     <section class="page" id="page-storico">
       <h1>Storico</h1>
 
@@ -536,7 +533,6 @@
       </div>
     </section>
 
-    <!-- DASHBOARD -->
     <section class="page" id="page-dash">
       <h1>Dashboard</h1>
 
@@ -557,7 +553,6 @@
           </div>
         </div>
 
-        <!-- 3 righe esatte (2 colonne) = 6 KPI -->
         <div class="kpiGrid" id="dashKpis"></div>
       </div>
 
@@ -597,7 +592,6 @@
         </div>
       </div>
 
-      <!-- Latest Bets -->
       <div class="card" style="margin-top:12px">
         <div class="cardHeader">
           <div>
@@ -636,7 +630,6 @@
       </div>
     </section>
 
-    <!-- TIME SUMMARY -->
     <section class="page" id="page-time">
       <h1>Riepilogo temporale</h1>
 
@@ -675,7 +668,6 @@
       </div>
     </section>
 
-    <!-- FILTER SUMMARY -->
     <section class="page" id="page-filters">
       <h1>Riepilogo per filtri</h1>
 
@@ -706,9 +698,9 @@
 /* =========================
    State
 ========================= */
-const STORAGE_KEY = "bettools_v3_uiv162";
+const STORAGE_KEY = "bettools_v3_uiv163";
 const DEFAULT_STATE = {
-  version: "V3_SIMPLIFIED_UI162",
+  version: "V3_POISSON_ADVANCED",
   settings: { bankroll: 1000 },
   dailySnapshot: { date: null, bankroll: null },
   history: []
@@ -1022,7 +1014,7 @@ function parseNotification(text){
 }
 
 /* =========================
-   Stake v1 (NEXT) — ALWAYS RETURNS STAKE%
+   STAKE V1.6.3 (POISSON ADVANCED: SOT, SOFF, COR, SI)
 ========================= */
 function betKeyFromParsed(parsed){
   const m = parsed.meta.Method || "";
@@ -1031,20 +1023,7 @@ function betKeyFromParsed(parsed){
   const line = parsed.oddsToBet.line;
   return `${m}||${phase}||${market}||${line ?? ""}`.trim();
 }
-function neededGoalsFromLine_NEXT(line){
-  if(line===null) return null;
-  return Math.floor(line) + 1;
-}
-function pickMatchProbability_NEXT(parsed){
-  const phase = parsed.oddsToBet.phase;
-  const line = parsed.oddsToBet.line;
-  if(!phase || line===null) return {p:null, needed:null, reason:"Phase o Line non disponibili"};
-  const needed = neededGoalsFromLine_NEXT(line);
-  const table = (phase==="HT") ? parsed.prob.HT : parsed.prob.FT;
-  const p = table ? table[needed] : null;
-  if(p === undefined || p === null) return {p:null, needed, reason:`Manca PROB ${phase}(+${needed})`};
-  return {p, needed, reason:null};
-}
+
 function getArchiveStatsForKey(key){
   const closed = state.history.filter(b => b.key===key && (b.result==="win" || b.result==="loss"));
   const N = closed.length;
@@ -1052,79 +1031,173 @@ function getArchiveStatsForKey(key){
   const wins = closed.filter(b=>b.result==="win").length;
   return {N, winrate: wins/N};
 }
-function calcStakeV1(parsed){
-  const key = betKeyFromParsed(parsed);
-  const odds = parsed.oddsToBet.odds_ref;
-  const lpWR = parsed.lp.WR;
 
-  const matchP = pickMatchProbability_NEXT(parsed);
-  const P_MATCH = matchP.p;
-  const arch = getArchiveStatsForKey(key);
-  const P_ARCH = arch.winrate;
-  const N = arch.N;
+/* NEW: Comprehensive Live Poisson (SOT, SOFF, COR, SI) */
+function calculateLivePoisson(parsed, neededGoals) {
+  const target = neededGoals || 1;
+  const timePlayed = parsed.state.Time || 1;
+  const remMin = parsed.state.RemFT || 0;
+  
+  if (remMin <= 0) return { p: 0, lambda: 0, reason: "Tempo scaduto" };
 
-  const warnings = [];
-  if(odds===null || odds<=1) return {ok:false, reason:"Quota ODDS_TO_BET non valida", warnings, key};
-  if(P_MATCH===null) warnings.push(matchP.reason || "Prob match non disponibile");
-  if(lpWR===null) warnings.push("LP.WR non disponibile");
-  if(P_ARCH===null) warnings.push("Archivio: nessuna bet chiusa per questo filtro (N=0)");
+  // Helper somme
+  const getSum = (pair) => ((pair?.home || 0) + (pair?.away || 0));
 
-  let P_REF=null, source="LP/MATCH";
-  if(N < 50){
-    if(lpWR!==null && P_MATCH!==null) P_REF = 0.6*lpWR + 0.4*P_MATCH;
-    else P_REF = (lpWR!==null) ? lpWR : P_MATCH;
-  }else{
-    source="ARCH/MATCH";
-    if(P_ARCH!==null && P_MATCH!==null) P_REF = 0.6*P_ARCH + 0.4*P_MATCH;
-    else P_REF = (P_ARCH!==null) ? P_ARCH : P_MATCH;
+  // --- 1. ESTRAZIONE DATI COMPLETI (All-Time & L10) ---
+  const tot_sot  = getSum(parsed.stats?.SOT);
+  const tot_soff = getSum(parsed.stats?.SOFF);
+  const tot_cor  = getSum(parsed.stats?.COR);
+  const tot_datt = getSum(parsed.stats?.DATT);
+
+  const l10_sot  = getSum(parsed.l10?.SOT);
+  const l10_soff = getSum(parsed.l10?.SOFF);
+  const l10_cor  = getSum(parsed.l10?.COR);
+  const l10_datt = getSum(parsed.l10?.DATT);
+
+  // Ratei per minuto
+  const r_sot_all  = tot_sot / timePlayed;
+  const r_soff_all = tot_soff / timePlayed;
+  const r_cor_all  = tot_cor / timePlayed;
+  const r_datt_all = tot_datt / timePlayed;
+
+  const r_sot_l10  = l10_sot / 10;
+  const r_soff_l10 = l10_soff / 10;
+  const r_cor_l10  = l10_cor / 10;
+  const r_datt_l10 = l10_datt / 10;
+
+  // --- 2. BLENDING TEMPORALE (60% Storia / 40% Forma Recente) ---
+  const w_all = 0.60;
+  const w_l10 = 0.40;
+
+  const final_r_sot  = (r_sot_all * w_all) + (r_sot_l10 * w_l10);
+  const final_r_soff = (r_soff_all * w_all) + (r_soff_l10 * w_l10);
+  const final_r_cor  = (r_cor_all * w_all) + (r_cor_l10 * w_l10);
+  const final_r_datt = (r_datt_all * w_all) + (r_datt_l10 * w_l10);
+
+  // --- 3. CALCOLO RAW xG (Expected Goals "Grezzi") ---
+  const xG_SOT  = (final_r_sot * remMin) / 3.5;   // 1 gol ogni 3.5 tiri in porta
+  const xG_SOFF = (final_r_soff * remMin) / 12.0; // 1 gol ogni 12 tiri fuori
+  const xG_COR  = (final_r_cor * remMin) / 25.0;  // 1 gol ogni 25 corner
+  const xG_DATT = (final_r_datt * remMin) / 40.0; // 1 gol ogni 40 attacchi pericolosi
+
+  // Somma pesata (Priorità ai tiri 70%)
+  let lambda = (xG_SOT * 0.50) + (xG_SOFF * 0.20) + (xG_COR * 0.15) + (xG_DATT * 0.15);
+
+  // --- 4. APPLICAZIONE SI (Inefficienza) ---
+  let si_val = parsed.press?.SI?.M_all;
+  
+  if (si_val === null || si_val === undefined) {
+    const totalShots = tot_sot + tot_soff;
+    const currentGoals = (parsed.state.ScoreHome || 0) + (parsed.state.ScoreAway || 0);
+    const ratio = totalShots / (currentGoals + 1);
+    si_val = Math.min(100, ratio * 8); 
   }
-  if(N>=30 && N<70){
-    const w=(N-30)/40;
-    const left = (lpWR!==null && P_MATCH!==null) ? (0.6*lpWR + 0.4*P_MATCH) : ((lpWR!==null)?lpWR:P_MATCH);
-    const right = (P_ARCH!==null && P_MATCH!==null) ? (0.6*P_ARCH + 0.4*P_MATCH) : ((P_ARCH!==null)?P_ARCH:P_MATCH);
-    if(left!==null && right!==null) {
-      P_REF = (1-w)*left + w*right;
-      source="BLEND";
-    }
+
+  let efficiencyFactor = 1.0;
+  if (si_val > 50) {
+    // SI=80 -> Penalità -15% circa
+    const penalty = (si_val - 50) * 0.008; 
+    efficiencyFactor = Math.max(0.6, 1.0 - penalty);
+  } else {
+    // SI=30 -> Bonus leggero
+    const bonus = (50 - si_val) * 0.003;
+    efficiencyFactor = 1.0 + bonus; 
   }
 
-  const implied = (odds>1) ? 1/odds : null;
-  const edge = (P_REF!==null && implied!==null) ? (P_REF - implied) : null;
+  lambda = lambda * efficiencyFactor;
 
-  let stakePct = 0.02;
-  let kelly = null;
+  // --- 5. POISSON ALGORITMO ---
+  const P_0 = Math.exp(-lambda); 
+  let prob_success = 0;
 
-  if(P_REF!==null && edge!==null){
-    if(edge>0){
-      kelly = edge / (odds - 1);
-      let kAdj = 0.5 * kelly;
-      stakePct = clamp(kAdj, 0.02, 0.05);
-    }else{
-      stakePct = 0.02;
-      warnings.push("Edge negativo: stake impostato al minimo (2%)");
-    }
-  }else{
-    warnings.push("Probabilità insufficiente: stake impostato al minimo (2%)");
-  }
-
-  if(N < 50 && stakePct >= 0.05){
-    stakePct = 0.04;
-    warnings.push("N<50: cap stake al 4% (mai massimo stake)");
-  }
-  if(parsed.lp.N!==null && parsed.lp.N < 500){
-    stakePct *= 0.8;
-    stakePct = Math.max(stakePct, 0.02);
-    warnings.push("LP.N<500: stake ridotto del 20%");
+  if (target === 1) {
+    prob_success = 1 - P_0;
+  } 
+  else if (target === 2) {
+    const P_1 = lambda * Math.exp(-lambda);
+    prob_success = 1 - (P_0 + P_1);
+  } 
+  else if (target >= 3) {
+    const P_1 = lambda * Math.exp(-lambda);
+    const P_2 = (Math.pow(lambda, 2) * Math.exp(-lambda)) / 2;
+    prob_success = 1 - (P_0 + P_1 + P_2);
   }
 
   return {
-    ok:true,
+    p: prob_success,
+    lambda: lambda,
+    details: `λ: ${lambda.toFixed(2)} (Eff: ${Math.round(efficiencyFactor*100)}%) • Target: ${target}+`
+  };
+}
+
+/* Main Stake Logic */
+function calcStakeV1(parsed){
+  const key = betKeyFromParsed(parsed);
+  const odds = parsed.oddsToBet.odds_ref;
+  
+  // 1. DETERMINIAMO IL TARGET DI GOL
+  const line = parsed.oddsToBet.line;
+  const needed = (line !== null) ? (Math.floor(line) + 1) : 1;
+
+  // 2. Calcolo Poisson Live
+  const poissonData = calculateLivePoisson(parsed, needed);
+  const P_LIVE = poissonData.p;
+  
+  // 3. Recupero Storico e LP
+  const arch = getArchiveStatsForKey(key);
+  const P_ARCH = arch.winrate;
+  const N_ARCH = arch.N;
+  const P_LP = parsed.lp.WR !== null ? parsed.lp.WR : 0.55;
+
+  const warnings = [];
+  if(odds === null || odds <= 1) return {ok:false, reason:"Quota non valida", warnings, key};
+  
+  // 4. Blending
+  let P_FINAL = 0;
+  let source = "";
+
+  if (N_ARCH < 20) {
+    P_FINAL = (P_LIVE * 0.5) + (P_LP * 0.5);
+    source = "Mix LIVE/LP";
+  } else {
+    P_FINAL = (P_LIVE * 0.4) + (P_LP * 0.3) + (P_ARCH * 0.3);
+    source = "Mix LIVE/LP/ARCH";
+  }
+
+  // 5. Calcolo Stake
+  const implied = 1 / odds;
+  const edge = P_FINAL - implied;
+  let stakePct = 0.02; 
+  
+  if (edge > 0) {
+    const kelly = edge / (odds - 1);
+    let rawStake = kelly * 0.25; // 1/4 Kelly
+    stakePct = clamp(rawStake, 0.02, 0.05);
+  } else {
+    warnings.push(`No Edge (P:${fmtPct(P_FINAL)} < Q:${fmtPct(implied)})`);
+    stakePct = 0.02;
+  }
+
+  // Penalità extra se Poisson Live è basso
+  if (needed >= 2 && poissonData.lambda < 1.2) {
+    stakePct = 0.02;
+    warnings.push(`Rischio: servono ${needed} gol ma xG=${poissonData.lambda.toFixed(2)}`);
+  } else if (needed === 1 && poissonData.lambda < 0.5) {
+    stakePct = 0.02;
+    warnings.push("Partita bloccata (xG < 0.5)");
+  }
+
+  warnings.push(`Target: Over ${line} (+${needed} goals)`);
+  warnings.push(`Live xG(λ): ${poissonData.lambda.toFixed(2)}`);
+
+  return {
+    ok: true,
     key, source,
-    N_archive:N,
-    P_REF, implied, edge,
-    kelly,
-    stake_pct:stakePct,
-    needed_goals: matchP.needed,
+    N_archive: N_ARCH,
+    P_REF: P_FINAL,
+    implied, edge,
+    stake_pct: stakePct,
+    needed_goals: needed,
     warnings
   };
 }
@@ -1309,7 +1382,8 @@ btnParse.addEventListener("click", ()=>{
           <div class="sub">Stake%: <span class="mono">${escapeHtml(fmtPct(lastStake.stake_pct))}</span> • BR base: <span class="mono">${escapeHtml(fmtMoney(brBase))}</span></div>
         </div>
         <div class="right">
-          <div class="pillMini">PROB: <b class="mono">${escapeHtml(lastParsed.oddsToBet.phase||"—")}(+${needed})</b></div>
+          <div class="pillMini">TARGET: <b class="mono">${escapeHtml(lastParsed.oddsToBet.phase||"—")} Over ${escapeHtml(lastParsed.oddsToBet.line??"")}</b></div>
+          <div class="pillMini">Goals required: <b class="mono">${needed}</b></div>
           <div class="pillMini">Fonte: <b>${escapeHtml(lastStake.source||"—")}</b> • N arch: <b class="mono">${lastStake.N_archive ?? 0}</b></div>
         </div>
       </div>
@@ -1378,7 +1452,7 @@ btnAddToHistory.addEventListener("click", ()=>{
       P_REF: lastStake.P_REF,
       implied_prob: lastStake.implied,
       edge: lastStake.edge,
-      kelly: lastStake.kelly,
+      kelly: lastStake.kelly, // can be undefined
       stake_suggested_pct: lastStake.stake_pct,
       bankroll_day: brDay,
       needed_goals: lastStake.needed_goals
