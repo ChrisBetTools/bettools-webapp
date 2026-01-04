@@ -1,1799 +1,2041 @@
-<!doctype html>
-<html lang="it" data-theme="dark">
+<!DOCTYPE html>
+<html lang="it">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BetTools — index v1.7</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>LivePick iOS26 — v1.7</title>
   <style>
     :root{
-      --bg:#0b0f1a;
-      --panel:#10182a;
-      --panel2:#0f1729;
-      --stroke: rgba(255,255,255,.08);
-      --stroke2: rgba(255,255,255,.12);
-      --text:#f0f6ff;
-      --muted: rgba(159,176,208,.85);
-      --good:#19c37d;
-      --bad:#ff4d4f;
-      --warn:#fbbf24;
-      --chip: rgba(255,255,255,.06);
-      --radius-xl: 16px;
-      --radius: 12px;
-      --shadow: 0 10px 25px rgba(0,0,0,.35);
+      --bg:#0b0f19;
+      --card:#101a2b;
+      --card2:#0f1626;
+      --muted:#8aa0c2;
+      --text:#e8f0ff;
+      --line:rgba(255,255,255,.08);
+      --accent:#4aa3ff;
+      --accent2:#7c5cff;
+      --good:#35d07f;
+      --bad:#ff5d5d;
+      --warn:#ffcc66;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:16px;
+      --radius2:22px;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --sans: -apple-system, BlinkMacSystemFont, "SF Pro Display","SF Pro Text","Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
-    *{box-sizing:border-box}
+
+    html,body{ height:100%; }
     body{
       margin:0;
-      font-family: var(--sans);
-      background: radial-gradient(1400px 900px at 20% -10%, rgba(80,80,255,.10), transparent 60%),
-                  radial-gradient(900px 700px at 100% 0%, rgba(25,195,125,.10), transparent 55%),
+      background: radial-gradient(1200px 900px at 20% -10%, rgba(124,92,255,.15), transparent 55%),
+                  radial-gradient(1000px 700px at 110% 10%, rgba(74,163,255,.15), transparent 55%),
                   var(--bg);
-      color: var(--text);
+      color:var(--text);
+      font-family:var(--sans);
+      -webkit-font-smoothing: antialiased;
+      overflow-x:hidden;
     }
+
     .app{
       display:flex;
       flex-direction:column;
       min-height:100vh;
-    }
-    header{
-      position:sticky; top:0; z-index:20;
-      display:flex; align-items:center; gap:12px;
-      padding:12px 14px;
-      background: color-mix(in srgb, var(--panel) 82%, black);
-      border-bottom: 1px solid var(--stroke);
-      backdrop-filter: blur(8px);
-    }
-    .brand{display:flex; flex-direction:column; line-height:1.05}
-    .brand small{color:var(--muted); font-weight:600}
-    .spacer{flex:1}
-    .btn{
-      border:1px solid var(--stroke2);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      padding:8px 10px;
-      border-radius: 12px;
-      cursor:pointer;
-      font-weight:700;
-    }
-    .btn:hover{background: rgba(255,255,255,.10)}
-    .btn:disabled{opacity:.45; cursor:not-allowed}
-    .btn.good{border-color: rgba(25,195,125,.35); background: rgba(25,195,125,.10)}
-    .btn.bad{border-color: rgba(255,77,79,.35); background: rgba(255,77,79,.10)}
-    .nav{
-      position:sticky; bottom:0; z-index:20;
-      display:flex; gap:8px;
-      padding:10px 10px;
-      background: color-mix(in srgb, var(--panel) 86%, black);
-      border-top: 1px solid var(--stroke);
-    }
-    .nav button{
-      flex:1;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.04);
-      color: var(--muted);
-      padding:10px 10px;
-      border-radius: 14px;
-      font-weight:800;
-      cursor:pointer;
-    }
-    .nav button.active{
-      color: var(--text);
-      border-color: rgba(25,195,125,.35);
-      background: rgba(25,195,125,.08);
-    }
-    main{
-      padding: 14px 12px 80px;
-      max-width: 1100px;
-      width:100%;
-      margin: 0 auto;
-    }
-    h1{font-size:22px; margin: 6px 0 12px}
-    .grid{display:grid; gap:12px}
-    .grid.two{grid-template-columns: 1fr 1fr}
-    @media (max-width: 920px){ .grid.two{grid-template-columns:1fr} }
-    .card{
-      border:1px solid var(--stroke);
-      border-radius: var(--radius-xl);
-      background: color-mix(in srgb, var(--panel2) 84%, black);
-      box-shadow: var(--shadow);
-      padding: 12px;
-    }
-    .cardHeader{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
-      margin-bottom:10px;
-    }
-    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-    .help{color: var(--muted); font-weight:600; font-size: 12.5px}
-    .mono{font-family: var(--mono)}
-    textarea{
-      width:100%;
-      min-height: 180px;
-      padding:10px 12px;
-      border-radius: 14px;
-      border:1px solid var(--stroke);
-      background: rgba(0,0,0,.20);
-      color: var(--text);
-      font-family: var(--mono);
-      line-height: 1.3;
-      resize: vertical;
-      outline:none;
-    }
-    input, select{
-      padding:9px 10px;
-      border-radius: 12px;
-      border:1px solid var(--stroke);
-      background: rgba(0,0,0,.20);
-      color: var(--text);
-      outline:none;
-      width:100%;
-    }
-    input[type="number"]{font-family:var(--mono)}
-    .kpiGrid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-    .kpi{
-      padding:10px 12px;
-      border-radius:var(--radius-xl);
-      border:1px solid var(--stroke);
-      background: color-mix(in srgb, var(--panel) 84%, black);
-    }
-    .kpi .label{color:var(--muted); font-weight:800; font-size: 12px}
-    .kpi .value{font-size: 18px; font-weight:900; margin-top:4px}
-    .chip{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding:6px 9px;
-      border-radius: 999px;
-      border:1px solid var(--stroke);
-      background: var(--chip);
-      font-weight:800;
-      color: var(--text);
-    }
-    .muted{color:var(--muted)}
-    .badge{
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight:900;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.05);
-      color: var(--muted);
-    }
-    .badge.good{border-color: rgba(25,195,125,.35); color: rgba(25,195,125,.95); background: rgba(25,195,125,.08)}
-    .badge.bad{border-color: rgba(255,77,79,.35); color: rgba(255,77,79,.95); background: rgba(255,77,79,.08)}
-    .badge.warn{border-color: rgba(251,191,36,.35); color: rgba(251,191,36,.95); background: rgba(251,191,36,.08)}
-    .hr{height:1px; background: var(--stroke); margin:10px 0}
-    .betCard{
-      border:1px solid var(--stroke);
-      border-radius: var(--radius-xl);
-      background: rgba(255,255,255,.03);
-      padding: 12px;
-      margin-bottom: 10px;
-    }
-    .betCard .t1{display:flex; gap:10px; align-items:center; justify-content:space-between}
-    .betCard .t2{margin-top:6px; font-weight:800}
-    .betCard .actions{margin-top:10px; display:flex; gap:8px; flex-wrap:wrap}
-    .miniBtn{
-      border:1px solid var(--stroke2);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      padding:6px 9px;
-      border-radius: 12px;
-      cursor:pointer;
-      font-weight:900;
-      font-size: 12px;
-    }
-    .miniBtn:hover{background: rgba(255,255,255,.10)}
-    .miniBtn.danger{border-color: rgba(255,77,79,.35); background: rgba(255,77,79,.10)}
-    .miniBtn.good{border-color: rgba(25,195,125,.35); background: rgba(25,195,125,.10)}
-    .miniBtn.warn{border-color: rgba(251,191,36,.35); background: rgba(251,191,36,.10)}
-    pre{
-      white-space: pre-wrap;
-      word-break: break-word;
-      margin:0;
-      font-family: var(--mono);
-      font-size: 12px;
-      color: rgba(240,246,255,.92);
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
-  /* v1.7 fixes */
-  html, body { height: 100%; }
-  canvas#donut { width: 180px; height: 180px; aspect-ratio: 1 / 1; }
-  @media (max-width: 520px){
-    canvas#donut { width: 160px; height: 160px; }
-  }
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      padding: 14px 14px 10px 14px;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background: linear-gradient(to bottom, rgba(11,15,25,.88), rgba(11,15,25,.65));
+      border-bottom:1px solid var(--line);
+    }
+
+    .toprow{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .hamb{
+      width:42px;height:42px;border-radius:14px;
+      display:grid;place-items:center;
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      box-shadow: var(--shadow);
+      cursor:pointer;
+      user-select:none;
+    }
+    .hamb:active{ transform:scale(.98); }
+
+    .brand{
+      display:flex;flex-direction:column;gap:2px;
+      margin-right:auto;
+    }
+    .brand b{
+      font-size:15px;
+      letter-spacing:.2px;
+    }
+    .brand small{
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .pill{
+      padding:8px 12px;
+      border-radius:999px;
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      color:var(--text);
+      font-size:12px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      box-shadow: var(--shadow);
+      white-space:nowrap;
+    }
+    .pill .dot{
+      width:8px;height:8px;border-radius:50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(74,163,255,.12);
+    }
+
+    .drawer{
+      position:fixed;
+      inset:0;
+      z-index:80;
+      display:none;
+    }
+    .drawer.open{ display:block; }
+    .drawer .backdrop{
+      position:absolute; inset:0;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(6px);
+    }
+    .drawer .panel{
+      position:absolute;
+      top:0; left:0;
+      width:min(320px, 86vw);
+      height:100%;
+      background: linear-gradient(180deg, rgba(16,26,43,.98), rgba(16,26,43,.92));
+      border-right:1px solid var(--line);
+      box-shadow: var(--shadow);
+      padding: 18px 14px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .menuTitle{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:4px;
+    }
+    .menuTitle b{ font-size:15px; }
+    .menuTitle small{ color:var(--muted); font-size:12px; }
+
+    .navbtn{
+      display:flex; align-items:center; gap:10px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      cursor:pointer;
+      user-select:none;
+    }
+    .navbtn.active{
+      background: rgba(74,163,255,.14);
+      border-color: rgba(74,163,255,.35);
+    }
+    .navbtn .ic{
+      width:30px; height:30px; border-radius:12px;
+      display:grid;place-items:center;
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      font-size:16px;
+    }
+    .navbtn .txt{ display:flex; flex-direction:column; gap:2px; }
+    .navbtn .txt b{ font-size:13px; }
+    .navbtn .txt small{ font-size:12px; color:var(--muted); }
+
+    main{
+      flex:1;
+      padding: 14px;
+      max-width: 920px;
+      margin: 0 auto;
+      width:100%;
+      box-sizing:border-box;
+    }
+
+    .page{ display:none; }
+    .page.active{ display:block; }
+
+    .card{
+      background: linear-gradient(180deg, rgba(16,26,43,.86), rgba(15,22,38,.86));
+      border: 1px solid var(--line);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+
+    .card h2{
+      margin:0 0 10px 0;
+      font-size:15px;
+      letter-spacing:.2px;
+    }
+
+    .row{ display:flex; align-items:center; gap:10px; }
+    .row.wrap{ flex-wrap:wrap; }
+
+    .help{ color:var(--muted); font-size:12px; line-height:1.35; }
+    .mono{ font-family: var(--mono); }
+
+    textarea, input, select{
+      width:100%;
+      box-sizing:border-box;
+      background: rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      color:var(--text);
+      font-size:14px;
+      outline:none;
+      font-family: var(--sans);
+    }
+    textarea{ resize: vertical; min-height: 180px; }
+    input[type="date"]{ color-scheme: dark; }
+
+    .btn{
+      padding: 11px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      cursor:pointer;
+      user-select:none;
+      font-size:13px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+    }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(74,163,255,.9), rgba(124,92,255,.88));
+      border-color: rgba(124,92,255,.35);
+    }
+    .btn.danger{
+      background: rgba(255,93,93,.12);
+      border-color: rgba(255,93,93,.35);
+    }
+    .btn:active{ transform: scale(.99); }
+
+    .kpi{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .kpi .box{
+      background: rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .kpi .box b{ font-size:13px; }
+    .kpi .box .v{ font-size:18px; margin-top:4px; }
+    .kpi .box .s{ font-size:12px; color:var(--muted); margin-top:2px; }
+
+    .pillMini{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      font-size:12px;
+      color:var(--text);
+      white-space:nowrap;
+    }
+
+    .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+
+    .list{ display:flex; flex-direction:column; gap:10px; }
+
+    .bet{
+      border-radius: var(--radius2);
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      padding: 12px;
+    }
+    .betTop{
+      display:flex; align-items:flex-start; gap:10px;
+    }
+    .betTop .left{ flex:1; min-width:0; }
+    .betTop .left b{ font-size:13px; }
+    .betTop .left .sub{ margin-top:3px; color:var(--muted); font-size:12px; }
+    .betTop .right{ display:flex; gap:8px; align-items:center; }
+    .tag{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      font-size:12px;
+    }
+    .tag.win{ border-color: rgba(53,208,127,.35); background: rgba(53,208,127,.10); }
+    .tag.loss{ border-color: rgba(255,93,93,.35); background: rgba(255,93,93,.10); }
+    .tag.pending{ border-color: rgba(255,204,102,.35); background: rgba(255,204,102,.10); }
+    .tag.noplay{ border-color: rgba(138,160,194,.35); background: rgba(138,160,194,.10); }
+
+    .betBody{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+
+    .kv{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.10);
+      border-radius: 14px;
+      padding: 10px;
+    }
+    .kv small{ color:var(--muted); display:block; font-size:12px; }
+    .kv b{ font-size:14px; }
+
+    details.card{ padding: 12px 14px; }
+    details.card summary{ cursor:pointer; }
+    details.card[open]{ outline:none; }
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      font-size:12px;
+    }
+    th, td{
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line);
+      text-align:left;
+      vertical-align: top;
+    }
+    th{ color:var(--muted); font-weight:600; }
+    tr:last-child td{ border-bottom:none; }
+
+    canvas{ width:100% !important; height:190px !important; }
+
+    @media (max-width:420px){
+      main{ padding: 12px; }
+      .kpi{ grid-template-columns: 1fr 1fr; }
+      canvas{ height:170px !important; }
+    }
   </style>
 </head>
 <body>
-<div class="app">
-  <header>
-    <div class="brand">
-      <b>BetTools</b>
-      <small>V3 • NEXT • Stake v1 • UI v1.7</small>
+  <div class="app">
+    <header class="topbar">
+      <div class="toprow">
+        <div class="hamb" id="btnHamb" aria-label="Menu">☰</div>
+
+        <div class="brand">
+          <b>LivePick iOS26</b>
+          <small>UI v1.7 • mobile-first</small>
+        </div>
+
+        <div class="pill" id="dayPill"><span class="dot"></span><span id="dayPillTxt">Giornata: —</span></div>
+      </div>
+    </header>
+
+    <div class="drawer" id="drawer">
+      <div class="backdrop" id="drawerBackdrop"></div>
+      <div class="panel">
+        <div class="menuTitle">
+          <b>Menu</b>
+          <small class="mono">v1.7</small>
+        </div>
+
+        <div class="navbtn active" data-page="calc">
+          <div class="ic">🧮</div>
+          <div class="txt"><b>Calcolatori</b><small>parse + EV + stake</small></div>
+        </div>
+
+        <div class="navbtn" data-page="storico">
+          <div class="ic">📜</div>
+          <div class="txt"><b>Storico</b><small>pending / win / loss</small></div>
+        </div>
+
+        <div class="navbtn" data-page="dashboard">
+          <div class="ic">📊</div>
+          <div class="txt"><b>Dashboard</b><small>profit / ROI / WR</small></div>
+        </div>
+
+        <div class="navbtn" data-page="time">
+          <div class="ic">🕒</div>
+          <div class="txt"><b>Riepilogo temporale</b><small>giorno/mese/trimestre</small></div>
+        </div>
+
+        <div class="navbtn" data-page="filters">
+          <div class="ic">🧩</div>
+          <div class="txt"><b>Riepilogo filtri</b><small>per Method</small></div>
+        </div>
+
+        <div style="margin-top:auto" class="help">
+          Suggerimento: incolla una notifica in <b>Calcolatori</b> e premi <b>Parse</b>.
+        </div>
+      </div>
     </div>
-    <div class="spacer"></div>
-    <button class="btn" id="btnExport">Export JSON</button>
-    <button class="btn" id="btnImport">Import JSON</button>
-    <input id="fileImport" type="file" accept=".json" style="display:none" />
-  </header>
 
-  <main>
-    <!-- CALCOLATORI -->
-    <section class="page" id="page-calc">
-      <h1>Calcolatori</h1>
-
-      <div class="card">
-        <div class="cardHeader">
-          <div>
-            <b>Giornata</b><br/>
-            <small class="muted">Target profit: +3% ROC • Stop loss: −10% ROC</small>
-          </div>
-          <div class="row">
-            <span class="chip">BR day <b class="mono" id="brDayChip">—</b></span>
-            <span class="chip">ROC <b class="mono" id="rocChip">—</b></span>
+    <main>
+      <!-- CALC -->
+      <section class="page active" id="page-calc">
+        <div class="card">
+          <h2>Risultato giornata</h2>
+          <div class="kpi">
+            <div class="box">
+              <b>Bankroll giorno</b>
+              <div class="v mono" id="kpiDayBR">—</div>
+              <div class="s">base calcoli (si fissa alla 1ª bet del giorno)</div>
+            </div>
+            <div class="box">
+              <b>ROC oggi</b>
+              <div class="v mono" id="kpiDayROC">—</div>
+              <div class="s" id="kpiStopTxt">—</div>
+            </div>
           </div>
         </div>
-        <div id="dayBanner" class="help"></div>
-      </div>
 
-      <div class="grid two" style="margin-top:12px">
+        <div style="height:12px"></div>
+
         <div class="card">
-          <div class="cardHeader">
-            <div>
-              <b>Notifica LivePick</b><br/>
-              <small>Incolla la notifica, poi “Parse”.</small>
-            </div>
-            <div class="row">
-              <button class="btn" id="btnParse">Parse</button>
-              <button class="btn" id="btnClear">Pulisci</button>
-            </div>
-          </div>
+          <h2>Notifica LivePick</h2>
           <textarea id="notifText" placeholder="Incolla qui la notifica..."></textarea>
-
           <div class="row" style="margin-top:10px">
-            <button class="btn good" id="btnAddToHistory" disabled>➕ Aggiungi a storico</button>
+            <button class="btn primary" id="btnParse">Parse</button>
+            <button class="btn" id="btnClear">Pulisci</button>
+            <span class="help" id="parseHint" style="margin-left:auto"></span>
           </div>
+          <div id="parseMsg" class="help" style="margin-top:10px"></div>
 
-          <div class="help" id="parseErrors" style="margin-top:8px"></div>
+          <details class="card" style="margin-top:10px">
+            <summary><b>Modello NB (runtime_models.json)</b> <span class="help">(opzionale)</span></summary>
+            <div class="help" style="margin-top:8px">Incolla qui il contenuto di <span class="mono">runtime_models.json</span> generato dallo script 02. Se vuoto, uso una stima da stats.</div>
+            <textarea id="runtimeModelsText" spellcheck="false" placeholder='{"ft":{...},"ht":{...}}' style="min-height:140px; margin-top:8px"></textarea>
+            <div class="row" style="margin-top:10px">
+              <button class="btn" id="btnSaveRuntime">Salva modello</button>
+              <button class="btn danger" id="btnClearRuntime">Rimuovi modello</button>
+              <span class="help" id="runtimeStatus" style="margin-left:auto"></span>
+            </div>
+          </details>
+
+          <!-- ACTION BLOCK -->
+          <div id="actionWrap" style="margin-top:12px"></div>
         </div>
+
+        <div style="height:12px"></div>
 
         <div class="card">
-          <div class="cardHeader">
+          <h2>Bankroll</h2>
+          <div class="grid2">
             <div>
-              <b>Risultato calcolo</b><br/>
-              <small>Probabilità stimata + EV + Stake consigliato</small>
+              <div class="help">Bankroll attuale (aggiornato a bet chiuse)</div>
+              <input id="bankrollCurrent" type="number" step="0.01" min="0" />
+            </div>
+            <div>
+              <div class="help">Bankroll giorno (si fissa alla 1ª bet del giorno)</div>
+              <input id="bankrollDay" type="number" step="0.01" min="0" />
             </div>
           </div>
-
-          <div id="calcOut" class="help">Nessuna notifica parsata.</div>
-
-          <div class="hr"></div>
-
-          <div class="row">
-            <div style="flex:1">
-              <label class="help">Stake (arrotondato 0.1€, min 1€)</label>
-              <input id="stakePlayedInput" type="number" step="0.1" min="1" value="1.0" disabled />
-            </div>
-            <div style="flex:1">
-              <label class="help">Quota (da notifica)</label>
-              <input id="oddsPlayedInput" type="number" step="0.01" min="1.01" value="1.50" disabled />
-            </div>
-          </div>
-
-          <div class="help" style="margin-top:10px">
-            Nota: se EV negativo, stake suggerito = 1% bankroll (min 1€). Decidi tu se giocare.
+          <div class="row" style="margin-top:10px">
+            <button class="btn" id="btnResetDay">Nuovo giorno</button>
+            <span class="help" style="margin-left:auto">Target profit: <b>+3%</b> ROC • Stop loss: <b>-10%</b> ROC</span>
           </div>
         </div>
-      </div>
-
-      <div class="card" style="margin-top:12px">
-        <div class="cardHeader">
-          <div>
-            <b>Bankroll</b><br/>
-            <small>BR “giornaliero” si fissa alla prima bet del giorno.</small>
-          </div>
-        </div>
-        <div class="grid two">
-          <div>
-            <label class="help">Bankroll attuale</label>
-            <input id="bankrollInput" type="number" step="0.01" min="0" />
-          </div>
-          <div>
-            <label class="help">Bankroll giornaliero</label>
-            <input id="bankrollDay" type="number" step="0.01" min="0" />
-          </div>
-        </div>
-      </div>
-    </section>
-       <!-- STORICO -->
-    <section class="page" id="page-storico" style="display:none">
-      <h1>Storico</h1>
-
-      <div class="card">
-        <div class="cardHeader">
-          <div>
-            <b>Filtri</b><br/>
-            <small>Pending/Non giocata non conteggiate.</small>
-          </div>
-          <div class="row">
-            <select id="historyResultFilter" style="width:auto; min-width:160px">
-              <option value="all">Tutte</option>
+      </section>
+      <!-- STORICO -->
+      <section class="page" id="page-storico">
+        <div class="card">
+          <h2>Storico</h2>
+          <div class="row wrap">
+            <select id="historyResultFilter" style="width:auto; min-width:190px">
+              <option value="all">Tutti gli stati</option>
+              <option value="pending">Pending</option>
               <option value="win">Vinte</option>
               <option value="loss">Perse</option>
-              <option value="pending">Pending</option>
               <option value="not_played">Non giocate</option>
             </select>
-
-            <select id="historyDateFilter" style="width:auto; min-width:160px">
-              <option value="all">Tutte le date</option>
-              <option value="today">Oggi</option>
-              <option value="7d">Ultimi 7 gg</option>
-              <option value="30d">Ultimi 30 gg</option>
-              <option value="month">Mese corrente</option>
-            </select>
-              <button class="btn" id="btnAddManual">➕ Aggiungi manuale</button>
+            <input id="historyDateFilter" type="date" style="width:auto; min-width:160px" />
+            <input id="historySearch" type="text" placeholder="Cerca match / method..." style="flex:1; min-width:200px" />
           </div>
-        </div>
 
-        <div id="historyEmpty" class="help"></div>
-        <div id="historyList"></div>
-      </div>
+          <div class="row" style="margin-top:12px; gap:10px">
+            <button class="btn" id="btnManualAdd">Aggiungi manuale</button>
+            <button class="btn" id="btnExportHistory">Esporta JSON</button>
+            <label class="btn" style="display:inline-flex; align-items:center; gap:8px">
+              Importa JSON <input id="fileImportHistory" type="file" accept="application/json" style="display:none"/>
+            </label>
+          </div>
 
-      <div class="grid two" style="margin-top:12px">
-        <div class="card">
-          <div class="cardHeader">
-            <div>
-              <b>Dettagli bet</b><br/>
-              <small>Qui vedi <b>TUTTI i campi arrivati dalla notifica</b>.</small>
+          <div id="manualAddWrap" class="card" style="display:none; margin-top:12px">
+            <div class="row" style="gap:10px; flex-wrap:wrap">
+              <input id="manDate" type="date" style="width:auto; min-width:140px"/>
+              <input id="manMatch" type="text" placeholder="Partita (Home-Away)" style="flex:1; min-width:220px"/>
             </div>
-            <div class="row">
-              <button class="btn" id="btnToggleRaw" disabled>Mostra JSON raw</button>
-            </div>
-          </div>
-          <div id="detailsBox" class="help">Seleziona “Dettagli” su una bet.</div>
-        </div>
-
-        <div class="card">
-          <div class="cardHeader">
-            <div>
-              <b>Backup / Restore</b><br/>
-              <small>Esporta/Reimporta lo storico in JSON.</small>
-            </div>
-          </div>
-          <div class="row">
-            <button class="btn" id="btnExport2">Export JSON</button>
-            <button class="btn" id="btnImport2">Import JSON</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- DASHBOARD -->
-    <section class="page" id="page-dash" style="display:none">
-      <h1>Dashboard</h1>
-
-      <div class="card">
-        <div class="cardHeader">
-          <div>
-            <b>Riepilogo</b><br/>
-            <small>Solo bet chiuse (win/loss).</small>
-          </div>
-          <div class="row">
-            <select id="dashRangeSelect" style="width:auto; min-width:220px">
-              <option value="all">All time</option>
-              <option value="today">Oggi</option>
-              <option value="7d">Ultimi 7 gg</option>
-              <option value="30d">Ultimi 30 gg</option>
-              <option value="month">Mese corrente</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- 3 righe esatte (2 colonne) = 6 KPI -->
-        <div class="kpiGrid" id="dashKpis"></div>
-      </div>
-
-      <div class="grid two" style="margin-top:12px">
-        <div class="card">
-          <div class="cardHeader">
-            <div>
-              <b>Win Rate</b><br/>
-              <small>Solo bet chiuse.</small>
-            </div>
-          </div>
-          <canvas id="donut" width="180" height="180"></canvas>
-          <div class="row" style="margin-top:8px; justify-content:space-between">
-            <span class="chip">Wins <b class="mono" id="winsLabel">0</b></span>
-            <span class="chip">Losses <b class="mono" id="lossLabel">0</b></span>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="cardHeader">
-            <div>
-              <b>Profit cumulato</b><br/>
-              <small>Linea cumulata. Area verde se finale >0, rossa se <0.</small>
-            </div>
-            <div class="row">
-              <select id="profitRangeSelect" style="width:auto; min-width:120px">
-                <option value="all">all</option>
-                <option value="1m">1m</option>
-                <option value="3m">3m</option>
-                <option value="6m">6m</option>
-                <option value="12m">12m</option>
+            <div class="row" style="gap:10px; margin-top:10px; flex-wrap:wrap">
+              <input id="manMethod" type="text" placeholder="Metodo / Filtro" style="flex:1; min-width:220px"/>
+              <select id="manPhase" style="width:auto; min-width:110px">
+                <option value="FT">FT</option>
+                <option value="HT">HT</option>
               </select>
+              <input id="manLine" type="number" step="0.5" min="0.5" placeholder="Line" style="width:110px"/>
+            </div>
+            <div class="row" style="gap:10px; margin-top:10px; flex-wrap:wrap">
+              <input id="manOdds" type="number" step="0.01" min="1" placeholder="Quota" style="width:120px"/>
+              <input id="manStake" type="number" step="0.1" min="1" placeholder="Stake" style="width:120px"/>
+              <select id="manResult" style="width:auto; min-width:160px">
+                <option value="pending">Pending</option>
+                <option value="win">Vinta</option>
+                <option value="loss">Persa</option>
+                <option value="not_played">Non giocata</option>
+              </select>
+              <button class="btn primary" id="btnManualSave">Salva</button>
+              <button class="btn" id="btnManualCancel">Annulla</button>
+            </div>
+            <div class="help" style="margin-top:8px">Nota: le bet <b>pending</b> / <b>non giocate</b> non entrano in dashboard/statistiche.</div>
+          </div>
+
+          <div id="historyList" class="list" style="margin-top:12px"></div>
+        </div>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section class="page" id="page-dashboard">
+        <div class="card">
+          <h2>Dashboard</h2>
+          <div class="kpi" id="dashKpi"></div>
+          <div style="height:12px"></div>
+          <div class="grid2">
+            <div class="card">
+              <h2>Winrate</h2>
+              <canvas id="donutCanvas"></canvas>
+            </div>
+            <div class="card">
+              <h2>Profit</h2>
+              <canvas id="profitCanvas"></canvas>
             </div>
           </div>
-          <canvas id="profitChart" width="820" height="360"></canvas>
-          <div class="help" style="margin-top:8px">Area tutta verde se cumulato finale > 0, tutta rossa se < 0.</div>
         </div>
-      </div>
-    </section> 
-       <!-- RIEPILOGO TEMPORALE -->
-    <section class="page" id="page-time" style="display:none">
-      <h1>Riepilogo temporale</h1>
-      <div class="card">
-        <div class="cardHeader">
-          <div>
-            <b>Andamento</b><br/>
-            <small>Aggregazioni per giorno/mese (come nel file originale).</small>
-          </div>
-        </div>
-        <div id="timeOut" class="help">Nessun dato.</div>
-      </div>
-    </section>
+      </section>
 
-    <!-- RIEPILOGO FILTRI -->
-    <section class="page" id="page-filters" style="display:none">
-      <h1>Riepilogo filtri</h1>
-
-      <div class="card">
-        <div class="cardHeader">
-          <div>
-            <b>Filtri (key = Method)</b><br/>
-            <small>Confronto con i dati LP dell’ultima notifica salvata per quel Method.</small>
-          </div>
-          <div class="row">
-            <select id="filterSort" style="width:auto; min-width:180px">
-              <option value="profit">Profit</option>
-              <option value="roi">ROI</option>
-              <option value="wr">Winrate</option>
-              <option value="n">N</option>
-              <option value="recent">Recenti</option>
+      <!-- TIME -->
+      <section class="page" id="page-time">
+        <div class="card">
+          <h2>Riepilogo temporale</h2>
+          <div class="row wrap">
+            <select id="timeGroupSelect" style="width:auto; min-width:220px">
+              <option value="day">Giorno</option>
+              <option value="month">Mese</option>
+              <option value="quarter">Trimestre</option>
             </select>
+            <span class="help">Profit/ROI calcolati solo su bet chiuse (win/loss). Pending mostrati a parte.</span>
           </div>
+          <div id="timeBody" style="margin-top:12px"></div>
         </div>
+      </section>
 
-        <div id="filtersGrid"></div>
-      </div>
-
-      <div class="card" style="margin-top:12px">
-        <div class="cardHeader">
-          <div>
-            <b>Dettaglio filtro</b><br/>
-            <small>Seleziona un filtro sopra.</small>
-          </div>
-          <div class="row">
-            <select id="filterRangeSelect" style="width:auto; min-width:160px">
-              <option value="all">all</option>
-              <option value="1m">1m</option>
-              <option value="3m">3m</option>
-              <option value="6m">6m</option>
-              <option value="12m">12m</option>
-            </select>
-          </div>
+      <!-- FILTERS -->
+      <section class="page" id="page-filters">
+        <div class="card">
+          <h2>Riepilogo filtri (per Method)</h2>
+          <div class="help">Raggruppamento basato solo su <b>Method</b>. I dettagli includono confronto con gli ultimi valori LP salvati.</div>
+          <div style="height:12px"></div>
+          <div id="filtersList" class="list"></div>
         </div>
-        <canvas id="filterProfitChart" width="820" height="320"></canvas>
-        <div class="help" id="filterLPBox" style="margin-top:10px">—</div>
-      </div>
-    </section>
-  </main>
-
-  <div class="nav">
-    <button class="active" data-page="page-calc">Calcolatori</button>
-    <button data-page="page-storico">Storico</button>
-    <button data-page="page-dash">Dashboard</button>
-    <button data-page="page-time">Temporale</button>
-    <button data-page="page-filters">Filtri</button>
+      </section>
+    </main>
   </div>
-</div>
 
-<script>
-/* =========================
-   Storage
-========================= */
-const STORAGE_KEY = "bettools_state_v162"; // keep compatible storage key
-const DEFAULT_STATE = {
-  bankroll: 100,
-  bankroll_day: null,
-  history: [],
-  last_day: null
-};
-function loadState(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return structuredClone(DEFAULT_STATE);
-    const s = JSON.parse(raw);
-    return {...structuredClone(DEFAULT_STATE), ...s};
-  }catch(e){ return structuredClone(DEFAULT_STATE); }
-}
-function saveState(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
-function persist(){
-  saveState();
-  renderAll();
-}
-function resetAll(){
-  localStorage.removeItem(STORAGE_KEY);
-  state = structuredClone(DEFAULT_STATE);
-  saveState();
-  renderAll();
-}
-let state = loadState();
-
-/* =========================
-   RUNTIME MODELS (optional)
-   Paste here the content of your runtime_models.json (generated by script 02)
-   so the webapp can later use your calibrated NB model directly.
-   Example:
-   const RUNTIME_MODELS = { ...json... };
-========================= */
-const RUNTIME_MODELS = null;
-
-/* =========================
-   Utils
-========================= */
-function todayISO(){
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth()+1).padStart(2,"0");
-  const dd = String(d.getDate()).padStart(2,"0");
-  return `${yyyy}-${mm}-${dd}`;
-}
-function uid(){
-  return "b_"+Math.random().toString(16).slice(2)+Date.now().toString(16);
-}
-function safeNum(x){
-  if(x===null||x===undefined) return null;
-  const s = String(x).trim().replace(",",".");
-  const n = Number(s);
-  return Number.isFinite(n) ? n : null;
-}
-function fmtMoney(x){
-  const n = Number(x);
-  if(!Number.isFinite(n)) return "—";
-  return n.toFixed(2);
-}
-function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
-function escapeHtml(s){
-  return String(s ?? "").replace(/[&<>"']/g, m => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
-  }[m]));
-}
-function inDateRange(dateISO, mode){
-  if(!dateISO) return false;
-  if(mode==="all") return true;
-  const d = new Date(dateISO+"T00:00:00");
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  if(mode==="today") return d.getTime()===startOfToday.getTime();
-  if(mode==="7d") return d >= new Date(startOfToday.getTime()-6*86400000);
-  if(mode==="30d") return d >= new Date(startOfToday.getTime()-29*86400000);
-  if(mode==="month") return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
-  return true;
-}
- /* =========================
-   Parsing blocks
-========================= */
-function extractBlocks(txt){
-  const out = {};
-  const lines = txt.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-  for(const line of lines){
-    const m = line.match(/^([A-Z0-9_]+)\s*\|\s*(.*)$/);
-    if(!m) continue;
-    const key = m[1].trim();
-    out[key] = out[key] ? (out[key] + " | " + m[2]) : m[2];
-  }
-  return out;
-}
-
-function parseMETA(s){
-  // META | Ver=V3 | Method=... | Comp=... | Match=...
-  const obj = {};
-  const parts = s.split("|").map(x=>x.trim());
-  for(const p of parts){
-    const kv = p.split("=");
-    if(kv.length>=2){
-      const k = kv[0].trim();
-      const v = kv.slice(1).join("=").trim();
-      obj[k] = v;
+  <div id="toast" style="position:fixed; left:14px; right:14px; bottom:calc(14px + env(safe-area-inset-bottom)); z-index:200; display:none">
+    <div class="card" style="padding:12px 14px; text-align:center" id="toastTxt">—</div>
+  </div>
+  <script>
+    // -------------------------------
+    // Helpers
+    // -------------------------------
+    function clamp(x, a, b){ return Math.max(a, Math.min(b, x)); }
+    function safeNum(v){
+      if(v===null || v===undefined) return null;
+      const s = String(v).trim();
+      if(!s || s==="-" ) return null;
+      const n = Number(s.replace(",", "."));
+      return Number.isFinite(n) ? n : null;
     }
-  }
-  return {
-    Ver: obj.Ver || null,
-    Method: obj.Method || null,
-    Comp: obj.Comp || null,
-    Match: obj.Match || null
-  };
-}
-function parseSTATE(s){
-  const obj = {};
-  const parts = s.split("|").map(x=>x.trim());
-  for(const p of parts){
-    const kv = p.split("=");
-    if(kv.length>=2){
-      obj[kv[0].trim()] = kv.slice(1).join("=").trim();
+    function pct(x){
+      if(x===null || x===undefined || !isFinite(x)) return "—";
+      return (x*100).toFixed(1)+"%";
     }
-  }
-  // Score "1-0"
-  let scoreH=null, scoreA=null;
-  if(obj.Score){
-    const m=obj.Score.match(/(\d+)\s*-\s*(\d+)/);
-    if(m){ scoreH=Number(m[1]); scoreA=Number(m[2]); }
-  }
-  return {
-    Time: safeNum(obj.Time),
-    RemHT: safeNum(obj.RemHT),
-    RemFT: safeNum(obj.RemFT),
-    ScoreH: scoreH,
-    ScoreA: scoreA
-  };
-}
-function parsePROB(s){
-  // PROB | HT(+1=0.424,+2=0.105) | FT(+1=0.766,+2=0.409,+3=0.138)
-  const out = {HT:{}, FT:{}};
-  const ht = s.match(/HT\(([^)]+)\)/i);
-  const ft = s.match(/FT\(([^)]+)\)/i);
-  const parseInside = (str)=>{
-    const obj={};
-    const parts=str.split(",").map(x=>x.trim());
-    for(const p of parts){
-      const m=p.match(/\+(\d+)\s*=\s*([0-9.]+)/);
-      if(m) obj[Number(m[1])] = Number(m[2]);
+    function fmtEuro(x){
+      if(x===null || x===undefined || !isFinite(x)) return "—";
+      const sign = x<0 ? "-" : "";
+      const a = Math.abs(x);
+      return sign + a.toFixed(2) + "€";
     }
-    return obj;
-  };
-  if(ht) out.HT = parseInside(ht[1]);
-  if(ft) out.FT = parseInside(ft[1]);
-  return out;
-}
-function parseODDSTOBET(s){
-  // ODDS_TO_BET | FT Next Over 1.5 = 1.53
-  const m = s.match(/(HT|FT)\s+Next\s+Over\s+(\d+(?:[.,]\d+)?)\s*[:=]\s*([0-9.]+)/i);
-  if(!m){
-    // fallback: try "FT Next Over 1.5 = 1.53" without strict
-    const m2 = s.match(/(HT|FT).+?Over\s+(\d+(?:[.,]\d+)?)\s*[:=]\s*([0-9.]+)/i);
-    if(!m2) return null;
-    return {
-      phase: m2[1].toUpperCase(),
-      market: "Next Over",
-      line: safeNum(m2[2]),
-      odds_ref: safeNum(m2[3]),
-      label: `${m2[1].toUpperCase()} Next Over ${safeNum(m2[2])}`
+    function escapeHtml(s){
+      return String(s??"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+    function uuid(){
+      return (crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now()+"_"+Math.random().toString(16).slice(2));
+    }
+    function toast(msg){
+      const t=document.getElementById("toast");
+      const tx=document.getElementById("toastTxt");
+      tx.textContent = msg;
+      t.style.display="block";
+      setTimeout(()=>t.style.display="none", 1700);
+    }
+    function roundStake1decMin1(x){
+      const n = safeNum(x);
+      if(n===null) return null;
+      const r = Math.round(n*10)/10;
+      return Math.max(1, r);
+    }
+    function calcProfit(result, stake, odds){
+      if(result==="win") return stake*(odds-1);
+      if(result==="loss") return -stake;
+      return 0;
+    }
+
+    // -------------------------------
+    // State + Storage
+    // -------------------------------
+    const STORAGE_KEY = "LP_IOS26_STATE_V17";
+
+    const defaultState = {
+      bankroll_current: 100.00,
+      bankroll_day: 100.00,
+      day_anchor_date: null,   // YYYY-MM-DD
+      history: [],
+      lastMethod: ""
     };
-  }
-  return {
-    phase: m[1].toUpperCase(),
-    market: "Next Over",
-    line: safeNum(m[2]),
-    odds_ref: safeNum(m[3]),
-    label: `${m[1].toUpperCase()} Next Over ${safeNum(m[2])}`
-  };
-}
-function parseLP(s){
-  const obj = {};
-  const parts = s.split("|").map(x=>x.trim());
-  for(const p of parts){
-    const kv = p.split("=");
-    if(kv.length>=2){
-      obj[kv[0].trim()] = kv.slice(1).join("=").trim();
-    }
-  }
-  return {
-    WR: safeNum(obj.WR),
-    ROI: safeNum(obj.ROI),
-    Profit: safeNum(obj.Profit),
-    AO: safeNum(obj.AO),
-    N: safeNum(obj.N)
-  };
-}
-function parseStatsLine(s){
-  // STATS | SOT=2/0 | SOFF=2/0 | COR=3/0 | ATT=38/14 | DATT=25/6
-  const out = {};
-  const parts = s.split("|").map(x=>x.trim());
-  for(const p of parts){
-    const kv = p.split("=");
-    if(kv.length>=2){
-      const k = kv[0].trim();
-      const v = kv.slice(1).join("=").trim();
-      const m = v.match(/(\d+)\s*\/\s*(\d+)/);
-      if(m){ out[k] = {H:Number(m[1]), A:Number(m[2])}; }
-    }
-  }
-  return out;
-}
-function parsePRESS(s){
-  // PRESS | GPI(M=87.03,L10=126) | GMS(...) | SI(...)
-  return s;
-}
-function parseLATE(s){ return s; }
 
-function parseNotification(text){
-  const blocks = extractBlocks(text);
-  const errors = [];
-  const warnings = [];
-  const required = ["META","STATE","ODDS_TO_BET","LP"]; // PROB is optional in new notifications
-  for(const r of required){ if(!blocks[r]) errors.push(`Manca blocco: ${r}`); }
-  if(errors.length) return {ok:false, errors, warnings, data:null};
+    let state = loadState();
 
-  const meta = parseMETA(blocks.META);
-  const stateObj = parseSTATE(blocks.STATE);
-  const prob = blocks.PROB ? parsePROB(blocks.PROB) : null;
-  const oddsToBet = parseODDSTOBET(blocks.ODDS_TO_BET);
-  const lp = parseLP(blocks.LP);
-
-  const stats = blocks.STATS ? parseStatsLine(blocks.STATS) : null;
-  const l10 = blocks.L10 ? parseStatsLine(blocks.L10) : null;
-  const press = blocks.PRESS ? parsePRESS(blocks.PRESS) : null;
-  const late = blocks.LATE ? parseLATE(blocks.LATE) : null;
-
-  if(!oddsToBet || oddsToBet.odds_ref===null) errors.push("ODDS_TO_BET non parsabile (serve: '... = 1.45')");
-  if(!oddsToBet?.phase) warnings.push("ODDS_TO_BET: Phase (HT/FT) non rilevata");
-  if(oddsToBet?.line===null) warnings.push("ODDS_TO_BET: Line non rilevata (es 1.5)");
-  if(lp.WR===null) warnings.push("LP.WR mancante");
-  if(lp.ROI===null) warnings.push("LP.ROI mancante");
-  if(errors.length) return {ok:false, errors, warnings, data:null};
-
-  return {
-    ok:true,
-    errors, warnings,
-    data: { meta, state: stateObj, prob, oddsToBet, lp, stats, l10, press, late }
-  };
-}
- /* =========================
-   Pick + stake logic
-========================= */
-function neededGoalsFromLine_NEXT(line){
-  // Next Over 1.5 => need 2 goals from NOW
-  if(line===null) return null;
-  return Math.floor(line) + 1;
-}
-function pickMatchProbability_NEXT(parsed){
-  const phase = parsed.oddsToBet.phase;
-  const line = parsed.oddsToBet.line;
-  if(!phase || line===null) return {p:null, needed:null, reason:"Phase o Line non disponibili"};
-  const needed = neededGoalsFromLine_NEXT(line);
-  if(!parsed.prob) return {p:null, needed, reason:"PROB assente (ok nelle nuove notifiche)"};
-  const table = (phase==="HT") ? parsed.prob.HT : parsed.prob.FT;
-  const p = table ? table[needed] : null;
-  if(p === undefined || p === null) return {p:null, needed, reason:`Manca PROB ${phase}(+${needed})`};
-  return {p, needed, reason:null};
-}
-function betKeyFromParsed(parsed){
-  // key used for internal archive stats (can be more granular than Method)
-  const m = parsed.meta?.Method || "—";
-  const phase = parsed.oddsToBet?.phase || "—";
-  const line = parsed.oddsToBet?.line ?? "—";
-  return `${m}||${phase}||${line}`;
-}
-function getArchiveStatsForKey(key){
-  const closed = state.history.filter(b => b.key===key && (b.result==="win" || b.result==="loss"));
-  const N = closed.length;
-  if(N===0) return {N:0, winrate:null};
-  const wins = closed.filter(b=>b.result==="win").length;
-  return {N, winrate: wins/N};
-}
-function calcStakeV1(parsed){
-  const key = betKeyFromParsed(parsed);
-  const odds = parsed.oddsToBet.odds_ref;
-  const lpWR = parsed.lp.WR;
-
-  const matchP = pickMatchProbability_NEXT(parsed);
-  const P_MATCH = matchP.p;
-  const arch = getArchiveStatsForKey(key);
-  const P_ARCH = arch.winrate;
-  const N = arch.N;
-
-  const warnings = [];
-  if(odds===null || odds<=1) return {ok:false, reason:"Quota ODDS_TO_BET non valida", warnings, key};
-  if(P_MATCH===null) warnings.push(matchP.reason || "Prob match non disponibile");
-  if(lpWR===null) warnings.push("LP.WR non disponibile");
-  if(P_ARCH===null) warnings.push("Archivio: nessuna bet chiusa per questo filtro (N=0)");
-
-  // Reference probability: prefer archive when enough N, else blend with LP and (optional) PROB
-  let P_REF = null;
-  let source = "MODEL+WR";
-  if(N>=70){
-    source = "ARCH";
-    P_REF = (P_ARCH!==null && P_MATCH!==null) ? (0.6*P_ARCH + 0.4*P_MATCH) : P_ARCH;
-  }else if(N>=30){
-    source = "BLEND";
-    // blend LP+match vs ARCH+match as N grows
-    const w=(N-30)/40;
-    const left = (lpWR!==null && P_MATCH!==null) ? (0.6*lpWR + 0.4*P_MATCH) : ((lpWR!==null)?lpWR:P_MATCH);
-    const right = (P_ARCH!==null && P_MATCH!==null) ? (0.6*P_ARCH + 0.4*P_MATCH) : ((P_ARCH!==null)?P_ARCH:P_MATCH);
-    if(left!==null && right!==null) P_REF = (1-w)*left + w*right;
-    else P_REF = right ?? left;
-  }else{
-    source = "MODEL+WR";
-    if(lpWR!==null && P_MATCH!==null) P_REF = 0.5*lpWR + 0.5*P_MATCH;
-    else P_REF = (lpWR!==null) ? lpWR : P_MATCH;
-  }
-
-  const implied = (odds>1) ? 1/odds : null;
-  const edge = (P_REF!==null && implied!==null) ? (P_REF - implied) : null;
-  const ev = (P_REF!==null) ? (P_REF*odds - 1) : null;
-
-  // Fractional Kelly with bounds: min 1% max 5%, min 1€
-  const brDay = Number(state.bankroll_day ?? state.bankroll ?? 100);
-  let stakePct = 0.01; // default
-  let kelly = null;
-
-  if(P_REF!==null){
-    const b = odds - 1;
-    kelly = (b>0) ? ((P_REF*odds - 1)/b) : null;
-    if(kelly!==null && Number.isFinite(kelly)){
-      const frac = 0.35;
-      const kf = clamp(kelly*frac, 0, 0.05);
-      stakePct = clamp(kf, 0.01, 0.05);
-    }else{
-      stakePct = 0.01;
-    }
-  }
-
-  // If EV negative, still 1% (as requested)
-  if(ev!==null && ev<0) stakePct = 0.01;
-
-  let stake = brDay * stakePct;
-  stake = Math.max(1, Math.round(stake*10)/10); // min 1€, 1 decimal
-
-  return {
-    ok:true,
-    key,
-    odds,
-    implied,
-    needed_goals: matchP.needed,
-    p_final: P_REF,
-    source,
-    archN: N,
-    P_ARCH,
-    P_MATCH,
-    lpWR,
-    edge,
-    ev,
-    kelly,
-    stake_pct: stakePct,
-    stake
-  };
-}
-
-/* =========================
-   UI elements
-========================= */
-const pages = Array.from(document.querySelectorAll(".page"));
-const navBtns = Array.from(document.querySelectorAll(".nav button"));
-function navTo(id){
-  for(const p of pages) p.style.display = (p.id===id) ? "" : "none";
-  for(const b of navBtns) b.classList.toggle("active", b.dataset.page===id);
-}
-navBtns.forEach(b=>{
-  b.addEventListener("click", ()=> navTo(b.dataset.page));
-});
- /* =========================
-   Calc page wiring
-========================= */
-const notifText=document.getElementById("notifText");
-const btnParse=document.getElementById("btnParse");
-const btnClear=document.getElementById("btnClear");
-const parseErrors=document.getElementById("parseErrors");
-const calcOut=document.getElementById("calcOut");
-const bankrollInput=document.getElementById("bankrollInput");
-const bankrollDay=document.getElementById("bankrollDay");
-const btnAddToHistory=document.getElementById("btnAddToHistory");
-
-let lastParsed=null;
-let lastStake=null;
-
-let oddsPlayedInput=document.getElementById("oddsPlayedInput");
-let stakePlayedInput=document.getElementById("stakePlayedInput");
-
-function syncBankrollInputs(){
-  bankrollInput.value = Number(state.bankroll ?? 100).toFixed(2);
-  bankrollDay.value = (state.bankroll_day===null || state.bankroll_day===undefined) ? "" : Number(state.bankroll_day).toFixed(2);
-}
-function setDayBankrollIfNeeded(){
-  const today = todayISO();
-  if(state.last_day !== today){
-    state.last_day = today;
-    state.bankroll_day = null; // reset daily
-  }
-}
-function calcDailyBanner(){
-  const br = Number(state.bankroll ?? 100);
-  const brDay = Number(state.bankroll_day ?? br);
-  const roc = brDay>0 ? (br - brDay)/brDay : 0;
-  document.getElementById("brDayChip").textContent = (Number.isFinite(brDay)? brDay.toFixed(2) : "—");
-  document.getElementById("rocChip").textContent = (Number.isFinite(roc)? (roc*100).toFixed(2)+"%" : "—");
-
-  const banner=document.getElementById("dayBanner");
-  banner.textContent = "";
-  if(roc >= 0.03) banner.innerHTML = `<span class="badge good">TARGET PROFIT raggiunto (+3% ROC). Fermati.</span>`;
-  else if(roc <= -0.10) banner.innerHTML = `<span class="badge bad">STOP LOSS raggiunto (−10% ROC). Fermati.</span>`;
-}
-function updateBankrollFromClosed(){
-  // bankroll current is recomputed by applying profits of closed bets to starting bankroll_day? (simple)
-  // Here we just keep state.bankroll as user-driven, but update when closing bet:
-}
-
-btnParse.addEventListener("click", ()=>{
-  parseErrors.textContent="";
-  calcOut.textContent="Parsing...";
-  const txt=notifText.value||"";
-  const res = parseNotification(txt);
-  if(!res.ok){
-    calcOut.textContent="Parse fallito.";
-    parseErrors.innerHTML = res.errors.map(e=>`<div class="badge bad">${escapeHtml(e)}</div>`).join(" ");
-    btnAddToHistory.disabled=true;
-    lastParsed=null; lastStake=null;
-    oddsPlayedInput.disabled=true;
-    stakePlayedInput.disabled=true;
-    return;
-  }
-  lastParsed = res.data;
-
-  // fix daily bankroll if first bet of day
-  setDayBankrollIfNeeded();
-  if(state.bankroll_day===null || state.bankroll_day===undefined){
-    state.bankroll_day = Number(state.bankroll ?? 100);
-    saveState();
-  }
-
-  lastStake = calcStakeV1(lastParsed);
-
-  // show output
-  const p = lastStake.p_final;
-  const odds = lastStake.odds;
-  const implied = lastStake.implied;
-  const ev = lastStake.ev;
-  const stake = lastStake.stake;
-
-  const goalsNeeded = lastStake.needed_goals ?? "—";
-  const lambda = lastStake.lambda ?? "—";
-
-  const pTxt = (p===null) ? "—" : (p*100).toFixed(1)+"%";
-  const evTxt = (ev===null) ? "—" : ev.toFixed(3);
-  const edgeTxt = (lastStake.edge===null) ? "—" : ((lastStake.edge*100).toFixed(1)+"%");
-
-  const warnHtml = (lastStake.warnings && lastStake.warnings.length)
-    ? `<div style="margin-top:8px">${lastStake.warnings.map(w=>`<div class="badge warn">${escapeHtml(w)}</div>`).join(" ")}</div>`
-    : "";
-
-  calcOut.innerHTML = `
-    <div class="row" style="justify-content:space-between">
-      <span class="chip">Probabilità stimata <b class="mono">${escapeHtml(pTxt)}</b></span>
-      <span class="chip">Goal richiesti (NEXT): <b class="mono">${escapeHtml(String(goalsNeeded))}</b></span>
-    </div>
-    <div class="row" style="justify-content:space-between; margin-top:8px">
-      <span class="chip">EV <b class="mono">${escapeHtml(evTxt)}</b></span>
-      <span class="chip">Stake% <b class="mono">${escapeHtml((lastStake.stake_pct*100).toFixed(2)+"%")}</b></span>
-    </div>
-    <div class="row" style="justify-content:space-between; margin-top:8px">
-      <span class="chip">Quota <b class="mono">${escapeHtml(String(odds.toFixed(2)))}</b></span>
-      <span class="chip">Implied <b class="mono">${escapeHtml((implied*100).toFixed(1)+"%")}</b></span>
-      <span class="chip">Edge <b class="mono">${escapeHtml(edgeTxt)}</b></span>
-    </div>
-    <div class="hr"></div>
-    <div class="row" style="justify-content:space-between">
-      <span class="badge ${ev!==null && ev>=0 ? "good":"bad"}">Stake consigliato: ${escapeHtml(fmtMoney(stake))}€</span>
-      <span class="badge">${escapeHtml(lastStake.source)} • N arch: ${escapeHtml(String(lastStake.archN))}</span>
-    </div>
-    ${warnHtml}
-  `;
-
-  oddsPlayedInput.disabled=false;
-  stakePlayedInput.disabled=false;
-  oddsPlayedInput.value = odds.toFixed(2);
-  stakePlayedInput.value = stake.toFixed(1);
-
-  btnAddToHistory.disabled=false;
-
-  parseErrors.innerHTML = res.warnings.map(w=>`<div class="badge warn">${escapeHtml(w)}</div>`).join(" ");
-  calcDailyBanner();
-});
-
-btnClear.addEventListener("click", ()=>{
-  notifText.value="";
-  parseErrors.textContent="";
-  calcOut.textContent="Nessuna notifica parsata.";
-  btnAddToHistory.disabled=true;
-  lastParsed=null; lastStake=null;
-  oddsPlayedInput.disabled=true;
-  stakePlayedInput.disabled=true;
-});
-
-bankrollInput.addEventListener("change", ()=>{
-  const v = safeNum(bankrollInput.value);
-  if(v!==null){ state.bankroll = v; persist(); }
-});
-bankrollDay.addEventListener("change", ()=>{
-  const v = safeNum(bankrollDay.value);
-  if(v!==null){ state.bankroll_day = v; persist(); }
-});
-  btnAddToHistory.addEventListener("click", ()=>{
-  if(!lastParsed || !lastStake || !lastStake.ok) return;
-
-  const b = {
-    id: uid(),
-    date: todayISO(),
-    key: lastStake.key,
-    meta: lastParsed.meta,
-    state: lastParsed.state,
-    odds_to_bet: lastParsed.oddsToBet,
-    lp: lastParsed.lp,
-    execution: {
-      odds_ref: lastStake.odds,
-      odds_played: safeNum(oddsPlayedInput.value),
-      stake_suggested: lastStake.stake,
-      stake_suggested_pct: lastStake.stake_pct,
-      bankroll_day: Number(state.bankroll_day ?? state.bankroll ?? 100),
-      needed_goals: lastStake.needed_goals,
-      lambda: lastStake.lambda ?? null,
-      p_final: lastStake.p_final,
-      edge: lastStake.edge,
-      ev: lastStake.ev,
-      source: lastStake.source
-    },
-    result: "pending",
-    created_at: Date.now(),
-    raw: {
-      meta: lastParsed.meta,
-      state: lastParsed.state,
-      prob: lastParsed.prob,
-      oddsToBet: lastParsed.oddsToBet,
-      lp: lastParsed.lp,
-      stats: lastParsed.stats,
-      l10: lastParsed.l10,
-      press: lastParsed.press,
-      late: lastParsed.late
-    }
-  };
-
-  // daily bankroll fixed at first bet
-  setDayBankrollIfNeeded();
-  if(state.bankroll_day===null || state.bankroll_day===undefined){
-    state.bankroll_day = Number(state.bankroll ?? 100);
-  }
-
-  state.history.unshift(b);
-  persist();
-
-  btnAddToHistory.disabled=true;
-  navTo("page-storico");
-});
-
-/* =========================
-   History page
-========================= */
-const historyList=document.getElementById("historyList");
-const historyEmpty=document.getElementById("historyEmpty");
-const historyResultFilter=document.getElementById("historyResultFilter");
-const historyDateFilter=document.getElementById("historyDateFilter");
-const btnAddManual=document.getElementById("btnAddManual");
-const detailsBox=document.getElementById("detailsBox");
-
-function formatPick(b){
-  // Always show pick without odds (quota is stored separately in execution.odds_ref / odds_played)
-  const raw = (b.odds_to_bet && b.odds_to_bet.label)
-    ? String(b.odds_to_bet.label)
-    : `${b.odds_to_bet?.phase||""} ${b.odds_to_bet?.market||""} ${b.odds_to_bet?.line??""}`.trim();
-
-  // Defensive: remove any trailing '= 1.72' or ': 1.72' if it sneaks in
-  return raw.replace(/\s*[:=]\s*\d+(?:[\.,]\d+)?\s*$/,"").trim();
-}
-function filterHistoryList(){
-  let arr = state.history.slice();
-  const rf = historyResultFilter.value;
-  const df = historyDateFilter.value;
-  if(rf!=="all") arr = arr.filter(b=>b.result===rf);
-  if(df!=="all") arr = arr.filter(b=>inDateRange(b.date, df));
-  return arr;
-}
-function resultBadge(res){
-  if(res==="win") return `<span class="badge good">Vinta</span>`;
-  if(res==="loss") return `<span class="badge bad">Persa</span>`;
-  if(res==="pending") return `<span class="badge warn">Pending</span>`;
-  if(res==="not_played") return `<span class="badge">Non giocata</span>`;
-  return `<span class="badge">—</span>`;
-}
-function profitChip(b){
-  if(b.result!=="win" && b.result!=="loss") return `<span class="chip muted">Profit: —</span>`;
-  const pr = Number(b.profit_real ?? 0);
-  const cls = pr>=0 ? "good":"bad";
-  return `<span class="chip">Profit <b class="mono ${cls}" style="color:${pr>=0?"var(--good)":"var(--bad)"}">${escapeHtml(pr.toFixed(2))}</b></span>`;
-}
-function renderBetCardHTML(b, mode){
-  const pick = formatPick(b);
-  const method = b.meta?.Method || "—";
-  const match = b.meta?.Match || "—";
-  const stakeS = fmtMoney(b.execution?.stake_suggested);
-  const stakeP = fmtMoney(b.execution?.stake_played);
-  const oddsP = (b.execution?.odds_played ?? "—");
-  const badge = resultBadge(b.result);
-
-  const isEditing = (editingBetId === b.id && mode==="history");
-
-  const topLine = isEditing
-    ? `
-      <div class="t1">
-        <input class="mono" data-edit="date" data-id="${b.id}" type="date" value="${escapeHtml(b.date)}" style="width:auto; min-width:160px"/>
-        <input class="mono" data-edit="method" data-id="${b.id}" type="text" value="${escapeHtml(method)}" style="width:auto; min-width:260px"/>
-      </div>
-      <div class="t2">
-        <input data-edit="match" data-id="${b.id}" type="text" value="${escapeHtml(match)}" />
-      </div>`
-    : `
-      <div class="t1">
-        <span class="date mono">${escapeHtml(b.date)}</span>
-        <span class="method">${escapeHtml(method)}</span>
-      </div>
-      <div class="t2 mono">${escapeHtml(match)}</div>`;
-
-  const midLine = isEditing
-    ? `
-      <span class="chip">Pick <input data-edit="pick" data-id="${b.id}" type="text" value="${escapeHtml(pick)}" style="min-width:220px"/></span>
-      <span class="chip">Stake
-        <input data-edit="stake_played" data-id="${b.id}" type="number" step="0.1" min="1"
-               value="${escapeHtml(String(b.execution?.stake_played ?? b.execution?.stake_suggested ?? 1))}"
-               style="width:90px"/>
-        <span class="muted">(sug ${escapeHtml(stakeS)})</span>
-      </span>
-      <span class="chip">Quota
-        <input data-edit="odds_played" data-id="${b.id}" type="number" step="0.01" min="1.01"
-               value="${escapeHtml(String(b.execution?.odds_played ?? b.execution?.odds_ref ?? ""))}"
-               style="width:90px"/>
-      </span>
-      <span class="chip">Esito
-        <select data-edit="result" data-id="${b.id}" style="width:auto">
-          <option value="win" ${b.result==="win"?"selected":""}>Vinta</option>
-          <option value="loss" ${b.result==="loss"?"selected":""}>Persa</option>
-          <option value="not_played" ${b.result==="not_played"?"selected":""}>Non giocata</option>
-          <option value="pending" ${b.result==="pending"?"selected":""}>Pending</option>
-        </select>
-      </span>
-      ${profitChip(b)}
-    `
-    : `
-      <span class="chip">Pick <b class="mono">${escapeHtml(pick)}</b></span>
-      <span class="chip">Stake <b class="mono">${escapeHtml(stakeP)}</b> <span class="muted">(${escapeHtml(stakeS)} sug)</span></span>
-      <span class="chip">Quota <b class="mono">${escapeHtml(String(oddsP))}</b></span>
-      <span class="chip">${badge}</span>
-      ${profitChip(b)}
-    `;
-
-  const acts = isEditing
-    ? `
-      <button class="miniBtn good" data-act="save" data-id="${b.id}">Salva</button>
-      <button class="miniBtn" data-act="cancel" data-id="${b.id}">Annulla</button>
-    `
-    : `
-      <button class="miniBtn" data-act="details" data-id="${b.id}">Dettagli</button>
-      <button class="miniBtn warn" data-act="edit" data-id="${b.id}">Modifica</button>
-      <button class="miniBtn danger" data-act="del" data-id="${b.id}">Elimina</button>
-    `;
-
-  return `
-    <div class="betCard" data-bet="${b.id}">
-      ${topLine}
-      <div class="row" style="margin-top:8px">${midLine}</div>
-      <div class="actions">${acts}</div>
-    </div>
-  `;
-}
-
-function renderHistory(){
-  const arr = filterHistoryList();
-  historyList.innerHTML="";
-  historyEmpty.textContent="";
-  if(arr.length===0){
-    historyEmpty.textContent="Nessuna bet da mostrare.";
-    return;
-  }
-  for(const b of arr){
-    const wrap = document.createElement("div");
-    wrap.innerHTML = renderBetCardHTML(b, "history");
-    historyList.appendChild(wrap.firstElementChild);
-  }
-}
-
-historyResultFilter.addEventListener("change", renderHistory);
-historyDateFilter.addEventListener("change", renderHistory);
-
-btnAddManual?.addEventListener("click", ()=>{
-  // Create a new manual bet card (inline editing)
-  const today = new Date();
-  const d = today.toISOString().slice(0,10);
-
-  const b = {
-    id: uid(),
-    date: d,
-    meta: { Method: "", Match: "" },
-    odds_to_bet: { phase: "", market: "", line: "", label: "" },
-    execution: {
-      odds_ref: null,
-      odds_played: null,
-      stake_suggested: null,
-      stake_suggested_pct: null,
-      bankroll_day: state.bankroll_day ?? null,
-      needed_goals: null,
-      lambda: null,
-      p_final: null,
-      edge: null,
-      ev: null,
-      source: "MANUAL"
-    },
-    result: "pending",
-    created_at: Date.now(),
-    raw: null
-  };
-
-  state.history.unshift(b);
-  persist();
-
-  editingBetId = b.id;
-  selectedBetId = null;
-  showRaw = false;
-  renderHistory();
-  renderDetails(null);
-  navTo("page-storico");
-  historyList.scrollIntoView({behavior:"smooth", block:"start"});
-});
-
-let selectedBetId=null;
-let showRaw=false;
-let editingBetId=null;
-
-document.getElementById("btnToggleRaw").addEventListener("click", ()=>{
-  if(!selectedBetId) return;
-  showRaw = !showRaw;
-  renderDetails(state.history.find(b=>b.id===selectedBetId));
-});
-
-function renderDetails(b){
-  const btnToggleRaw=document.getElementById("btnToggleRaw");
-  if(!b){
-    detailsBox.textContent="Seleziona “Dettagli” su una bet.";
-    btnToggleRaw.disabled=true;
-    return;
-  }
-  btnToggleRaw.disabled=false;
-  if(showRaw){
-    detailsBox.innerHTML = `<pre>${escapeHtml(JSON.stringify(b, null, 2))}</pre>`;
-  }else{
-    detailsBox.innerHTML = `
-      <div class="row" style="justify-content:space-between">
-        <span class="chip">Metodo <b class="mono">${escapeHtml(b.meta?.Method||"—")}</b></span>
-        <span class="chip">Pick <b class="mono">${escapeHtml(formatPick(b))}</b></span>
-      </div>
-      <div class="row" style="justify-content:space-between; margin-top:8px">
-        <span class="chip">Quota <b class="mono">${escapeHtml(String(b.execution?.odds_played ?? b.execution?.odds_ref ?? "—"))}</b></span>
-        <span class="chip">Stake <b class="mono">${escapeHtml(fmtMoney(b.execution?.stake_played ?? b.execution?.stake_suggested))}</b></span>
-        <span class="chip">Esito ${resultBadge(b.result)}</span>
-      </div>
-      <div class="hr"></div>
-      <pre>${escapeHtml(JSON.stringify(b.raw ?? b, null, 2))}</pre>
-    `;
-  }
-}
-
-historyList.addEventListener("click",(e)=>{
-  const btn = e.target.closest("button");
-  if(!btn) return;
-  const act = btn.dataset.act;
-  const id = btn.dataset.id;
-  const b = state.history.find(x=>x.id===id);
-  if(!b) return;
-
-  if(act==="details"){
-    selectedBetId=id;
-    showRaw=false;
-    renderDetails(b);
-    return;
-  }
-  if(act==="edit"){
-    editingBetId = id;
-    renderHistory();
-    return;
-  }
-  if(act==="cancel"){
-    editingBetId = null;
-    renderHistory();
-    return;
-  }
-
-  if(act==="save"){
-    const dateEl = document.querySelector(`[data-edit="date"][data-id="${CSS.escape(id)}"]`);
-    const matchEl = document.querySelector(`[data-edit="match"][data-id="${CSS.escape(id)}"]`);
-    const methodEl = document.querySelector(`[data-edit="method"][data-id="${CSS.escape(id)}"]`);
-    const stakeEl = document.querySelector(`[data-edit="stake_played"][data-id="${CSS.escape(id)}"]`);
-    const oddsEl  = document.querySelector(`[data-edit="odds_played"][data-id="${CSS.escape(id)}"]`);
-    const resEl   = document.querySelector(`[data-edit="result"][data-id="${CSS.escape(id)}"]`);
-    const pickEl  = document.querySelector(`[data-edit="pick"][data-id="${CSS.escape(id)}"]`);
-
-    if(dateEl && dateEl.value) b.date = dateEl.value;
-    if(matchEl && matchEl.value.trim()) b.meta.Match = matchEl.value.trim();
-    if(methodEl && methodEl.value.trim()) b.meta.Method = methodEl.value.trim();
-    if(pickEl && pickEl.value.trim()) {
-      b.odds_to_bet = b.odds_to_bet || {};
-      b.odds_to_bet.label = pickEl.value.replace(/\s*[:=]\s*\d+(?:[\.,]\d+)?\s*$/,"").trim();
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return {...defaultState};
+        const obj = JSON.parse(raw);
+        return {...defaultState, ...obj};
+      }catch(e){
+        return {...defaultState};
+      }
     }
 
-    const sp = safeNum(stakeEl?.value);
-    const op = safeNum(oddsEl?.value);
-
-    b.execution = b.execution || {};
-    if(sp!==null) b.execution.stake_played = Math.max(1, Math.round(sp*10)/10);
-    if(op!==null) b.execution.odds_played = op;
-
-    if(resEl && resEl.value) b.result = resEl.value;
-
-    // compute profit_real on win/loss
-    if(b.result==="win" || b.result==="loss"){
-      const stake = Number(b.execution.stake_played ?? b.execution.stake_suggested ?? 0);
-      const odds  = Number(b.execution.odds_played ?? b.execution.odds_ref ?? 0);
-      if(b.result==="win") b.profit_real = stake*(odds-1);
-      else b.profit_real = -stake;
-      // bankroll current updates only when closed:
-      state.bankroll = Number(state.bankroll ?? 100) + Number(b.profit_real ?? 0);
-    }else{
-      b.profit_real = null;
+    function saveState(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
-    editingBetId = null;
-    persist();
-    renderHistory();
-    if(selectedBetId===b.id) renderDetails(b);
-    calcDailyBanner();
-    return;
-  }
+    // -------------------------------
+    // Navigation / Drawer
+    // -------------------------------
+    const drawer=document.getElementById("drawer");
+    const btnHamb=document.getElementById("btnHamb");
+    const drawerBackdrop=document.getElementById("drawerBackdrop");
+    const navBtns=[...document.querySelectorAll(".navbtn")];
 
-  if(act==="del"){
-    state.history = state.history.filter(x=>x.id!==id);
-    if(selectedBetId===id){ selectedBetId=null; renderDetails(null); }
-    persist();
-    renderHistory();
-    return;
-  }
-});
- /* =========================
-   Dashboard charts
-========================= */
-function maxDrawdown(eq){
-  let peak=0, dd=0;
-  for(const v of eq){
-    peak = Math.max(peak, v);
-    dd = Math.min(dd, v-peak);
-  }
-  return dd;
-}
-function streaks(arr){
-  let maxW=0, maxL=0, curW=0, curL=0;
-  for(const b of arr){
-    if(b.result==="win"){ curW++; curL=0; }
-    else if(b.result==="loss"){ curL++; curW=0; }
-    maxW=Math.max(maxW,curW);
-    maxL=Math.max(maxL,curL);
-  }
-  return {maxW,maxL};
-}
+    function openDrawer(){ drawer.classList.add("open"); }
+    function closeDrawer(){ drawer.classList.remove("open"); }
 
-function drawDonut(wins, losses){
-  const canvas = document.getElementById("donut");
-  if(!canvas) return;
-  const ctx = canvas.getContext("2d");
+    btnHamb.addEventListener("click", openDrawer);
+    drawerBackdrop.addEventListener("click", closeDrawer);
 
-  // Ensure a square, crisp donut (fix iOS stretching)
-  const cssSize = Math.min(canvas.clientWidth || 180, canvas.clientHeight || 180);
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width  = Math.max(1, Math.floor(cssSize * dpr));
-  canvas.height = Math.max(1, Math.floor(cssSize * dpr));
-  ctx.setTransform(dpr,0,0,dpr,0,0);
+    navBtns.forEach(b=>{
+      b.addEventListener("click", ()=>{
+        navBtns.forEach(x=>x.classList.remove("active"));
+        b.classList.add("active");
+        const page=b.getAttribute("data-page");
+        setActivePage(page);
+        closeDrawer();
+      });
+    });
 
-  const W = cssSize, H = cssSize;
-  ctx.clearRect(0,0,W,H);
+    function setActivePage(page){
+      document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+      const el=document.getElementById("page-"+page);
+      if(el) el.classList.add("active");
+      renderAll();
+    }
 
-  const total = wins + losses;
-  const winPct = total>0 ? wins/total : 0;
+    // -------------------------------
+    // Parse notification
+    // -------------------------------
+    function splitBlocks(text){
+      const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+      const blocks = {};
+      let current = null;
+      for(const line of lines){
+        const m = line.match(/^([A-Z0-9_]+)\s*\|\s*(.*)$/);
+        if(m){
+          current = m[1];
+          blocks[current] = blocks[current] ? (blocks[current]+"\n"+line) : line;
+        }else if(current){
+          blocks[current] += "\n"+line;
+        }
+      }
+      return blocks;
+    }
 
-  const cx=W/2, cy=H/2;
-  const r = Math.min(W,H)/2 - 12;
-  const thickness = Math.max(10, r*0.28);
+    function parseMETA(block){
+      // META | Ver=V3 | Method=CHATGPT - FT Next Over 1.5 | Comp=... | Match=...
+      const get = (k)=>{
+        const m = block.match(new RegExp(`${k}=([^|\\n]+)`));
+        return m ? m[1].trim() : null;
+      };
+      return {
+        Ver: get("Ver"),
+        Method: get("Method"),
+        Comp: get("Comp"),
+        Match: get("Match")
+      };
+    }
 
-  // background ring
-  ctx.beginPath();
-  ctx.strokeStyle="rgba(255,255,255,.08)";
-  ctx.lineWidth=thickness;
-  ctx.arc(cx, cy, r, 0, Math.PI*2);
-  ctx.stroke();
+    function parseScorePair(s){
+      const m = String(s||"").match(/(\d+)\s*-\s*(\d+)/);
+      if(!m) return {home:null, away:null};
+      return {home:Number(m[1]), away:Number(m[2])};
+    }
 
-  // win ring
-  const startAng = -Math.PI/2;
-  const endAng = startAng + winPct*Math.PI*2;
-  ctx.beginPath();
-  ctx.strokeStyle="rgba(25,195,125,.85)";
-  ctx.lineWidth=thickness;
-  ctx.lineCap="butt";
-  ctx.arc(cx, cy, r, startAng, endAng);
-  ctx.stroke();
+    function parseSTATE(block){
+      // STATE | Time=21 | RemHT=25 | RemFT=72 | Score=1-0
+      const getN = (k)=>{
+        const m = block.match(new RegExp(`${k}=(-?\\d+(?:\\.\\d+)?)`));
+        return m ? Number(m[1]) : null;
+      };
+      const scoreRaw = (block.match(/Score=([^|\n]+)/) || [null,null])[1];
+      const sc = parseScorePair(scoreRaw);
+      return {
+        Time: getN("Time"),
+        RemHT: getN("RemHT"),
+        RemFT: getN("RemFT"),
+        ScoreHome: sc.home,
+        ScoreAway: sc.away,
+        ScoreTotal: (sc.home!==null && sc.away!==null) ? (sc.home+sc.away) : null,
+        ScoreRaw: scoreRaw ? scoreRaw.trim() : null
+      };
+    }
 
-  // center text
-  ctx.fillStyle="rgba(240,246,255,.95)";
-  ctx.font="700 16px "+getComputedStyle(document.body).fontFamily;
-  ctx.textAlign="center";
-  ctx.textBaseline="middle";
-  const pctTxt = total>0 ? (winPct*100).toFixed(1)+"%" : "—";
-  ctx.fillText(pctTxt, cx, cy-2);
+    function parseStatLine(block, label){
+      // STATS | SOT=2/0 | ...
+      const m = block.match(new RegExp(`${label}=([0-9]+)\\/([0-9]+)`));
+      if(!m) return null;
+      return {h:Number(m[1]), a:Number(m[2])};
+    }
 
-  ctx.fillStyle="rgba(159,176,208,.85)";
-  ctx.font="600 11px "+getComputedStyle(document.body).fontFamily;
-  ctx.fillText(`${wins}W / ${losses}L`, cx, cy+16);
-}
+    function parseSTATS(block){
+      const line = block.split("\n")[0];
+      return {
+        SOT: parseStatLine(line,"SOT"),
+        SOFF: parseStatLine(line,"SOFF"),
+        COR: parseStatLine(line,"COR"),
+        ATT: parseStatLine(line,"ATT"),
+        DATT: parseStatLine(line,"DATT")
+      };
+    }
 
-function filterByRangeMode(arr, mode){
-  if(mode==="all") return arr;
-  const now=new Date();
-  const cut = new Date(now);
-  if(mode==="1m") cut.setMonth(cut.getMonth()-1);
-  if(mode==="3m") cut.setMonth(cut.getMonth()-3);
-  if(mode==="6m") cut.setMonth(cut.getMonth()-6);
-  if(mode==="12m") cut.setMonth(cut.getMonth()-12);
-  return arr.filter(b => new Date(b.date+"T00:00:00") >= cut);
-}
-function drawProfitChartOn(canvas, closed, mode){
-  const ctx = canvas.getContext("2d");
-  const W=canvas.width, H=canvas.height;
-  ctx.clearRect(0,0,W,H);
+    function parseL10(block){
+      // second line starts with L10 |
+      const l = block.split("\n").find(x=>x.startsWith("L10"));
+      if(!l) return null;
+      return {
+        SOT: parseStatLine(l,"SOT"),
+        SOFF: parseStatLine(l,"SOFF"),
+        COR: parseStatLine(l,"COR"),
+        ATT: parseStatLine(l,"ATT"),
+        DATT: parseStatLine(l,"DATT")
+      };
+    }
 
-  let data = closed.slice().sort((a,b)=> a.date<b.date ? -1 : (a.date>b.date ? 1 : 0));
-  data = filterByRangeMode(data, mode);
+    function parsePRESS(block){
+      // PRESS | GPI(M=75.58,L10=108.614) | ... | SI(M=40/25)
+      const gpiM = safeNum((block.match(/GPI\(M=([0-9.]+)/)||[])[1]);
+      const gpiL10 = safeNum((block.match(/GPI\(M=[0-9.]+,L10=([0-9.]+)/)||[])[1]);
+      const siM = safeNum((block.match(/SI\(M=([0-9.]+)/)||[])[1]);
+      const siL10 = safeNum((block.match(/SI\(M=[0-9.]+\/([0-9.]+)/)||[])[1]);
+      return { GPI_M:gpiM, GPI_L10:gpiL10, SI_M:siM, SI_L10:siL10 };
+    }
 
-  let eq=0;
-  const pts = data.map(b=> (eq += Number(b.profit_real)||0));
-  if(pts.length===0){
-    ctx.strokeStyle="rgba(255,255,255,.10)";
-    ctx.strokeRect(40,20,W-60,H-50);
-    ctx.fillStyle="rgba(159,176,208,.85)";
-    ctx.font="700 12px "+getComputedStyle(document.body).fontFamily;
-    ctx.fillText("Nessun dato nel range", 50, 40);
-    return;
-  }
-  const minY = Math.min(...pts, 0);
-  const maxY = Math.max(...pts, 0);
-  const pad = (maxY-minY)*0.1 + 1e-6;
-  const y0 = minY - pad;
-  const y1 = maxY + pad;
+    function parseLATE(block){
+      // LATE | AT=0.621 | L10=0.893| L5=25.175
+      const at = safeNum((block.match(/AT=([0-9.]+)/)||[])[1]);
+      const l10 = safeNum((block.match(/L10=([0-9.]+)/)||[])[1]);
+      const l5 = safeNum((block.match(/L5=([0-9.]+)/)||[])[1]);
+      return { AT:at, L10:l10, L5:l5 };
+    }
 
-  const left=55, top=20, right=W-20, bottom=H-30;
-  const plotW = right-left;
-  const plotH = bottom-top;
+    function parsePROB(block){
+      // PROB | HT(+1=0.424,+2=0.105) | FT(+1=0.766,+2=0.409,+3=0.138)
+      const res = {HT:null, FT:null};
+      const ht = block.match(/HT\(([^)]+)\)/);
+      const ft = block.match(/FT\(([^)]+)\)/);
+      function parsePart(s){
+        const obj = {};
+        const pairs = s.split(",").map(x=>x.trim());
+        for(const p of pairs){
+          const m = p.match(/\+(\d+)\s*=\s*([0-9.]+)/);
+          if(m) obj[Number(m[1])] = Number(m[2]);
+        }
+        return obj;
+      }
+      if(ht) res.HT = parsePart(ht[1]);
+      if(ft) res.FT = parsePart(ft[1]);
+      return res;
+    }
+    function parseODDSTOBET(block){
+      // ODDS_TO_BET | FT Next Over 1.5 = 1.20
+      const line = block.split("\n")[0];
+      const m = line.match(/ODDS_TO_BET\s*\|\s*(HT|FT)\s+Next\s+Over\s+([0-9.]+)\s*=\s*([0-9.]+)/i);
+      if(!m) return null;
+      return {
+        phase: m[1].toUpperCase(),
+        line: Number(m[2]),
+        odds: Number(m[3]),
+        label: `${m[1].toUpperCase()} Next Over ${Number(m[2])}`
+      };
+    }
 
-  const xAt = (i)=> left + (pts.length===1 ? plotW/2 : (i/(pts.length-1))*plotW);
-  const yAt = (v)=> top + (1-(v-y0)/(y1-y0))*plotH;
+    function parseLP(block){
+      // LP | WR=67 | ROI=-2.8 | Profit=-10 | AO=1.47| N=360
+      const getN = (k)=>{
+        const m = block.match(new RegExp(`${k}=(-?\\d+(?:\\.\\d+)?)`));
+        return m ? Number(m[1]) : null;
+      };
+      return {
+        WR: getN("WR"), ROI: getN("ROI"), Profit: getN("Profit"), AO: getN("AO"), N: getN("N")
+      };
+    }
 
-  ctx.strokeStyle="rgba(255,255,255,.08)";
-  ctx.strokeRect(left, top, plotW, plotH);
+    function parseNotification(raw){
+      const blocks = splitBlocks(raw);
+      const warnings = [];
 
-  // Y-axis ticks (4-5 labels)
-  ctx.fillStyle="rgba(159,176,208,.70)";
-  ctx.font="600 10px "+getComputedStyle(document.body).fontFamily;
-  ctx.textAlign="right";
-  ctx.textBaseline="middle";
-  const ticksN = 5;
-  for(let i=0;i<ticksN;i++){
-    const t = i/(ticksN-1);
-    const v = y1 - t*(y1-y0);
-    const y = yAt(v);
-    ctx.strokeStyle="rgba(255,255,255,.06)";
-    ctx.beginPath();
-    ctx.moveTo(left, y);
-    ctx.lineTo(right, y);
-    ctx.stroke();
-    ctx.fillText(v.toFixed(1), left-6, y);
-  }
+      const required = ["META","STATE","ODDS_TO_BET","LP"];
+      for(const r of required){
+        if(!blocks[r]) return {ok:false, error:`Blocco mancante: ${r}`};
+      }
 
-  const final = pts[pts.length-1];
-  const isPos = final >= 0;
-  const fill = isPos ? "rgba(25,195,125,.12)" : "rgba(255,77,79,.12)";
-  const line = isPos ? "rgba(25,195,125,.85)" : "rgba(255,77,79,.85)";
-  const dot = isPos ? "rgba(25,195,125,.95)" : "rgba(255,77,79,.95)";
+      const meta = parseMETA(blocks.META);
+      const st = parseSTATE(blocks.STATE);
+      const stats = blocks.STATS ? parseSTATS(blocks.STATS) : null;
+      const l10 = blocks.STATS ? parseL10(blocks.STATS) : null;
+      const press = blocks.PRESS ? parsePRESS(blocks.PRESS) : null;
+      const late = blocks.LATE ? parseLATE(blocks.LATE) : null;
 
-  ctx.beginPath();
-  ctx.moveTo(left, bottom);
-  for(let i=0;i<pts.length;i++) ctx.lineTo(xAt(i), yAt(pts[i]));
-  ctx.lineTo(right, bottom);
-  ctx.closePath();
-  ctx.fillStyle = fill;
-  ctx.fill();
+      const prob = blocks.PROB ? parsePROB(blocks.PROB) : {HT:null, FT:null};
+      if(!blocks.PROB) warnings.push("Blocco PROB assente: userò il modello interno (se presente) o stima da stats.");
 
-  ctx.beginPath();
-  for(let i=0;i<pts.length;i++){
-    const x=xAt(i), y=yAt(pts[i]);
-    if(i===0) ctx.moveTo(x,y);
-    else ctx.lineTo(x,y);
-  }
-  ctx.strokeStyle=line;
-  ctx.lineWidth=2;
-  ctx.stroke();
+      const oddsToBet = parseODDSTOBET(blocks.ODDS_TO_BET);
+      if(!oddsToBet) return {ok:false, error:"ODDS_TO_BET non valido"};
 
-  ctx.fillStyle=dot;
-  for(let i=0;i<pts.length;i++){
-    const x=xAt(i), y=yAt(pts[i]);
-    ctx.beginPath();
-    ctx.arc(x,y,2.4,0,Math.PI*2);
-    ctx.fill();
-  }
+      const lp = parseLP(blocks.LP);
 
-  ctx.fillStyle="rgba(159,176,208,.95)";
-  ctx.font="600 11px "+getComputedStyle(document.body).fontFamily;
-  ctx.textAlign="right";
-  ctx.fillText(`Cumulato: ${final.toFixed(2)}`, right, top-6);
-}
-function drawProfitChart(closed, mode){
-  drawProfitChartOn(document.getElementById("profitChart"), closed, mode);
-}
+      return {ok:true, parsed:{ meta, state:st, stats, l10, press, late, prob, oddsToBet, lp }, warnings};
+    }
 
-/* =========================
-   Filters page (key = Method)
-========================= */
-function filterKeyName(b){
-  // Group filters ONLY by Method (as requested)
-  return `${b.meta?.Method || "—"}`;
-}
-function filterClosedBets(name){
-  return state.history.filter(b=>{
-    if(filterKeyName(b)!==name) return false;
-    return (b.result==="win" || b.result==="loss");
-  });
-}
-let selectedFilterName=null;
+    // -------------------------------
+    // Probability + Stake
+    // -------------------------------
+    function neededGoalsFromLine_NEXT(line){
+      // Next Over 0.5 => 1 goal; 1.5=>2 goals; 2.5=>3 goals...
+      const x = safeNum(line);
+      if(x===null) return null;
+      return Math.floor(x) + 1;
+    }
 
-function renderFilters(){
-  const grid=document.getElementById("filtersGrid");
-  const sort=document.getElementById("filterSort").value;
+    function poissonTailProb(lambda, kPlus){
+      if(lambda===null || !isFinite(lambda) || lambda<0) return null;
+      if(kPlus<=0) return 1.0;
+      let cdf = 0.0;
+      let term = Math.exp(-lambda);
+      cdf += term;
+      for(let i=1;i<kPlus;i++){
+        term *= lambda / i;
+        cdf += term;
+        if(term < 1e-12) break;
+      }
+      let p = 1.0 - cdf;
+      if(p<0) p=0; if(p>1) p=1;
+      return p;
+    }
 
-  const groups=new Map();
-  for(const b of state.history){
-    const name = filterKeyName(b);
-    if(!groups.has(name)){
-      groups.set(name, {
-        name, bets:0, wins:0, losses:0,
-        stake:0, profit:0,
-        oddsSum:0, oddsN:0,
-        lastLP: null, lastDate: null,
-        hasClosed:false
+    function loadRuntimeModels(){
+      try{
+        const raw = localStorage.getItem("RUNTIME_MODELS_JSON");
+        if(!raw) return null;
+        return JSON.parse(raw);
+      }catch(e){
+        return null;
+      }
+    }
+
+    function predictWithRuntimeModels(runtime, parsed, phase, needed){
+      if(!runtime) return null;
+      const key = (phase==="HT") ? ("ht" in runtime ? "ht" : "HT") : ("ft" in runtime ? "ft" : "FT");
+      const model = runtime[key];
+      if(!model) return null;
+
+      const t = parsed.state.Time ?? null;
+      const rem_ft = parsed.state.RemFT ?? null;
+      const rem_ht = parsed.state.RemHT ?? null;
+      const rem = (phase==="HT") ? rem_ht : rem_ft;
+      if(rem===null || !isFinite(rem) || rem<=0) return null;
+
+      const feats = {};
+      const eps=1e-9;
+
+      const sumStats = parsed.stats ? {
+        sot: (parsed.stats.SOT?.h ?? 0) + (parsed.stats.SOT?.a ?? 0),
+        soff:(parsed.stats.SOFF?.h ?? 0) + (parsed.stats.SOFF?.a ?? 0),
+        cor: (parsed.stats.COR?.h ?? 0) + (parsed.stats.COR?.a ?? 0),
+        att: (parsed.stats.ATT?.h ?? 0) + (parsed.stats.ATT?.a ?? 0),
+        datt:(parsed.stats.DATT?.h ?? 0) + (parsed.stats.DATT?.a ?? 0),
+      } : null;
+
+      const sumL10 = parsed.l10 ? {
+        sot: (parsed.l10.SOT?.h ?? 0) + (parsed.l10.SOT?.a ?? 0),
+        soff:(parsed.l10.SOFF?.h ?? 0) + (parsed.l10.SOFF?.a ?? 0),
+        cor: (parsed.l10.COR?.h ?? 0) + (parsed.l10.COR?.a ?? 0),
+        att: (parsed.l10.ATT?.h ?? 0) + (parsed.l10.ATT?.a ?? 0),
+        datt:(parsed.l10.DATT?.h ?? 0) + (parsed.l10.DATT?.a ?? 0),
+      } : null;
+
+      const denom = (t!==null && isFinite(t)) ? (t+1) : 1;
+
+      if(sumStats){
+        feats["sum_sot_rate"] = sumStats.sot / denom;
+        feats["sum_soff_rate"] = sumStats.soff / denom;
+        feats["sum_cor_rate"] = sumStats.cor / denom;
+        feats["sum_att_rate"] = sumStats.att / denom;
+        feats["sum_datt_rate"] = sumStats.datt / denom;
+        feats["diff_sot_rate"] = ((parsed.stats.SOT?.h ?? 0) - (parsed.stats.SOT?.a ?? 0)) / denom;
+        feats["diff_att_rate"] = ((parsed.stats.ATT?.h ?? 0) - (parsed.stats.ATT?.a ?? 0)) / denom;
+        feats["diff_datt_rate"] = ((parsed.stats.DATT?.h ?? 0) - (parsed.stats.DATT?.a ?? 0)) / denom;
+      }
+      if(sumL10){
+        feats["sum_sot_l10_rate"] = sumL10.sot / 10.0;
+        feats["sum_soff_l10_rate"] = sumL10.soff / 10.0;
+        feats["sum_cor_l10_rate"] = sumL10.cor / 10.0;
+        feats["sum_att_l10_rate"] = sumL10.att / 10.0;
+        feats["sum_datt_l10_rate"] = sumL10.datt / 10.0;
+      }
+
+      feats["goals_so_far"] = parsed.state.ScoreTotal ?? null;
+      feats["t"] = t;
+      feats["rem_ft"] = rem_ft;
+      feats["rem_ht"] = rem_ht;
+
+      let eta = (model.intercept ?? 0);
+      const coef = model.coef ?? {};
+      const featList = model.features ?? Object.keys(coef);
+
+      for(const f of featList){
+        const x = (feats[f]!==undefined && feats[f]!==null && isFinite(feats[f])) ? feats[f] : 0;
+        const c = (coef[f]!==undefined && coef[f]!==null && isFinite(coef[f])) ? coef[f] : 0;
+        eta += c * x;
+      }
+
+      eta += Math.log(rem + eps);
+
+      const mu = Math.exp(eta);
+      let p = poissonTailProb(mu, needed);
+
+      try{
+        const cal = model.calibration || model.cal || null;
+        const kKey = "k"+String(needed);
+        if(cal && cal[kKey] && p!==null){
+          const A = cal[kKey].a ?? cal[kKey].A ?? null;
+          const B = cal[kKey].b ?? cal[kKey].B ?? null;
+          if(A!==null && B!==null){
+            const logit = (q)=>Math.log(q/(1-q));
+            const invlogit = (z)=>1/(1+Math.exp(-z));
+            const z = A + B*logit(Math.min(0.999, Math.max(0.001, p)));
+            p = invlogit(z);
+          }
+        }
+      }catch(e){}
+
+      return {p, mu, used:"RUNTIME"};
+    }
+
+    function estimateLambdaHeuristic(parsed, phase){
+      const t = parsed.state.Time ?? null;
+      const rem = (phase==="HT") ? parsed.state.RemHT : parsed.state.RemFT;
+      if(rem===null || !isFinite(rem) || rem<=0) return null;
+
+      const denom = (t!==null && isFinite(t)) ? (t+1) : 1;
+      const s = parsed.stats;
+      const l10 = parsed.l10;
+
+      const sum = (obj, key)=> obj && obj[key] ? ((obj[key].h??0)+(obj[key].a??0)) : 0;
+
+      const sot_r = sum(s,"SOT")/denom;
+      const soff_r= sum(s,"SOFF")/denom;
+      const cor_r = sum(s,"COR")/denom;
+      const att_r = sum(s,"ATT")/denom;
+      const datt_r= sum(s,"DATT")/denom;
+
+      const sot10 = sum(l10,"SOT")/10.0;
+      const soff10= sum(l10,"SOFF")/10.0;
+      const cor10 = sum(l10,"COR")/10.0;
+      const att10 = sum(l10,"ATT")/10.0;
+      const datt10= sum(l10,"DATT")/10.0;
+
+      const press = (wSOT,wSOFF,wCOR,wDA,wATT, SOT,SOFF,COR,DA,ATT)=> (wSOT*SOT + wSOFF*SOFF + wCOR*COR + wDA*DA + wATT*ATT);
+      const p_all = press(0.35,0.20,0.15,0.20,0.10, sot_r,soff_r,cor_r,datt_r,att_r);
+      const p_l10 = press(0.35,0.20,0.15,0.20,0.10, sot10,soff10,cor10,datt10,att10);
+
+      const gpiM = parsed.press?.GPI_M ?? null;
+      const gpiL10 = parsed.press?.GPI_L10 ?? null;
+      const gpiBase = (gpiM!==null && isFinite(gpiM)) ? gpiM : 80;
+      const gpi10 = (gpiL10!==null && isFinite(gpiL10)) ? gpiL10 : gpiBase;
+
+      const intensity = clamp(0.55, 2.20, 0.60*(gpiBase/80) + 0.40*(gpi10/80));
+
+      const late = parsed.late?.AT ?? null;
+      const late10 = parsed.late?.L10 ?? null;
+      const lateFactor = clamp(0.75, 1.35, 1 + 0.10*((late??0.6)-0.6) + 0.07*((late10??0.6)-0.6));
+
+      const siM = parsed.press?.SI_M ?? null;
+      const siL = parsed.press?.SI_L10 ?? null;
+      const siFactor = clamp(0.75, 1.15, 1 - 0.004*((siM??50)-50) - 0.002*((siL??50)-50));
+
+      const goalsSoFar = parsed.state.ScoreTotal ?? 0;
+      const goalsFactor = clamp(0.85, 1.25, 1 + 0.05*goalsSoFar);
+
+      const baseRate = 0.026;
+      const pBoost = clamp(0.70, 1.35, 1 + 0.9*(p_all - 0.10));
+      const p10Boost = clamp(0.75, 1.45, 1 + 0.8*(p_l10 - 0.10));
+
+      const lambda = baseRate * rem * intensity * lateFactor * siFactor * goalsFactor * (0.55*pBoost + 0.45*p10Boost);
+      return clamp(0, 12, lambda);
+    }
+
+    function pickMatchProbability_NEXT(parsed){
+      const phase = parsed.oddsToBet.phase;
+      const line = parsed.oddsToBet.line;
+      if(!phase || line===null) return {p:null, needed:null, lambda:null, reason:"Phase o Line non disponibili"};
+      const needed = neededGoalsFromLine_NEXT(line);
+
+      const table = (phase==="HT") ? parsed.prob.HT : parsed.prob.FT;
+      if(table && table[needed]!==undefined && table[needed]!==null){
+        return {p: table[needed], needed, lambda:null, used:"PROB", reason:null};
+      }
+
+      const runtime = loadRuntimeModels();
+      const rm = predictWithRuntimeModels(runtime, parsed, phase, needed);
+      if(rm && rm.p!==null){
+        return {p: rm.p, needed, lambda: rm.mu, used: rm.used, reason:null};
+      }
+
+      const lam = estimateLambdaHeuristic(parsed, phase);
+      if(lam===null) return {p:null, needed, lambda:null, used:"NONE", reason:"Dati insufficienti per stimare λ"};
+      const p = poissonTailProb(lam, needed);
+      return {p, needed, lambda: lam, used:"HEUR", reason:null};
+    }
+
+    function calcStakeV1(parsed){
+      const warnings=[];
+      const odds = parsed.oddsToBet.odds;
+      const lpWR = parsed.lp?.WR;
+      const lpN = parsed.lp?.N;
+
+      const matchP = pickMatchProbability_NEXT(parsed);
+      if(matchP.p===null){
+        return {ok:false, error:"Impossibile calcolare probabilità", warnings, matchP};
+      }
+
+      const P_MODEL = matchP.p;
+      const WR = (lpWR!==null && isFinite(lpWR)) ? clamp(lpWR/100, 0.05, 0.95) : null;
+
+      let P_REF = P_MODEL;
+      let source = "MODEL";
+      if(WR!==null){
+        const w = clamp((lpN||0) / 800, 0.10, 0.50);
+        P_REF = (1-w)*P_MODEL + w*WR;
+        source = "MODEL+WR";
+      }
+
+      const implied = 1/odds;
+      const edge = P_REF - implied;
+      const ev = P_REF*odds - 1;
+
+      const b = odds - 1;
+      let kelly = (b>0) ? edge / b : 0;
+
+      const frac = 0.50;
+      let stakePct = 0.01;
+
+      if(kelly>0){
+        const kAdj = kelly*frac;
+        stakePct = clamp(kAdj, 0.01, 0.05);
+      }else{
+        stakePct = 0.01;
+        warnings.push("Edge negativo: stake impostato al minimo (1%)");
+      }
+
+      if(lpN!==null && lpN<500){
+        stakePct *= 0.85;
+        stakePct = Math.max(stakePct, 0.01);
+        warnings.push("LP N < 500: haircut stake -15%");
+      }
+
+      const stakeAmt = roundStake1decMin1(state.bankroll_day * stakePct);
+      const stakePctEff = stakeAmt / state.bankroll_day;
+
+      return {
+        ok:true,
+        p_model:P_MODEL,
+        p_ref:P_REF,
+        source,
+        edge,
+        ev,
+        implied,
+        odds,
+        stake_pct: stakePctEff,
+        stake_amt: stakeAmt,
+        needed_goals: matchP.needed,
+        lambda_est: matchP.lambda ?? null,
+        match_source: matchP.used ?? null,
+        warnings
+      };
+    }
+    // -------------------------------
+    // UI rendering + events
+    // -------------------------------
+    const notifText=document.getElementById("notifText");
+    const btnParse=document.getElementById("btnParse");
+    const btnClear=document.getElementById("btnClear");
+    const parseMsg=document.getElementById("parseMsg");
+    const parseHint=document.getElementById("parseHint");
+    const actionWrap=document.getElementById("actionWrap");
+    const runtimeModelsText=document.getElementById("runtimeModelsText");
+    const btnSaveRuntime=document.getElementById("btnSaveRuntime");
+    const btnClearRuntime=document.getElementById("btnClearRuntime");
+    const runtimeStatus=document.getElementById("runtimeStatus");
+
+    const bankrollCurrent=document.getElementById("bankrollCurrent");
+    const bankrollDay=document.getElementById("bankrollDay");
+    const btnResetDay=document.getElementById("btnResetDay");
+
+    const kpiDayBR=document.getElementById("kpiDayBR");
+    const kpiDayROC=document.getElementById("kpiDayROC");
+    const kpiStopTxt=document.getElementById("kpiStopTxt");
+    const dayPillTxt=document.getElementById("dayPillTxt");
+
+    const historyList=document.getElementById("historyList");
+    const historyResultFilter=document.getElementById("historyResultFilter");
+    const historyDateFilter=document.getElementById("historyDateFilter");
+    const historySearch=document.getElementById("historySearch");
+
+    const btnManualAdd=document.getElementById("btnManualAdd");
+    const manualAddWrap=document.getElementById("manualAddWrap");
+    const manDate=document.getElementById("manDate");
+    const manMatch=document.getElementById("manMatch");
+    const manMethod=document.getElementById("manMethod");
+    const manPhase=document.getElementById("manPhase");
+    const manLine=document.getElementById("manLine");
+    const manOdds=document.getElementById("manOdds");
+    const manStake=document.getElementById("manStake");
+    const manResult=document.getElementById("manResult");
+    const btnManualSave=document.getElementById("btnManualSave");
+    const btnManualCancel=document.getElementById("btnManualCancel");
+    const btnExportHistory=document.getElementById("btnExportHistory");
+    const fileImportHistory=document.getElementById("fileImportHistory");
+
+    const donutCanvas=document.getElementById("donutCanvas");
+    const profitCanvas=document.getElementById("profitCanvas");
+    const dashKpi=document.getElementById("dashKpi");
+    const filtersList=document.getElementById("filtersList");
+
+    // runtime models UI
+    function updateRuntimeUI(){
+      if(!runtimeModelsText) return;
+      const raw = localStorage.getItem("RUNTIME_MODELS_JSON");
+      if(raw){
+        runtimeModelsText.value = raw;
+        try{
+          const obj = JSON.parse(raw);
+          const hasFT = !!(obj.ft||obj.FT);
+          const hasHT = !!(obj.ht||obj.HT);
+          runtimeStatus.textContent = `Modello caricato ✅ (FT:${hasFT?"ok":"—"} HT:${hasHT?"ok":"—"})`;
+        }catch(e){
+          runtimeStatus.textContent = "JSON non valido ⚠️";
+        }
+      }else{
+        runtimeModelsText.value = "";
+        runtimeStatus.textContent = "Nessun modello caricato";
+      }
+    }
+    updateRuntimeUI();
+
+    if(btnSaveRuntime){
+      btnSaveRuntime.addEventListener("click", ()=>{
+        const raw = (runtimeModelsText.value||"").trim();
+        if(!raw){
+          localStorage.removeItem("RUNTIME_MODELS_JSON");
+          updateRuntimeUI();
+          toast("Modello rimosso");
+          return;
+        }
+        try{
+          JSON.parse(raw);
+          localStorage.setItem("RUNTIME_MODELS_JSON", raw);
+          updateRuntimeUI();
+          toast("Modello salvato ✅");
+        }catch(e){
+          toast("JSON non valido");
+        }
       });
     }
-    const g=groups.get(name);
-    g.bets++;
-
-    if(!g.lastDate || b.date >= g.lastDate){
-      g.lastDate = b.date;
-      g.lastLP = b.lp || null;
+    if(btnClearRuntime){
+      btnClearRuntime.addEventListener("click", ()=>{
+        localStorage.removeItem("RUNTIME_MODELS_JSON");
+        updateRuntimeUI();
+        toast("Modello rimosso");
+      });
     }
 
-    const o = (b.execution?.odds_played ?? b.execution?.odds_ref);
-    if(o && Number(o)>1){ g.oddsSum += Number(o); g.oddsN++; }
-
-    if(b.result==="win"||b.result==="loss"){
-      g.hasClosed=true;
-      const st = Number(b.execution?.stake_played ?? b.execution?.stake_suggested ?? 0);
-      const pr = Number(b.profit_real ?? 0);
-      g.stake += st;
-      g.profit += pr;
-      if(b.result==="win") g.wins++;
-      else g.losses++;
+    function syncBankrollInputs(){
+      bankrollCurrent.value = state.bankroll_current.toFixed(2);
+      bankrollDay.value = state.bankroll_day.toFixed(2);
     }
-  }
+    syncBankrollInputs();
 
-  let arr = Array.from(groups.values());
-  arr = arr.filter(g=>g.bets>0);
+    bankrollCurrent.addEventListener("change", ()=>{
+      const n = safeNum(bankrollCurrent.value);
+      if(n!==null){ state.bankroll_current = n; saveState(); renderAll(); }
+    });
+    bankrollDay.addEventListener("change", ()=>{
+      const n = safeNum(bankrollDay.value);
+      if(n!==null){ state.bankroll_day = n; saveState(); renderAll(); }
+    });
 
-  arr.forEach(g=>{
-    g.wr = (g.wins+g.losses)>0 ? g.wins/(g.wins+g.losses) : null;
-    g.roi = g.stake>0 ? g.profit/g.stake : null;
-    g.ao = g.oddsN>0 ? g.oddsSum/g.oddsN : null;
-  });
-
-  const sorter = {
-    profit:(a,b)=> (b.profit-a.profit),
-    roi:(a,b)=> (Number(b.roi??-999) - Number(a.roi??-999)),
-    wr:(a,b)=> (Number(b.wr??-999) - Number(a.wr??-999)),
-    n:(a,b)=> (b.bets-a.bets),
-    recent:(a,b)=> (String(b.lastDate||"").localeCompare(String(a.lastDate||"")))
-  }[sort] || ((a,b)=>b.profit-a.profit);
-
-  arr.sort(sorter);
-
-  grid.innerHTML="";
-  if(arr.length===0){
-    grid.innerHTML = `<div class="help">Nessun filtro nello storico.</div>`;
-    return;
-  }
-
-  for(const g of arr){
-    const wrTxt = g.wr===null ? "—" : (g.wr*100).toFixed(1)+"%";
-    const roiTxt = g.roi===null ? "—" : (g.roi*100).toFixed(1)+"%";
-    const aoTxt = g.ao===null ? "—" : g.ao.toFixed(2);
-
-    const lp = g.lastLP;
-    const lpTxt = lp ? `LP WR ${lp.WR?.toFixed?.(0) ?? lp.WR ?? "—"} • ROI ${lp.ROI ?? "—"} • AO ${lp.AO ?? "—"} • N ${lp.N ?? "—"}` : "LP —";
-
-    const card=document.createElement("div");
-    card.className="betCard";
-    card.innerHTML = `
-      <div class="t1">
-        <span class="method">${escapeHtml(g.name)}</span>
-        <span class="badge">${escapeHtml(g.bets)} bets</span>
-      </div>
-      <div class="row" style="margin-top:8px">
-        <span class="chip">WR <b class="mono">${escapeHtml(wrTxt)}</b></span>
-        <span class="chip">ROI <b class="mono">${escapeHtml(roiTxt)}</b></span>
-        <span class="chip">Profit <b class="mono" style="color:${g.profit>=0?"var(--good)":"var(--bad)"}">${escapeHtml(g.profit.toFixed(2))}</b></span>
-        <span class="chip">AO <b class="mono">${escapeHtml(aoTxt)}</b></span>
-      </div>
-      <div class="help" style="margin-top:8px">${escapeHtml(lpTxt)}</div>
-      <div class="actions">
-        <button class="miniBtn" data-act="openFilter" data-name="${escapeHtml(g.name)}">Dettagli</button>
-      </div>
-    `;
-    grid.appendChild(card);
-  }
-}
-
-document.getElementById("filtersGrid").addEventListener("click",(e)=>{
-  const btn=e.target.closest("button");
-  if(!btn) return;
-  if(btn.dataset.act==="openFilter"){
-    selectedFilterName = btn.dataset.name;
-    renderFilterDetail();
-  }
-});
-document.getElementById("filterSort").addEventListener("change", renderFilters);
-document.getElementById("filterRangeSelect").addEventListener("change", renderFilterDetail);
-
-function renderFilterDetail(){
-  const box=document.getElementById("filterLPBox");
-  const canvas=document.getElementById("filterProfitChart");
-  const mode=document.getElementById("filterRangeSelect").value;
-  if(!selectedFilterName){
-    box.textContent="—";
-    const ctx=canvas.getContext("2d");
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    return;
-  }
-  const closed = filterClosedBets(selectedFilterName);
-  drawProfitChartOn(canvas, closed, mode);
-
-  // last LP from latest bet of that method
-  const latest = state.history
-    .filter(b=>filterKeyName(b)===selectedFilterName)
-    .sort((a,b)=> (a.date<b.date?1:-1))[0];
-
-  const lp = latest?.lp || null;
-  if(lp){
-    box.innerHTML = `
-      <div class="row" style="justify-content:space-between">
-        <span class="chip">Metodo <b class="mono">${escapeHtml(selectedFilterName)}</b></span>
-        <span class="chip">LP WR <b class="mono">${escapeHtml(String(lp.WR ?? "—"))}</b></span>
-        <span class="chip">LP ROI <b class="mono">${escapeHtml(String(lp.ROI ?? "—"))}</b></span>
-        <span class="chip">LP AO <b class="mono">${escapeHtml(String(lp.AO ?? "—"))}</b></span>
-        <span class="chip">LP N <b class="mono">${escapeHtml(String(lp.N ?? "—"))}</b></span>
-      </div>
-    `;
-  }else{
-    box.textContent = "LP non disponibile per questo filtro.";
-  }
-}
-
-/* =========================
-   Dashboard render
-========================= */
-function closedBets(rangeMode){
-  return state.history.filter(b=>{
-    if(!(b.result==="win"||b.result==="loss")) return false;
-    if(rangeMode==="all") return true;
-    return inDateRange(b.date, rangeMode);
-  });
-}
-function renderDashboard(){
-  const range=document.getElementById("dashRangeSelect").value;
-  const closed=closedBets(range);
-
-  const wins=closed.filter(b=>b.result==="win").length;
-  const losses=closed.filter(b=>b.result==="loss").length;
-  document.getElementById("winsLabel").textContent=String(wins);
-  document.getElementById("lossLabel").textContent=String(losses);
-  drawDonut(wins, losses);
-
-  const stake = closed.reduce((s,b)=> s + Number(b.execution?.stake_played ?? b.execution?.stake_suggested ?? 0), 0);
-  const profit = closed.reduce((s,b)=> s + Number(b.profit_real ?? 0), 0);
-  const wr = (wins+losses)>0 ? wins/(wins+losses) : 0;
-
-  let eq=0;
-  const pts=closed.slice().sort((a,b)=>a.date<b.date?-1:1).map(b=> (eq += Number(b.profit_real ?? 0)));
-  const dd = maxDrawdown(pts);
-  const st = streaks(closed.slice().sort((a,b)=>a.date<b.date?-1:1));
-
-  const kpis = [
-    {label:"Numero bet", value: String(wins+losses)},
-    {label:"Winrate", value: (wr*100).toFixed(1)+"%"},
-    {label:"ROI", value: stake>0 ? ((profit/stake)*100).toFixed(1)+"%" : "—"},
-    {label:"Profitto", value: profit.toFixed(2)},
-    {label:"Max drawdown", value: dd.toFixed(2)},
-    {label:"Streak (W/L)", value: `${st.maxW}/${st.maxL}`}
-  ];
-
-  const wrap=document.getElementById("dashKpis");
-  wrap.innerHTML = kpis.map(k=>`
-    <div class="kpi">
-      <div class="label">${escapeHtml(k.label)}</div>
-      <div class="value mono">${escapeHtml(k.value)}</div>
-    </div>
-  `).join("");
-
-  drawProfitChart(closed, document.getElementById("profitRangeSelect").value);
-}
-document.getElementById("dashRangeSelect").addEventListener("change", renderDashboard);
-document.getElementById("profitRangeSelect").addEventListener("change", ()=>renderDashboard());
-
-/* =========================
-   Export/Import
-========================= */
-function exportJSON(){
-  const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
-  const a=document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "bettools_export.json";
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-function importJSONFile(file){
-  const reader=new FileReader();
-  reader.onload=()=>{
-    try{
-      const s=JSON.parse(reader.result);
-      state = {...structuredClone(DEFAULT_STATE), ...s};
+    btnResetDay.addEventListener("click", ()=>{
+      state.day_anchor_date = null;
+      state.bankroll_day = state.bankroll_current;
       saveState();
+      syncBankrollInputs();
       renderAll();
-    }catch(e){
-      alert("JSON non valido");
-    }
-  };
-  reader.readAsText(file);
-}
-document.getElementById("btnExport").addEventListener("click", exportJSON);
-document.getElementById("btnExport2").addEventListener("click", exportJSON);
-document.getElementById("btnImport").addEventListener("click", ()=>document.getElementById("fileImport").click());
-document.getElementById("btnImport2").addEventListener("click", ()=>document.getElementById("fileImport").click());
-document.getElementById("fileImport").addEventListener("change",(e)=>{
-  const f=e.target.files?.[0];
-  if(f) importJSONFile(f);
-  e.target.value="";
-});
+      toast("Nuovo giorno ✅");
+    });
 
-/* =========================
-   Render all
-========================= */
-function renderAll(){
-  syncBankrollInputs();
-  calcDailyBanner();
-  renderHistory();
-  renderDashboard();
-  renderFilters();
-  renderFilterDetail();
-}
-renderAll();
-</script>
+    btnClear.addEventListener("click", ()=>{
+      notifText.value="";
+      parseMsg.textContent="";
+      parseHint.textContent="";
+      actionWrap.innerHTML="";
+    });
+
+    btnParse.addEventListener("click", ()=>{
+      const raw = notifText.value;
+      const r = parseNotification(raw);
+      if(!r.ok){
+        parseMsg.textContent = "Errore: "+r.error;
+        actionWrap.innerHTML="";
+        return;
+      }
+      const parsed = r.parsed;
+
+      const stakeRes = calcStakeV1(parsed);
+      const allWarn = [...(r.warnings||[]), ...(stakeRes.warnings||[])];
+
+      parseHint.textContent = allWarn.length ? "⚠️" : "✅";
+      parseMsg.textContent = allWarn.join(" • ");
+
+      if(!stakeRes.ok){
+        actionWrap.innerHTML = `<div class="help">Errore calcolo: ${escapeHtml(stakeRes.error||"")}</div>`;
+        return;
+      }
+
+      const stakeAmt = stakeRes.stake_amt;
+      const odds = parsed.oddsToBet.odds;
+
+      actionWrap.innerHTML = `
+        <div class="card">
+          <div class="row wrap" style="gap:8px">
+            <div class="pillMini">Prob stimata: <b class="mono">${pct(stakeRes.p_ref)}</b></div>
+            <div class="pillMini">Goal richiesti (NEXT): <b class="mono">${stakeRes.needed_goals}</b></div>
+            <div class="pillMini">Market: <b>${escapeHtml(parsed.oddsToBet.label)}</b></div>
+            <div class="pillMini">Fonte: <b>${escapeHtml((stakeRes.match_source? (String(stakeRes.source||"—")+"+"+String(stakeRes.match_source)) : (stakeRes.source||"—")))}</b></div>
+            <div class="pillMini">λ: <b class="mono">${(stakeRes.lambda_est!==null && stakeRes.lambda_est!==undefined)?escapeHtml(Number(stakeRes.lambda_est).toFixed(2)):"—"}</b></div>
+          </div>
+          <div style="height:10px"></div>
+          <div class="row wrap" style="gap:8px">
+            <div class="pillMini">Implied: <b class="mono">${pct(stakeRes.implied)}</b></div>
+            <div class="pillMini">Edge: <b class="mono">${pct(stakeRes.edge)}</b></div>
+            <div class="pillMini">EV/unità: <b class="mono">${stakeRes.ev.toFixed(3)}</b></div>
+          </div>
+          <div style="height:12px"></div>
+          <div class="card" style="background: rgba(255,255,255,.04)">
+            <div class="row wrap" style="align-items:flex-end">
+              <div style="flex:1">
+                <div class="help">Stake consigliato</div>
+                <div style="font-size:26px; font-weight:700" class="mono">${stakeAmt.toFixed(1)}€</div>
+              </div>
+              <div style="flex:1">
+                <div class="help">Quota</div>
+                <input id="oddsBox" value="${odds.toFixed(2)}" />
+              </div>
+            </div>
+            <div style="height:10px"></div>
+            <div class="row wrap">
+              <button class="btn primary" id="btnAddToHistory">Aggiungi allo storico (pending)</button>
+            </div>
+            <div class="help" style="margin-top:8px">Lo stake è clampato 1%–5% e mai sotto 1€ (se EV negativo: 1%).</div>
+          </div>
+        </div>
+      `;
+
+      const btnAddToHistory = document.getElementById("btnAddToHistory");
+      btnAddToHistory.addEventListener("click", ()=>{
+        const oddsPlayed = safeNum(document.getElementById("oddsBox").value) ?? odds;
+
+        const b = {
+          id: uuid(),
+          date: new Date().toISOString().slice(0,10),
+          created_at: new Date().toISOString(),
+          meta: parsed.meta,
+          state: parsed.state,
+          stats: parsed.stats,
+          l10: parsed.l10,
+          press: parsed.press,
+          late: parsed.late,
+          prob: parsed.prob,
+          odds_to_bet: { phase: parsed.oddsToBet.phase, line: parsed.oddsToBet.line, label: parsed.oddsToBet.label },
+          lp: parsed.lp,
+          execution:{
+            bankroll_day: state.bankroll_day,
+            bankroll_current: state.bankroll_current,
+            odds_ref: odds,
+            odds_played: oddsPlayed,
+            stake_suggested: stakeAmt,
+            stake_played: stakeAmt,
+            ev: stakeRes.ev,
+            p_ref: stakeRes.p_ref,
+            p_model: stakeRes.p_model
+          },
+          result:"pending",
+          profit_real:null
+        };
+
+        state.history.unshift(b);
+        state.lastMethod = parsed.meta?.Method || state.lastMethod;
+        if(!state.day_anchor_date){
+          state.day_anchor_date = b.date;
+          state.bankroll_day = state.bankroll_current;
+          syncBankrollInputs();
+        }
+        saveState();
+        renderAll();
+        toast("Salvato ✅");
+      });
+    });
+
+    // Manual add handlers
+    function openManualAdd(){
+      if(!manualAddWrap) return;
+      manualAddWrap.style.display = "block";
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = String(today.getMonth()+1).padStart(2,"0");
+      const d = String(today.getDate()).padStart(2,"0");
+      manDate.value = `${y}-${m}-${d}`;
+      if(state.lastMethod) manMethod.value = state.lastMethod;
+    }
+    function closeManualAdd(){
+      if(!manualAddWrap) return;
+      manualAddWrap.style.display = "none";
+      [manMatch,manOdds,manStake,manLine].forEach(el=>{ if(el) el.value=""; });
+    }
+
+    if(btnManualAdd) btnManualAdd.addEventListener("click", ()=>{
+      if(manualAddWrap.style.display==="none" || manualAddWrap.style.display===""){
+        openManualAdd();
+      }else{
+        closeManualAdd();
+      }
+    });
+    if(btnManualCancel) btnManualCancel.addEventListener("click", closeManualAdd);
+
+    if(btnManualSave) btnManualSave.addEventListener("click", ()=>{
+      const date = (manDate.value||"").trim();
+      const match = (manMatch.value||"").trim();
+      const method = (manMethod.value||"").trim();
+      const phase = (manPhase.value||"").trim();
+      const line = safeNum(manLine.value);
+      const odds = safeNum(manOdds.value);
+      const stake = safeNum(manStake.value);
+      const result = (manResult.value||"pending");
+
+      if(!date || !match || !method || !phase || line===null || odds===null || stake===null){
+        toast("Compila data, partita, metodo, fase, line, quota e stake");
+        return;
+      }
+      state.lastMethod = method;
+
+      const b = {
+        id: uuid(),
+        date,
+        created_at: new Date().toISOString(),
+        meta: { Method: method, Match: match },
+        odds_to_bet: { phase, line, label: `${phase} Next Over ${line}` },
+        state: null, stats: null, l10: null, press:null, late:null, prob:{HT:null,FT:null}, lp:null,
+        execution: {
+          bankroll_day: state.bankroll_day,
+          bankroll_current: state.bankroll_current,
+          odds_ref: odds,
+          odds_played: odds,
+          stake_suggested: roundStake1decMin1(stake),
+          stake_played: roundStake1decMin1(stake),
+          ev: null,
+          p_ref: null,
+          p_model: null
+        },
+        result,
+        profit_real: (result==="win"||result==="loss") ? calcProfit(result, stake, odds) : null
+      };
+
+      state.history.unshift(b);
+      saveState();
+      closeManualAdd();
+      renderAll();
+      toast("Aggiunto ✅");
+    });
+
+    if(btnExportHistory) btnExportHistory.addEventListener("click", ()=>{
+      const blob = new Blob([JSON.stringify(state.history, null, 2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `history_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+    });
+
+    if(fileImportHistory) fileImportHistory.addEventListener("change", async (e)=>{
+      const f = e.target.files && e.target.files[0];
+      if(!f) return;
+      try{
+        const txt = await f.text();
+        const arr = JSON.parse(txt);
+        if(!Array.isArray(arr)) throw new Error("not array");
+        const existing = new Set(state.history.map(x=>x.id));
+        for(const b of arr){
+          if(b && b.id && !existing.has(b.id)) state.history.push(b);
+        }
+        state.history.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+        saveState();
+        renderAll();
+        toast("Import completato ✅");
+      }catch(err){
+        toast("Import fallito");
+      }finally{
+        fileImportHistory.value="";
+      }
+    });
+
+    // -------------------------------
+    // History rendering + editing
+    // -------------------------------
+    let editingBetId = null;
+
+    historyResultFilter.addEventListener("change", renderHistory);
+    historyDateFilter.addEventListener("change", renderHistory);
+    historySearch.addEventListener("input", renderHistory);
+
+    function formatPick(b){
+      return (b.odds_to_bet && b.odds_to_bet.label) ? b.odds_to_bet.label : "—";
+    }
+
+    function resultTag(r){
+      if(r==="win") return `<span class="tag win">WIN</span>`;
+      if(r==="loss") return `<span class="tag loss">LOSE</span>`;
+      if(r==="pending") return `<span class="tag pending">PENDING</span>`;
+      return `<span class="tag noplay">NO PLAY</span>`;
+    }
+
+    function renderBetCardHTML(b){
+      const isEditing = (editingBetId===b.id);
+
+      const method = b.meta?.Method || "—";
+      const match = b.meta?.Match || "—";
+      const date = b.date || "—";
+      const pick = formatPick(b);
+      const odds = safeNum(b.execution?.odds_played ?? b.execution?.odds_ref);
+      const stake = safeNum(b.execution?.stake_played ?? b.execution?.stake_suggested);
+      const profit = (b.result==="win"||b.result==="loss") ? calcProfit(b.result, stake||0, odds||0) : 0;
+
+      const topLine = isEditing ? `
+        <div class="betTop">
+          <div class="left">
+            <div class="row wrap" style="gap:8px">
+              <input data-edit="date" data-id="${b.id}" type="date" value="${escapeHtml(date)}" style="width:auto; min-width:140px"/>
+              <input data-edit="match" data-id="${b.id}" type="text" value="${escapeHtml(match)}" style="flex:1; min-width:200px"/>
+              <input class="mono" data-edit="method" data-id="${b.id}" type="text" value="${escapeHtml(method)}" style="width:auto; min-width:140px"/>
+            </div>
+            <div class="sub">Pick: <span class="mono">${escapeHtml(pick)}</span></div>
+          </div>
+          <div class="right">
+            ${resultTag(b.result)}
+          </div>
+        </div>
+      ` : `
+        <div class="betTop">
+          <div class="left">
+            <b>${escapeHtml(match)}</b>
+            <div class="sub">
+              <span class="mono">${escapeHtml(date)}</span> •
+              <span class="method">${escapeHtml(method)}</span> •
+              Pick: <span class="mono">${escapeHtml(pick)}</span>
+            </div>
+          </div>
+          <div class="right">
+            ${resultTag(b.result)}
+          </div>
+        </div>
+      `;
+
+      const body = `
+        <div class="betBody">
+          <div class="kv">
+            <small>Quota</small>
+            ${isEditing
+              ? `<input data-edit="odds" data-id="${b.id}" type="number" step="0.01" min="1" value="${odds??""}"/>`
+              : `<b class="mono">${odds?odds.toFixed(2):"—"}</b>`
+            }
+          </div>
+          <div class="kv">
+            <small>Stake</small>
+            ${isEditing
+              ? `<input data-edit="stake" data-id="${b.id}" type="number" step="0.1" min="1" value="${stake??""}"/>`
+              : `<b class="mono">${stake?stake.toFixed(1)+"€":"—"}</b>`
+            }
+          </div>
+          <div class="kv">
+            <small>Profit (chiusa)</small>
+            <b class="mono">${(b.result==="win"||b.result==="loss") ? fmtEuro(profit) : "—"}</b>
+          </div>
+          <div class="kv">
+            <small>Stato</small>
+            ${isEditing
+              ? `
+                <select data-edit="result" data-id="${b.id}">
+                  <option value="pending" ${b.result==="pending"?"selected":""}>Pending</option>
+                  <option value="win" ${b.result==="win"?"selected":""}>Vinta</option>
+                  <option value="loss" ${b.result==="loss"?"selected":""}>Persa</option>
+                  <option value="not_played" ${b.result==="not_played"?"selected":""}>Non giocata</option>
+                </select>
+              ` : `<b>${escapeHtml(b.result)}</b>`
+            }
+          </div>
+        </div>
+      `;
+
+      const actions = `
+        <div class="row wrap" style="margin-top:10px; gap:8px">
+          ${isEditing
+            ? `
+              <button class="btn primary" data-act="save" data-id="${b.id}">Salva</button>
+              <button class="btn" data-act="cancel" data-id="${b.id}">Annulla</button>
+            `
+            : `
+              <button class="btn" data-act="edit" data-id="${b.id}">Modifica</button>
+              <button class="btn danger" data-act="del" data-id="${b.id}">Elimina</button>
+            `
+          }
+        </div>
+      `;
+
+      return `<div class="bet" data-bet="${b.id}">${topLine}${body}${actions}</div>`;
+    }
+
+    historyList.addEventListener("click", (e)=>{
+      const btn = e.target.closest("button");
+      if(!btn) return;
+      const act = btn.getAttribute("data-act");
+      const id = btn.getAttribute("data-id");
+      const b = state.history.find(x=>x.id===id);
+      if(!b) return;
+
+      if(act==="edit"){
+        editingBetId = id;
+        renderHistory();
+        return;
+      }
+      if(act==="cancel"){
+        editingBetId = null;
+        renderHistory();
+        return;
+      }
+      if(act==="save"){
+        const dateEl = document.querySelector(`[data-edit="date"][data-id="${CSS.escape(id)}"]`);
+        const matchEl = document.querySelector(`[data-edit="match"][data-id="${CSS.escape(id)}"]`);
+        const methodEl = document.querySelector(`[data-edit="method"][data-id="${CSS.escape(id)}"]`);
+        const oddsEl = document.querySelector(`[data-edit="odds"][data-id="${CSS.escape(id)}"]`);
+        const stakeEl= document.querySelector(`[data-edit="stake"][data-id="${CSS.escape(id)}"]`);
+        const resEl  = document.querySelector(`[data-edit="result"][data-id="${CSS.escape(id)}"]`);
+
+        if(dateEl && dateEl.value) b.date = dateEl.value;
+        if(matchEl && matchEl.value.trim()) b.meta.Match = matchEl.value.trim();
+        if(methodEl && methodEl.value.trim()) b.meta.Method = methodEl.value.trim();
+
+        const o = safeNum(oddsEl?.value);
+        const s = safeNum(stakeEl?.value);
+        if(o!==null) b.execution.odds_played = o;
+        if(s!==null) b.execution.stake_played = roundStake1decMin1(s);
+
+        if(resEl) b.result = resEl.value;
+
+        if(b.result==="win"||b.result==="loss"){
+          const stake = safeNum(b.execution.stake_played) || 0;
+          const odds = safeNum(b.execution.odds_played) || 0;
+          b.profit_real = calcProfit(b.result, stake, odds);
+        }else{
+          b.profit_real = null;
+        }
+
+        editingBetId = null;
+        saveState();
+        renderAll();
+        toast("Salvato ✅");
+        return;
+      }
+      if(act==="del"){
+        state.history = state.history.filter(x=>x.id!==id);
+        saveState();
+        renderAll();
+        toast("Eliminata");
+        return;
+      }
+    });
+
+    function renderHistory(){
+      const rFilter = historyResultFilter.value;
+      const dFilter = historyDateFilter.value;
+      const q = (historySearch.value||"").trim().toLowerCase();
+
+      let arr = [...state.history];
+
+      if(rFilter!=="all"){
+        arr = arr.filter(b=>b.result===rFilter);
+      }
+      if(dFilter){
+        arr = arr.filter(b=>b.date===dFilter);
+      }
+      if(q){
+        arr = arr.filter(b=>{
+          const s = `${b.meta?.Match||""} ${b.meta?.Method||""}`.toLowerCase();
+          return s.includes(q);
+        });
+      }
+
+      if(arr.length===0){
+        historyList.innerHTML = `<div class="help">Nessun elemento nello storico con i filtri selezionati.</div>`;
+        return;
+      }
+
+      historyList.innerHTML = arr.map(renderBetCardHTML).join("");
+    }
+
+    // -------------------------------
+    // Dashboard
+    // -------------------------------
+    function getClosed(){
+      return state.history.filter(b=>b.result==="win"||b.result==="loss");
+    }
+
+    function computeStats(arr){
+      const bets = arr.length;
+      const wins = arr.filter(b=>b.result==="win").length;
+      const stakes = arr.reduce((acc,b)=>acc+(safeNum(b.execution?.stake_played)||0),0);
+      const profit = arr.reduce((acc,b)=>{
+        const stake = safeNum(b.execution?.stake_played)||0;
+        const odds = safeNum(b.execution?.odds_played)||0;
+        return acc + calcProfit(b.result, stake, odds);
+      },0);
+      const wr = bets>0 ? wins/bets : null;
+      const roi = stakes>0 ? profit/stakes : null;
+      return {bets,wins,wr,roi,profit,stakes};
+    }
+
+    function computeMaxDrawdown(profitSeries){
+      let peak = 0;
+      let dd = 0;
+      for(const x of profitSeries){
+        if(x>peak) peak=x;
+        dd = Math.min(dd, x-peak);
+      }
+      return dd; // negative
+    }
+
+    function computeStreak(arr){
+      let bestW=0, bestL=0;
+      let currW=0, currL=0;
+      for(const b of arr){
+        if(b.result==="win"){ currW++; currL=0; bestW=Math.max(bestW,currW); }
+        else if(b.result==="loss"){ currL++; currW=0; bestL=Math.max(bestL,currL); }
+      }
+      return {bestW, bestL};
+    }
+
+    function drawDonut(canvas, wr){
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width = canvas.clientWidth*2;
+      const h = canvas.height = canvas.clientHeight*2;
+      const cx=w/2, cy=h/2;
+      const r = Math.min(w,h)*0.32;
+      ctx.clearRect(0,0,w,h);
+
+      const p = wr===null ? 0 : wr;
+      const a0 = -Math.PI/2;
+      const a1 = a0 + p*2*Math.PI;
+
+      ctx.lineWidth = r*0.28;
+      ctx.lineCap="round";
+
+      // track
+      ctx.beginPath();
+      ctx.strokeStyle = "rgba(255,255,255,.10)";
+      ctx.arc(cx,cy,r,0,Math.PI*2);
+      ctx.stroke();
+
+      // value
+      ctx.beginPath();
+      ctx.strokeStyle = "rgba(74,163,255,.95)";
+      ctx.arc(cx,cy,r,a0,a1);
+      ctx.stroke();
+
+      // text
+      ctx.fillStyle="rgba(232,240,255,.95)";
+      ctx.font = `${Math.round(r*0.55)}px ${getComputedStyle(document.body).fontFamily}`;
+      ctx.textAlign="center";
+      ctx.textBaseline="middle";
+      ctx.fillText(wr===null?"—":Math.round(wr*100)+"%", cx, cy);
+    }
+
+    function drawProfit(canvas, series){
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width = canvas.clientWidth*2;
+      const h = canvas.height = canvas.clientHeight*2;
+      ctx.clearRect(0,0,w,h);
+
+      if(series.length<2){
+        ctx.fillStyle="rgba(138,160,194,.9)";
+        ctx.font = `28px ${getComputedStyle(document.body).fontFamily}`;
+        ctx.fillText("—", w/2-10, h/2);
+        return;
+      }
+
+      const min = Math.min(...series);
+      const max = Math.max(...series);
+      const pad = 28;
+      const x0 = pad, y0 = pad, x1 = w-pad, y1 = h-pad;
+
+      const span = (max-min) || 1;
+      const px = (i)=> x0 + (i/(series.length-1))*(x1-x0);
+      const py = (v)=> y1 - ((v-min)/span)*(y1-y0);
+
+      // area
+      const last = series[series.length-1];
+      ctx.beginPath();
+      ctx.moveTo(px(0), py(0));
+      for(let i=0;i<series.length;i++){
+        ctx.lineTo(px(i), py(series[i]));
+      }
+      ctx.lineTo(px(series.length-1), py(min));
+      ctx.lineTo(px(0), py(min));
+      ctx.closePath();
+
+      ctx.fillStyle = (last>=0) ? "rgba(53,208,127,.14)" : "rgba(255,93,93,.14)";
+      ctx.fill();
+
+      // line
+      ctx.beginPath();
+      ctx.moveTo(px(0), py(series[0]));
+      for(let i=1;i<series.length;i++){
+        ctx.lineTo(px(i), py(series[i]));
+      }
+      ctx.strokeStyle = (last>=0) ? "rgba(53,208,127,.90)" : "rgba(255,93,93,.90)";
+      ctx.lineWidth = 6;
+      ctx.lineCap="round";
+      ctx.stroke();
+
+      // axis labels (4-5 ticks)
+      ctx.fillStyle="rgba(138,160,194,.9)";
+      ctx.font = `22px ${getComputedStyle(document.body).fontFamily}`;
+      ctx.textAlign="right";
+      ctx.textBaseline="middle";
+      const ticks=5;
+      for(let i=0;i<ticks;i++){
+        const v = min + (i/(ticks-1))*span;
+        const y = py(v);
+        ctx.fillText(v.toFixed(0), x0-8, y);
+        ctx.strokeStyle="rgba(255,255,255,.06)";
+        ctx.lineWidth=2;
+        ctx.beginPath();
+        ctx.moveTo(x0, y);
+        ctx.lineTo(x1, y);
+        ctx.stroke();
+      }
+    }
+
+    function renderDashboard(){
+      const closed = getClosed();
+      const s = computeStats(closed);
+
+      const profitSeries = [];
+      let cum=0;
+      const sorted = [...closed].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+      for(const b of sorted){
+        const stake = safeNum(b.execution?.stake_played)||0;
+        const odds = safeNum(b.execution?.odds_played)||0;
+        cum += calcProfit(b.result, stake, odds);
+        profitSeries.push(cum);
+      }
+
+      const dd = computeMaxDrawdown(profitSeries);
+      const streak = computeStreak(sorted);
+
+      dashKpi.innerHTML = `
+        <div class="box">
+          <b>Numero bet</b>
+          <div class="v mono">${s.bets}</div>
+          <div class="s">chiuse</div>
+        </div>
+        <div class="box">
+          <b>Winrate</b>
+          <div class="v mono">${s.wr===null?"—":pct(s.wr)}</div>
+          <div class="s">wins: ${s.wins}</div>
+        </div>
+        <div class="box">
+          <b>ROI</b>
+          <div class="v mono">${s.roi===null?"—":pct(s.roi)}</div>
+          <div class="s">staked: ${fmtEuro(s.stakes)}</div>
+        </div>
+        <div class="box">
+          <b>Profit</b>
+          <div class="v mono">${fmtEuro(s.profit)}</div>
+          <div class="s">cum</div>
+        </div>
+        <div class="box">
+          <b>Max drawdown</b>
+          <div class="v mono">${fmtEuro(dd)}</div>
+          <div class="s">peggior drawdown</div>
+        </div>
+        <div class="box">
+          <b>Streak</b>
+          <div class="v mono">${streak.bestW}W / ${streak.bestL}L</div>
+          <div class="s">max streak</div>
+        </div>
+      `;
+
+      drawDonut(donutCanvas, s.wr);
+      drawProfit(profitCanvas, profitSeries);
+    }
+
+    // -------------------------------
+    // Time summary
+    // -------------------------------
+    function renderTimeSummary(){
+      const sel = document.getElementById("timeGroupSelect");
+      const body = document.getElementById("timeBody");
+      if(!sel || !body) return;
+
+      const mode = sel.value || "day";
+      const closed = state.history.filter(b=>b && (b.result==="win" || b.result==="loss"));
+      const pending = state.history.filter(b=>b && b.result==="pending");
+
+      const keyFor = (d)=>{
+        const dt = new Date(d+"T00:00:00");
+        if(isNaN(dt.getTime())) return String(d);
+        const y = dt.getFullYear();
+        const m = String(dt.getMonth()+1).padStart(2,"0");
+        const day = String(dt.getDate()).padStart(2,"0");
+        if(mode==="day") return `${y}-${m}-${day}`;
+        if(mode==="month") return `${y}-${m}`;
+        const q = Math.floor((dt.getMonth())/3)+1;
+        return `${y}-Q${q}`;
+      };
+
+      const agg = new Map();
+      for(const b of closed){
+        const k = keyFor(b.date);
+        if(!agg.has(k)) agg.set(k, {bets:0, wins:0, profit:0, staked:0});
+        const a = agg.get(k);
+        a.bets += 1;
+        if(b.result==="win") a.wins += 1;
+        const stake = safeNum(b.execution?.stake_played ?? b.execution?.stake_suggested) ?? 0;
+        const odds = safeNum(b.execution?.odds_played ?? b.execution?.odds_ref) ?? 0;
+        a.staked += stake;
+        a.profit += calcProfit(b.result, stake, odds);
+      }
+
+      const pendAgg = new Map();
+      for(const b of pending){
+        const k = keyFor(b.date);
+        pendAgg.set(k, (pendAgg.get(k)||0)+1);
+      }
+
+      const keys = Array.from(new Set([...agg.keys(), ...pendAgg.keys()])).sort((a,b)=>String(b).localeCompare(String(a)));
+      if(keys.length===0){
+        body.innerHTML = `<div class="help">Nessun dato disponibile (serve almeno una bet chiusa).</div>`;
+        return;
+      }
+
+      const rows = keys.map(k=>{
+        const a = agg.get(k) || {bets:0,wins:0,profit:0,staked:0};
+        const p = pendAgg.get(k) || 0;
+        const wr = a.bets>0 ? (a.wins/a.bets) : null;
+        const roi = a.staked>0 ? (a.profit/a.staked) : null;
+        return {k, ...a, pending:p, wr, roi};
+      });
+
+      body.innerHTML = `
+        <table>
+          <thead>
+            <tr><th>Periodo</th><th>Chiuse</th><th>WR</th><th>ROI</th><th>Profit</th><th>Pending</th></tr>
+          </thead>
+          <tbody>
+            ${rows.map(r=>`
+              <tr>
+                <td>${escapeHtml(r.k)}</td>
+                <td class="mono">${r.bets}</td>
+                <td class="mono">${r.wr===null?"—":pct(r.wr)}</td>
+                <td class="mono">${r.roi===null?"—":pct(r.roi)}</td>
+                <td class="mono">${fmtEuro(r.profit)}</td>
+                <td class="mono">${r.pending}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    document.getElementById("timeGroupSelect").addEventListener("change", renderTimeSummary);
+
+    // -------------------------------
+    // Filters (grouped by Method only)
+    // -------------------------------
+    function filterKeyName(b){
+      return `${b.meta?.Method || "—"}`;
+    }
+
+    function renderFilters(){
+      const closed = getClosed();
+      const groups = new Map();
+      for(const b of closed){
+        const k = filterKeyName(b);
+        if(!groups.has(k)) groups.set(k, []);
+        groups.get(k).push(b);
+      }
+
+      const keys = [...groups.keys()].sort((a,b)=>String(a).localeCompare(String(b)));
+      if(keys.length===0){
+        filtersList.innerHTML = `<div class="help">Nessun filtro: servono bet chiuse nello storico.</div>`;
+        return;
+      }
+
+      const cards = keys.map(k=>{
+        const arr = groups.get(k);
+        const s = computeStats(arr);
+
+        // last LP snapshot for this method (any bet, even pending)
+        const lastAny = state.history.find(b=> (b.meta?.Method||"—")===k && b.lp);
+        const lp = lastAny?.lp || null;
+
+        return `
+          <details class="card">
+            <summary>
+              <div class="row wrap" style="gap:8px">
+                <div style="flex:1; min-width:140px"><b>${escapeHtml(k)}</b></div>
+                <div class="pillMini">Bet: <b class="mono">${s.bets}</b></div>
+                <div class="pillMini">WR: <b class="mono">${s.wr===null?"—":pct(s.wr)}</b></div>
+                <div class="pillMini">ROI: <b class="mono">${s.roi===null?"—":pct(s.roi)}</b></div>
+                <div class="pillMini">Profit: <b class="mono">${fmtEuro(s.profit)}</b></div>
+              </div>
+            </summary>
+            <div style="margin-top:10px">
+              <div class="help"><b>Confronto con ultimo LP</b> (se presente nello storico per questo Method)</div>
+              <div class="row wrap" style="gap:8px; margin-top:8px">
+                <div class="pillMini">LP WR: <b class="mono">${lp?.WR!==null? lp.WR+"%":"—"}</b></div>
+                <div class="pillMini">LP ROI: <b class="mono">${lp?.ROI!==null? lp.ROI+"%":"—"}</b></div>
+                <div class="pillMini">LP AO: <b class="mono">${lp?.AO!==null? lp.AO.toFixed(2):"—"}</b></div>
+                <div class="pillMini">LP N: <b class="mono">${lp?.N!==null? lp.N:"—"}</b></div>
+              </div>
+              <div style="height:10px"></div>
+              <div class="help">Suggerimento: se vuoi fare analisi più profonde (mesi/3m/6m/1y) aggiungiamo un grafico dedicato nel prossimo step.</div>
+            </div>
+          </details>
+        `;
+      });
+
+      filtersList.innerHTML = cards.join("");
+    }
+
+    // -------------------------------
+    // Day pill + KPI day
+    // -------------------------------
+    function computeDayROC(){
+      const today = new Date().toISOString().slice(0,10);
+      const anchor = state.day_anchor_date || today;
+      const brDay = state.bankroll_day;
+
+      const closedToday = state.history.filter(b=> (b.date===anchor) && (b.result==="win"||b.result==="loss"));
+      const profit = closedToday.reduce((acc,b)=>{
+        const stake = safeNum(b.execution?.stake_played)||0;
+        const odds = safeNum(b.execution?.odds_played)||0;
+        return acc + calcProfit(b.result, stake, odds);
+      },0);
+
+      const roc = brDay>0 ? profit/brDay : 0;
+      return {anchor, brDay, profit, roc};
+    }
+
+    function renderDayBar(){
+      const d = computeDayROC();
+      kpiDayBR.textContent = d.brDay.toFixed(2)+"€";
+      kpiDayROC.textContent = pct(d.roc);
+
+      let msg="—";
+      if(d.roc>=0.03) msg="✅ Target profit raggiunto (+3% ROC): valuta stop.";
+      else if(d.roc<=-0.10) msg="⛔ Stop loss raggiunto (-10% ROC): fermati.";
+      kpiStopTxt.textContent = msg;
+
+      dayPillTxt.textContent = `Giornata: ${d.anchor} • Profit ${fmtEuro(d.profit)} • ROC ${pct(d.roc)}`;
+    }
+
+    // -------------------------------
+    // Render all
+    // -------------------------------
+    function renderAll(){
+      renderDayBar();
+      renderHistory();
+      renderDashboard();
+      renderTimeSummary();
+      renderFilters();
+
+      // auto-update bankroll_current from closed results
+      const closed = getClosed();
+      const profit = closed.reduce((acc,b)=>{
+        const stake = safeNum(b.execution?.stake_played)||0;
+        const odds = safeNum(b.execution?.odds_played)||0;
+        return acc + calcProfit(b.result, stake, odds);
+      },0);
+
+      // bankroll_current starts from day bankroll? No: keep manual control. We just keep it synced if user wants.
+      // For now: don't override user's bankroll_current automatically.
+
+      saveState();
+    }
+
+    // init
+    renderAll();
+  </script>
 </body>
 </html>
