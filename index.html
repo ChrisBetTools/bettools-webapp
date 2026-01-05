@@ -1103,13 +1103,13 @@ function parseNotification(text){
   const blocks = extractBlocks(text);
   const errors = [];
   const warnings = [];
-  const required = ["META","STATE","PROB","ODDS_TO_BET","LP"];
+  const required = ["META","STATE","ODDS_TO_BET","LP"];
   for(const r of required){ if(!blocks[r]) errors.push(`Manca blocco: ${r}`); }
   if(errors.length) return {ok:false, errors, warnings, data:null};
 
   const meta = parseMETA(blocks.META);
   const stateObj = parseSTATE(blocks.STATE);
-  const prob = parsePROB(blocks.PROB);
+  const prob = blocks.PROB ? parsePROB(blocks.PROB) : null;
   const oddsToBet = parseODDSTOBET(blocks.ODDS_TO_BET);
   const lp = parseLP(blocks.LP);
 
@@ -1143,15 +1143,183 @@ function neededGoalsFromLine_NEXT(line){
   if(line===null) return null;
   return Math.floor(line) + 1;
 }
+function poissonTail(lmbda, kPlus){
+  if(lmbda===null || !isFinite(lmbda) || lmbda<0) return null;
+  if(kPlus<=0) return 1;
+  // P(X>=k) = 1 - sum_{i=0}^{k-1} e^-λ λ^i / i!
+  let cdf = 0;
+  let term = Math.exp(-lmbda);
+  cdf += term;
+  for(let i=1;i<kPlus;i++){
+    term *= (lmbda / i);
+    cdf += term;
+  }
+  const tail = 1 - cdf;
+  return Math.max(0, Math.min(1, tail));
+}
+
+// Coefficienti Poisson (dal tuo fit) mappati su feature calcolabili dalla notifica
+const COEF_FT = {
+  intercept: -2.6475635256031107,
+  Minutes_Remaining_FT: -0.006482651719136978,
+  Goals_Scored_So_far: -0.0044240769590670696,
+  Avg_Pressure_Score_FT: 0.10380587431713764,
+  Avg_SOT_per_min: 5.719900475694123,
+  Avg_SOFF_per_min: 0.49538875040487773,
+  Avg_CORNER_per_min: 63.719664341487004,
+  Avg_DA_per_min: -6.269252023077126,
+  Avg_ATT_per_min: 3.406240419112395,
+  Avg_SOT_L10_perMin: -2.4686199505970894,
+  Avg_SOFF_L10_perMin: 17.476960312147803,
+  Avg_CORNERS_L10_perMin: -31.64183110501638,
+  Avg_DA_L10_perMin: -0.1817192173389214,
+  Avg_ATT_L10_perMin: -2.433659065386576,
+  picked_minute: 0.006482651719135257
+};
+
+const COEF_HT = {
+  intercept: 0.0933197447847644,
+  Minutes_Remaining_HT: 0.024047541890786263,
+  Goals_Scored_So_far: 0.019299705976413097,
+  Avg_Pressure_Score_FT: 0.022092738498312343,
+  Avg_SOT_per_min: 0.1439228811175211,
+  Avg_SOFF_per_min: 4.532687953230974,
+  Avg_CORNER_per_min: 38.028892067740664,
+  Avg_DA_per_min: 1.4984146913952283,
+  Avg_ATT_per_min: -4.212725592191199,
+  Avg_SOT_L10_perMin: -0.5929748033384535,
+  Avg_SOFF_L10_perMin: -1.503362285114244,
+  Avg_CORNERS_L10_perMin: -7.347130283107119,
+  Avg_DA_L10_perMin: -0.6784695295588267,
+  Avg_ATT_L10_perMin: 1.6335777635106252,
+  picked_minute: -0.0240475418907835
+};
+
+function safeNum(x){
+  const n = Number(x);
+  return (isFinite(n) ? n : 0);
+}
+
+function computeRatesFromParsed(parsed){
+  const t = safeNum(parsed.state.Time);
+  const denom = Math.max(1, t); // uso Time (minuti giocati)
+  const stats = parsed.stats || {};
+  const l10 = parsed.l10 || {};
+
+  const hSOT = safeNum(stats.SOT_H), aSOT = safeNum(stats.SOT_A);
+  const hSOFF = safeNum(stats.SOFF_H), aSOFF = safeNum(stats.SOFF_A);
+  const hCOR = safeNum(stats.COR_H), aCOR = safeNum(stats.COR_A);
+  const hATT = safeNum(stats.ATT_H), aATT = safeNum(stats.ATT_A);
+  const hDA  = safeNum(stats.DATT_H), aDA  = safeNum(stats.DATT_A);
+
+  const hSOT10 = safeNum(l10.SOT_H), aSOT10 = safeNum(l10.SOT_A);
+  const hSOFF10 = safeNum(l10.SOFF_H), aSOFF10 = safeNum(l10.SOFF_A);
+  const hCOR10 = safeNum(l10.COR_H), aCOR10 = safeNum(l10.COR_A);
+  const hATT10 = safeNum(l10.ATT_H), aATT10 = safeNum(l10.ATT_A);
+  const hDA10  = safeNum(l10.DATT_H), aDA10  = safeNum(l10.DATT_A);
+
+  const sumSOTpm = (hSOT + aSOT) / denom;
+  const sumSOFFpm = (hSOFF + aSOFF) / denom;
+  const sumCORpm = (hCOR + aCOR) / denom;
+  const sumATTpm = (hATT + aATT) / denom;
+  const sumDApm  = (hDA + aDA) / denom;
+
+  const sumSOTl10 = (hSOT10 + aSOT10) / 10.0;
+  const sumSOFFl10 = (hSOFF10 + aSOFF10) / 10.0;
+  const sumCORl10 = (hCOR10 + aCOR10) / 10.0;
+  const sumATTl10 = (hATT10 + aATT10) / 10.0;
+  const sumDAl10  = (hDA10 + aDA10) / 10.0;
+
+  // pressure proxy: usa GPI(M) se disponibile, altrimenti 0
+  const gpiM = parsed.press?.GPI_M;
+  const pressure = (gpiM!==null && isFinite(gpiM)) ? (gpiM/100.0) : 0; // scala "ragionevole"
+
+  return {
+    t,
+    sumSOTpm, sumSOFFpm, sumCORpm, sumATTpm, sumDApm,
+    sumSOTl10, sumSOFFl10, sumCORl10, sumATTl10, sumDAl10,
+    pressure
+  };
+}
+
+function lambdaFromCoefs_FT(parsed){
+  const r = computeRatesFromParsed(parsed);
+  const goalsSoFar = safeNum(parsed.state.Score_H) + safeNum(parsed.state.Score_A);
+  const remFT = safeNum(parsed.state.RemFT);
+  const pm = safeNum(parsed.state.Time);
+
+  let lin = COEF_FT.intercept;
+  lin += COEF_FT.Minutes_Remaining_FT * remFT;
+  lin += COEF_FT.Goals_Scored_So_far * goalsSoFar;
+  lin += COEF_FT.Avg_Pressure_Score_FT * r.pressure;
+  lin += COEF_FT.Avg_SOT_per_min * r.sumSOTpm;
+  lin += COEF_FT.Avg_SOFF_per_min * r.sumSOFFpm;
+  lin += COEF_FT.Avg_CORNER_per_min * r.sumCORpm;
+  lin += COEF_FT.Avg_DA_per_min * r.sumDApm;
+  lin += COEF_FT.Avg_ATT_per_min * r.sumATTpm;
+  lin += COEF_FT.Avg_SOT_L10_perMin * r.sumSOTl10;
+  lin += COEF_FT.Avg_SOFF_L10_perMin * r.sumSOFFl10;
+  lin += COEF_FT.Avg_CORNERS_L10_perMin * r.sumCORl10;
+  lin += COEF_FT.Avg_DA_L10_perMin * r.sumDAl10;
+  lin += COEF_FT.Avg_ATT_L10_perMin * r.sumATTl10;
+  lin += COEF_FT.picked_minute * pm;
+
+  let lam = Math.exp(lin);
+  if(!isFinite(lam)) lam = 0;
+  lam = Math.max(0, Math.min(50, lam));
+  return lam;
+}
+
+function lambdaFromCoefs_HT(parsed){
+  const r = computeRatesFromParsed(parsed);
+  const goalsSoFar = safeNum(parsed.state.Score_H) + safeNum(parsed.state.Score_A);
+  const remHT = safeNum(parsed.state.RemHT);
+  const pm = safeNum(parsed.state.Time);
+
+  let lin = COEF_HT.intercept;
+  lin += COEF_HT.Minutes_Remaining_HT * remHT;
+  lin += COEF_HT.Goals_Scored_So_far * goalsSoFar;
+  lin += COEF_HT.Avg_Pressure_Score_FT * r.pressure;
+  lin += COEF_HT.Avg_SOT_per_min * r.sumSOTpm;
+  lin += COEF_HT.Avg_SOFF_per_min * r.sumSOFFpm;
+  lin += COEF_HT.Avg_CORNER_per_min * r.sumCORpm;
+  lin += COEF_HT.Avg_DA_per_min * r.sumDApm;
+  lin += COEF_HT.Avg_ATT_per_min * r.sumATTpm;
+  lin += COEF_HT.Avg_SOT_L10_perMin * r.sumSOTl10;
+  lin += COEF_HT.Avg_SOFF_L10_perMin * r.sumSOFFl10;
+  lin += COEF_HT.Avg_CORNERS_L10_perMin * r.sumCORl10;
+  lin += COEF_HT.Avg_DA_L10_perMin * r.sumDAl10;
+  lin += COEF_HT.Avg_ATT_L10_perMin * r.sumATTl10;
+  lin += COEF_HT.picked_minute * pm;
+
+  let lam = Math.exp(lin);
+  if(!isFinite(lam)) lam = 0;
+  lam = Math.max(0, Math.min(50, lam));
+  return lam;
+}
+
 function pickMatchProbability_NEXT(parsed){
   const phase = parsed.oddsToBet.phase;
   const line = parsed.oddsToBet.line;
   if(!phase || line===null) return {p:null, needed:null, reason:"Phase o Line non disponibili"};
   const needed = neededGoalsFromLine_NEXT(line);
-  const table = (phase==="HT") ? parsed.prob.HT : parsed.prob.FT;
-  const p = table ? table[needed] : null;
-  if(p === undefined || p === null) return {p:null, needed, reason:`Manca PROB ${phase}(+${needed})`};
-  return {p, needed, reason:null};
+
+  // 1) Se il blocco PROB esiste, usalo (retrocompatibilità)
+  if(parsed.prob && parsed.prob[phase]){
+    const table = parsed.prob[phase];
+    const p = table ? table[needed] : null;
+    if(p!==undefined && p!==null) return {p, needed, reason:null};
+  }
+
+  // 2) Altrimenti calcola da modello Poisson (coeff del tuo fit)
+  let lam = null;
+  if(phase==="FT") lam = lambdaFromCoefs_FT(parsed);
+  else lam = lambdaFromCoefs_HT(parsed);
+
+  const p = poissonTail(lam, needed);
+  if(p===null) return {p:null, needed, reason:"Impossibile stimare probabilità (lambda null)"};
+
+  return {p, needed, reason:null, lambda: lam};
 }
 function getArchiveStatsForKey(key){
   const closed = state.history.filter(b => b.key===key && (b.result==="win" || b.result==="loss"));
@@ -1209,10 +1377,10 @@ function calcStakeV1(parsed){
       stakePct = clamp(kAdj, 0.01, 0.05);
     }else{
       stakePct = 0.01;
-      warnings.push("Edge negativo: stake impostato al minimo (2%)");
+      warnings.push("Edge negativo: stake impostato al minimo (1%)");
     }
   }else{
-    warnings.push("Probabilità insufficiente: stake impostato al minimo (2%)");
+    warnings.push("Probabilità insufficiente: stake impostato al minimo (1%)");
   }
 
   if(N < 50 && stakePct >= 0.05){
