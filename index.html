@@ -1723,6 +1723,7 @@ if(btnAddManual){
 }
 
 btnParse.addEventListener("click", ()=>{
+  try {
   const res = parseNotification(lpText.value);
   actionWrap.innerHTML="";
   oddsPlayedInput=null; stakePlayedInput=null;
@@ -1805,8 +1806,14 @@ btnParse.addEventListener("click", ()=>{
   stakePlayedInput = document.getElementById("stakePlayed");
 
   btnAddToHistory.disabled=false;
+}
+  } catch(e){
+    console.error(e);
+    lastParsed=null;
+    setParseMsg("Parse: errore JS — "+(e && e.message ? e.message : e));
+    try{ alert((e && e.message)? e.message : String(e)); }catch(_){ }
+  }
 });
-
 btnAddToHistory.addEventListener("click", ()=>{
   if(!lastParsed || !lastStake || !lastStake.ok) return;
 
