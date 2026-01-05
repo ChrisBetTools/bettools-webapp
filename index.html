@@ -574,7 +574,23 @@ details summary::-webkit-details-marker{display:none}
           <div id="detailsBox" class="help">Seleziona “Dettagli” su una bet.</div>
         </div>
 
+        
         <div class="card">
+          <div class="cardHeader">
+            <div><b>Modello NB (da Python)</b><br/><span class="muted">Incolla qui il JSON prodotto da <code>02_train_nb_calibrate.py</code> (model_ft.json + model_ht.json già fusi).</span></div>
+          </div>
+          <div class="cardBody">
+            <textarea id="nbJson" class="ta" rows="6" placeholder='{"version":"nb_offset_isotonic_v2", ...}'></textarea>
+            <div class="row">
+              <button class="btn" id="btnNbSave">Salva modello</button>
+              <button class="btn ghost" id="btnNbClear">Svuota</button>
+              <span class="pill" id="nbStatus">NB: non caricato</span>
+            </div>
+            <div class="help">Il modello viene salvato in locale (localStorage) sul telefono.</div>
+          </div>
+        </div>
+
+<div class="card">
           <div class="cardHeader">
             <div>
               <b>Backup / Restore</b><br/>
@@ -845,6 +861,62 @@ function resetAll(){
   renderAll();
 }
 let state = loadState();
+
+// --- NB model (from Python 02_train_nb_calibrate.py) ---
+const NB_STORAGE_KEY = "bt_nb_model_json_v1";
+function loadNbModel(){
+  try{
+    const raw = localStorage.getItem(NB_STORAGE_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){ console.warn("NB load failed", e); return null; }
+}
+function saveNbModel(rawStr){
+  const obj = JSON.parse(rawStr);
+  localStorage.setItem(NB_STORAGE_KEY, JSON.stringify(obj));
+  return obj;
+}
+function clearNbModel(){ localStorage.removeItem(NB_STORAGE_KEY); }
+function isoMap(x, xs, ys){
+  // piecewise-constant isotonic mapping (threshold arrays may contain duplicates)
+  if(!xs || !ys || !xs.length) return x;
+  // If x is below first threshold -> first y
+  if(x <= xs[0]) return ys[0];
+  for(let i=1;i<xs.length;i++){
+    if(x <= xs[i]) return ys[i];
+  }
+  return ys[ys.length-1];
+}
+function nbProbGE(mu, alpha, k){
+  if(k<=0) return 1.0;
+  const r = 1.0/Math.max(alpha, 1e-9);
+  const p = r/(r+Math.max(mu, 1e-12)); // "success" prob in NB parameterization
+  const q = 1.0 - p;
+  // PMF(0) = p^r
+  const P0 = Math.pow(p, r);
+  if(k===1) return 1.0 - P0;
+  // PMF(1) = r * q * p^r
+  const P1 = P0 * r * q;
+  if(k===2) return 1.0 - (P0 + P1);
+  // PMF(2) = ((r)(r+1)/2) * q^2 * p^r
+  const P2 = P1 * (r+1) * q / 2.0;
+  return 1.0 - (P0 + P1 + P2);
+}
+function nbMatchProbFromModel(model, feats, rem, k){
+  const coef = model.coef || {};
+  let eta = (coef.const ?? 0);
+  for(const f of (model.features||[])){
+    if(f==="const") continue;
+    if(f in feats) eta += (coef[f] ?? 0) * (Number(feats[f]) || 0);
+  }
+  eta += Math.log(Math.max(rem, 1e-6)); // offset
+  const mu = Math.exp(eta);
+  const raw = nbProbGE(mu, model.alpha ?? 0.5, k);
+  const cal = (model.calibrators||{})[String(k)];
+  const pcal = cal ? isoMap(raw, cal.x_thresholds, cal.y_thresholds) : raw;
+  return {p: clamp01(pcal), raw: clamp01(raw), mu};
+}
+
 
 /* =========================
    Utils
@@ -1298,7 +1370,7 @@ function lambdaFromCoefs_HT(parsed){
   return lam;
 }
 
-function pickMatchProbability_NEXT(parsed){
+function legacyMatchProbability_NEXT(parsed){
   const phase = parsed.oddsToBet.phase;
   const line = parsed.oddsToBet.line;
   if(!phase || line===null) return {p:null, needed:null, reason:"Phase o Line non disponibili"};
@@ -1321,6 +1393,73 @@ function pickMatchProbability_NEXT(parsed){
 
   return {p, needed, reason:null, lambda: lam};
 }
+
+
+function pickMatchProbability_NEXT(parsed){
+  // Returns calibrated P(match goals remaining >= k) using NB offset + isotonic (if NB model loaded),
+  // else falls back to legacy heuristic.
+  const nb = loadNbModel();
+  const odds = parsed?.odds?.odds ?? null;
+
+  // Determine phase/model
+  const methodStr = (parsed?.meta?.method || parsed?.odds?.market || "").toUpperCase();
+  const isHT = methodStr.includes("HT");
+  const phase = isHT ? "ht" : "ft";
+
+  // Determine line (e.g. Over 1.5 -> 1.5)
+  const line = parsed?.odds?.line ?? null;
+  const goalsSoFar = (parsed?.state?.score_home ?? 0) + (parsed?.state?.score_away ?? 0);
+
+  // For "Next Over X.5" we need total >= floor(line)+1, so remaining >= need - goalsSoFar
+  let needTotal = null;
+  if(typeof line === "number" && isFinite(line)){
+    needTotal = Math.floor(line) + 1;
+  }
+  let k = 1;
+  if(needTotal !== null){
+    k = Math.max(0, needTotal - goalsSoFar);
+  }else{
+    // fallback: assume 1 goal needed
+    k = 1;
+  }
+
+  const t = Number(parsed?.state?.time ?? 0);
+  const denom = (t + 1);
+  const feats = {
+    t: t,
+    goals_so_far: goalsSoFar,
+    goal_diff: (parsed?.state?.score_home ?? 0) - (parsed?.state?.score_away ?? 0),
+    diff_poss: ((parsed?.stats?.h_poss ?? 0) - (parsed?.stats?.a_poss ?? 0)),
+    sum_att_rate: ((parsed?.stats?.h_att ?? 0) + (parsed?.stats?.a_att ?? 0)) / denom,
+    sum_cor_rate: ((parsed?.stats?.h_cor ?? 0) + (parsed?.stats?.a_cor ?? 0)) / denom,
+    sum_datt_rate: ((parsed?.stats?.h_datt ?? 0) + (parsed?.stats?.a_datt ?? 0)) / denom,
+    sum_soff_rate: ((parsed?.stats?.h_soff ?? 0) + (parsed?.stats?.a_soff ?? 0)) / denom,
+    sum_sot_rate: ((parsed?.stats?.h_sot ?? 0) + (parsed?.stats?.a_sot ?? 0)) / denom,
+    sum_yc_rate: ((parsed?.stats?.h_yc ?? 0) + (parsed?.stats?.a_yc ?? 0)) / denom,
+    sum_rc_rate: ((parsed?.stats?.h_rc ?? 0) + (parsed?.stats?.a_rc ?? 0)) / denom,
+  };
+
+  if(nb && nb[phase] && nb[phase].coef){
+    const rem = isHT ? Number(parsed?.state?.rem_ht ?? 0) : Number(parsed?.state?.rem_ft ?? 0);
+    const out = nbMatchProbFromModel(nb[phase], feats, rem, Math.min(k,3));
+    return {
+      p: out.p,
+      p_match: out.p,
+      p_raw: out.raw,
+      lam: out.mu,
+      mu: out.mu,
+      k: k,
+      k_needed: k,
+      source: "NB+ISO"
+    };
+  }
+
+  // Legacy fallback
+  const legacy = legacyMatchProbability_NEXT(parsed);
+  legacy.source = "HEUR";
+  return legacy;
+}
+
 function getArchiveStatsForKey(key){
   const closed = state.history.filter(b => b.key===key && (b.result==="win" || b.result==="loss"));
   const N = closed.length;
@@ -2098,6 +2237,42 @@ document.getElementById("restoreFile").addEventListener("change", async (e)=>{
     document.getElementById("restoreFile").value="";
   }
 });
+
+
+// NB model UI
+(function initNbUI(){
+  const ta = document.getElementById("nbJson");
+  const st = document.getElementById("nbStatus");
+  const refresh = ()=>{
+    const nb = loadNbModel();
+    if(nb){
+      ta.value = JSON.stringify(nb);
+      st.textContent = `NB: caricato (${nb.version||"?"})`;
+      st.classList.remove("bad"); st.classList.add("good");
+    }else{
+      ta.value = "";
+      st.textContent = "NB: non caricato";
+      st.classList.remove("good"); st.classList.add("bad");
+    }
+  };
+  document.getElementById("btnNbSave").addEventListener("click", ()=>{
+    try{
+      saveNbModel(ta.value.trim());
+      refresh();
+      toast("Modello NB salvato.");
+    }catch(err){
+      console.error(err);
+      toast("Errore nel JSON NB.");
+    }
+  });
+  document.getElementById("btnNbClear").addEventListener("click", ()=>{
+    clearNbModel();
+    refresh();
+    toast("Modello NB rimosso.");
+  });
+  refresh();
+})();
+
 
 /* =========================
    Dashboard
