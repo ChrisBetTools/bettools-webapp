@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LivePick iOS26 — UI v1.7A</title>
+  <title>LivePick iOS26 — UI v1.7B</title>
   <style>
 :root{
   color-scheme: light;
@@ -394,7 +394,7 @@ details summary::-webkit-details-marker{display:none}
     <div class="hamburger" id="hamburger" aria-label="Apri menu" title="Menu"><span></span></div>
     <div class="brand">
       <b>BetTools</b>
-      <small>V3 • NEXT • Stake v1 • UI v1.7A</small>
+      <small>V3 • NEXT • Stake v1 • UI v1.7B</small>
     </div>
     <div class="spacer"></div>
     <button class="iconBtn" id="themeToggle" aria-label="Tema" title="Tema">☾</button>
@@ -574,23 +574,7 @@ details summary::-webkit-details-marker{display:none}
           <div id="detailsBox" class="help">Seleziona “Dettagli” su una bet.</div>
         </div>
 
-        
         <div class="card">
-          <div class="cardHeader">
-            <div><b>Modello NB (da Python)</b><br/><span class="muted">Incolla qui il JSON prodotto da <code>02_train_nb_calibrate.py</code> (model_ft.json + model_ht.json già fusi).</span></div>
-          </div>
-          <div class="cardBody">
-            <textarea id="nbJson" class="ta" rows="6" placeholder='{"version":"nb_offset_isotonic_v2", ...}'></textarea>
-            <div class="row">
-              <button class="btn" id="btnNbSave">Salva modello</button>
-              <button class="btn ghost" id="btnNbClear">Svuota</button>
-              <span class="pill" id="nbStatus">NB: non caricato</span>
-            </div>
-            <div class="help">Il modello viene salvato in locale (localStorage) sul telefono.</div>
-          </div>
-        </div>
-
-<div class="card">
           <div class="cardHeader">
             <div>
               <b>Backup / Restore</b><br/>
@@ -614,7 +598,23 @@ details summary::-webkit-details-marker{display:none}
           <div class="help" style="margin-top:10px" id="backupMsg"></div>
         </div>
       </div>
-    </section>
+    
+    <div class="card">
+      <div class="card-h">
+        <div class="t">Modello NB/ISO (Python)</div>
+        <div class="sub" id="nbStatus">NB: non caricato</div>
+      </div>
+      <div class="card-b">
+        <textarea id="nbJson" class="textarea mono" rows="8" placeholder='Incolla qui il JSON dello script 02 (model_ft.json+model_ht.json unificato)'></textarea>
+        <div class="row" style="gap:10px;margin-top:10px">
+          <button class="btn" id="btnLoadNB">Carica NB</button>
+          <button class="btn ghost" id="btnClearNB">Svuota</button>
+        </div>
+        <div class="hint" style="margin-top:8px">Dopo il caricamento, il calcolatore usa <b>NB + isotonic</b> (k=1..3) per P(X≥k) con offset RemFT/RemHT.</div>
+      </div>
+    </div>
+
+</section>
 
     <!-- DASHBOARD -->
     <section class="page" id="page-dash">
@@ -861,62 +861,6 @@ function resetAll(){
   renderAll();
 }
 let state = loadState();
-
-// --- NB model (from Python 02_train_nb_calibrate.py) ---
-const NB_STORAGE_KEY = "bt_nb_model_json_v1";
-function loadNbModel(){
-  try{
-    const raw = localStorage.getItem(NB_STORAGE_KEY);
-    if(!raw) return null;
-    return JSON.parse(raw);
-  }catch(e){ console.warn("NB load failed", e); return null; }
-}
-function saveNbModel(rawStr){
-  const obj = JSON.parse(rawStr);
-  localStorage.setItem(NB_STORAGE_KEY, JSON.stringify(obj));
-  return obj;
-}
-function clearNbModel(){ localStorage.removeItem(NB_STORAGE_KEY); }
-function isoMap(x, xs, ys){
-  // piecewise-constant isotonic mapping (threshold arrays may contain duplicates)
-  if(!xs || !ys || !xs.length) return x;
-  // If x is below first threshold -> first y
-  if(x <= xs[0]) return ys[0];
-  for(let i=1;i<xs.length;i++){
-    if(x <= xs[i]) return ys[i];
-  }
-  return ys[ys.length-1];
-}
-function nbProbGE(mu, alpha, k){
-  if(k<=0) return 1.0;
-  const r = 1.0/Math.max(alpha, 1e-9);
-  const p = r/(r+Math.max(mu, 1e-12)); // "success" prob in NB parameterization
-  const q = 1.0 - p;
-  // PMF(0) = p^r
-  const P0 = Math.pow(p, r);
-  if(k===1) return 1.0 - P0;
-  // PMF(1) = r * q * p^r
-  const P1 = P0 * r * q;
-  if(k===2) return 1.0 - (P0 + P1);
-  // PMF(2) = ((r)(r+1)/2) * q^2 * p^r
-  const P2 = P1 * (r+1) * q / 2.0;
-  return 1.0 - (P0 + P1 + P2);
-}
-function nbMatchProbFromModel(model, feats, rem, k){
-  const coef = model.coef || {};
-  let eta = (coef.const ?? 0);
-  for(const f of (model.features||[])){
-    if(f==="const") continue;
-    if(f in feats) eta += (coef[f] ?? 0) * (Number(feats[f]) || 0);
-  }
-  eta += Math.log(Math.max(rem, 1e-6)); // offset
-  const mu = Math.exp(eta);
-  const raw = nbProbGE(mu, model.alpha ?? 0.5, k);
-  const cal = (model.calibrators||{})[String(k)];
-  const pcal = cal ? isoMap(raw, cal.x_thresholds, cal.y_thresholds) : raw;
-  return {p: clamp01(pcal), raw: clamp01(raw), mu};
-}
-
 
 /* =========================
    Utils
@@ -1203,7 +1147,159 @@ function parseNotification(text){
   }};
 }
 
-/* =========================
+/* ==
+// -----------------------------
+// NB/ISO runtime (da script 02)
+// -----------------------------
+const LS_NB_MODEL = "bt_nb_model_json_v1";
+window.__nbModel = null;
+
+function nbSetStatus(){
+  const el = $("#nbStatus");
+  if(!el) return;
+  if(window.__nbModel && window.__nbModel.version){
+    el.textContent = `NB: caricato (${window.__nbModel.version})`;
+  }else{
+    el.textContent = "NB: non caricato";
+  }
+}
+
+function nbLoadFromStorage(){
+  try{
+    const raw = localStorage.getItem(LS_NB_MODEL);
+    if(!raw) return;
+    const obj = JSON.parse(raw);
+    if(obj && obj.ft && obj.ht) window.__nbModel = obj;
+  }catch(e){}
+  nbSetStatus();
+}
+
+function nbSaveToStorage(obj){
+  window.__nbModel = obj;
+  localStorage.setItem(LS_NB_MODEL, JSON.stringify(obj));
+  nbSetStatus();
+}
+
+function nbClear(){
+  window.__nbModel = null;
+  localStorage.removeItem(LS_NB_MODEL);
+  nbSetStatus();
+}
+
+function nbFeaturesFromParsed(parsed){
+  const t = num(parsed.state?.time, 0);
+  const s = parsed.state?.score || {home:0, away:0};
+  const goals_so_far = num(s.home,0) + num(s.away,0);
+  const goal_diff = num(s.home,0) - num(s.away,0);
+
+  const tot = parsed.stats?.tot || parsed.stats?.total || parsed.stats?.totals || parsed.stats || {};
+  const h_att = num(tot.h_att, num(tot.home_att, 0));
+  const a_att = num(tot.a_att, num(tot.away_att, 0));
+  const h_datt = num(tot.h_datt, num(tot.home_datt, 0));
+  const a_datt = num(tot.a_datt, num(tot.away_datt, 0));
+  const h_cor = num(tot.h_cor, num(tot.home_cor, 0));
+  const a_cor = num(tot.a_cor, num(tot.away_cor, 0));
+  const h_sot = num(tot.h_sot, num(tot.home_sot, 0));
+  const a_sot = num(tot.a_sot, num(tot.away_sot, 0));
+  const h_soff = num(tot.h_soff, num(tot.home_soff, 0));
+  const a_soff = num(tot.a_soff, num(tot.away_soff, 0));
+
+  const h_yc = num(tot.h_yc, 0), a_yc = num(tot.a_yc, 0);
+  const h_rc = num(tot.h_rc, 0), a_rc = num(tot.a_rc, 0);
+
+  // Possesso non sempre presente: default 0
+  const diff_poss = num(tot.diff_poss, 0);
+
+  const denom = Math.max(1, t + 1); // come nei rate del dataset
+  return {
+    diff_poss,
+    goal_diff,
+    goals_so_far,
+    sum_att_rate: (h_att + a_att) / denom,
+    sum_cor_rate: (h_cor + a_cor) / denom,
+    sum_datt_rate: (h_datt + a_datt) / denom,
+    sum_rc_rate: (h_rc + a_rc) / denom,
+    sum_soff_rate: (h_soff + a_soff) / denom,
+    sum_sot_rate: (h_sot + a_sot) / denom,
+    sum_yc_rate: (h_yc + a_yc) / denom,
+    t
+  };
+}
+
+function nbMu(model, feats, rem){
+  const r = Math.max(1e-6, num(rem, 0));
+  const b = model.coef || {};
+  let eta = num(b.const, 0);
+  // nota: il modello include anche "t" fra le feature
+  for(const k in feats){
+    if(k==="__proto__") continue;
+    eta += num(b[k], 0) * num(feats[k], 0);
+  }
+  // offset: log(rem) => moltiplica per rem
+  const mu = r * Math.exp(eta);
+  return Math.max(0, mu);
+}
+
+// Lanczos log-gamma
+function logGamma(z){
+  const p = [
+    676.5203681218851, -1259.1392167224028, 771.32342877765313,
+    -176.61502916214059, 12.507343278686905, -0.13857109526572012,
+    9.9843695780195716e-6, 1.5056327351493116e-7
+  ];
+  if(z < 0.5){
+    return Math.log(Math.PI) - Math.log(Math.sin(Math.PI*z)) - logGamma(1 - z);
+  }
+  z -= 1;
+  let x = 0.99999999999980993;
+  for(let i=0;i<p.length;i++) x += p[i] / (z + i + 1);
+  const t = z + p.length - 0.5;
+  return 0.5*Math.log(2*Math.PI) + (z+0.5)*Math.log(t) - t + Math.log(x);
+}
+
+function nbPmf(y, mu, alpha){
+  // NB2: var = mu + alpha*mu^2
+  const a = Math.max(1e-9, alpha);
+  const r = 1 / a;             // size
+  const p = r / (r + mu);      // success prob
+  // log pmf = lgamma(y+r)-lgamma(r)-lgamma(y+1) + r*log(p) + y*log(1-p)
+  const lg = logGamma(y + r) - logGamma(r) - logGamma(y + 1);
+  return Math.exp(lg + r*Math.log(p) + y*Math.log(1 - p));
+}
+
+function nbProbGEk(mu, alpha, k){
+  const kk = Math.max(0, Math.floor(k));
+  if(kk <= 0) return 1;
+  // sum_{y=0..k-1} pmf
+  let cdf = 0;
+  for(let y=0; y<kk; y++){
+    cdf += nbPmf(y, mu, alpha);
+    if(cdf >= 1) { cdf = 1; break; }
+  }
+  return clamp01(1 - cdf);
+}
+
+function nbIsotonicCalibrate(model, k, pRaw){
+  const cal = model.calibrators ? model.calibrators[String(k)] : null;
+  if(!cal || !Array.isArray(cal.x_thresholds) || !Array.isArray(cal.y_thresholds) || cal.x_thresholds.length===0) return pRaw;
+  const xs = cal.x_thresholds, ys = cal.y_thresholds;
+  const x = clamp01(pRaw);
+  if(x <= xs[0]) return ys[0];
+  const n = xs.length;
+  if(x >= xs[n-1]) return ys[n-1];
+  // binary search
+  let lo=0, hi=n-1;
+  while(hi - lo > 1){
+    const mid = (lo+hi)>>1;
+    if(xs[mid] <= x) lo = mid; else hi = mid;
+  }
+  const x0=xs[lo], x1=xs[hi], y0=ys[lo], y1=ys[hi];
+  if(x1 === x0) return y1;
+  const t = (x - x0) / (x1 - x0);
+  return y0 + t*(y1 - y0);
+}
+
+=======================
    Stake v1 (NEXT) — ALWAYS RETURNS STAKE%
 ========================= */
 function betKeyFromParsed(parsed){
@@ -1370,7 +1466,7 @@ function lambdaFromCoefs_HT(parsed){
   return lam;
 }
 
-function legacyMatchProbability_NEXT(parsed){
+function pickMatchProbability_NEXT(parsed){
   const phase = parsed.oddsToBet.phase;
   const line = parsed.oddsToBet.line;
   if(!phase || line===null) return {p:null, needed:null, reason:"Phase o Line non disponibili"};
@@ -1383,7 +1479,24 @@ function legacyMatchProbability_NEXT(parsed){
     if(p!==undefined && p!==null) return {p, needed, reason:null};
   }
 
-  // 2) Altrimenti calcola da modello Poisson (coeff del tuo fit)
+  // 2) Se hai caricato il modello NB/ISO (Python), usa quello
+  if(window.__nbModel && (phase==="FT" ? window.__nbModel.ft : window.__nbModel.ht)){
+    try{
+      const m = (phase==="FT") ? window.__nbModel.ft : window.__nbModel.ht;
+      const t = num(parsed.state?.time, 0);
+      const rem = (phase==="FT") ? num(parsed.state?.remFT, Math.max(0, 90 - t)) : num(parsed.state?.remHT, Math.max(0, 45 - t));
+      const feats = nbFeaturesFromParsed(parsed);
+      const mu = nbMu(m, feats, rem);
+      const pRaw = nbProbGEk(mu, num(m.alpha, 0.5), needed);
+      const pCal = nbIsotonicCalibrate(m, needed, pRaw);
+      if(isFinite(pCal)) return {p: clamp01(pCal), needed, reason:null};
+    }catch(e){
+      // fallback sotto
+      console.warn("NB/ISO error", e);
+    }
+  }
+
+  // 3) Altrimenti calcola da modello Poisson (fallback)
   let lam = null;
   if(phase==="FT") lam = lambdaFromCoefs_FT(parsed);
   else lam = lambdaFromCoefs_HT(parsed);
@@ -1393,73 +1506,6 @@ function legacyMatchProbability_NEXT(parsed){
 
   return {p, needed, reason:null, lambda: lam};
 }
-
-
-function pickMatchProbability_NEXT(parsed){
-  // Returns calibrated P(match goals remaining >= k) using NB offset + isotonic (if NB model loaded),
-  // else falls back to legacy heuristic.
-  const nb = loadNbModel();
-  const odds = parsed?.odds?.odds ?? null;
-
-  // Determine phase/model
-  const methodStr = (parsed?.meta?.method || parsed?.odds?.market || "").toUpperCase();
-  const isHT = methodStr.includes("HT");
-  const phase = isHT ? "ht" : "ft";
-
-  // Determine line (e.g. Over 1.5 -> 1.5)
-  const line = parsed?.odds?.line ?? null;
-  const goalsSoFar = (parsed?.state?.score_home ?? 0) + (parsed?.state?.score_away ?? 0);
-
-  // For "Next Over X.5" we need total >= floor(line)+1, so remaining >= need - goalsSoFar
-  let needTotal = null;
-  if(typeof line === "number" && isFinite(line)){
-    needTotal = Math.floor(line) + 1;
-  }
-  let k = 1;
-  if(needTotal !== null){
-    k = Math.max(0, needTotal - goalsSoFar);
-  }else{
-    // fallback: assume 1 goal needed
-    k = 1;
-  }
-
-  const t = Number(parsed?.state?.time ?? 0);
-  const denom = (t + 1);
-  const feats = {
-    t: t,
-    goals_so_far: goalsSoFar,
-    goal_diff: (parsed?.state?.score_home ?? 0) - (parsed?.state?.score_away ?? 0),
-    diff_poss: ((parsed?.stats?.h_poss ?? 0) - (parsed?.stats?.a_poss ?? 0)),
-    sum_att_rate: ((parsed?.stats?.h_att ?? 0) + (parsed?.stats?.a_att ?? 0)) / denom,
-    sum_cor_rate: ((parsed?.stats?.h_cor ?? 0) + (parsed?.stats?.a_cor ?? 0)) / denom,
-    sum_datt_rate: ((parsed?.stats?.h_datt ?? 0) + (parsed?.stats?.a_datt ?? 0)) / denom,
-    sum_soff_rate: ((parsed?.stats?.h_soff ?? 0) + (parsed?.stats?.a_soff ?? 0)) / denom,
-    sum_sot_rate: ((parsed?.stats?.h_sot ?? 0) + (parsed?.stats?.a_sot ?? 0)) / denom,
-    sum_yc_rate: ((parsed?.stats?.h_yc ?? 0) + (parsed?.stats?.a_yc ?? 0)) / denom,
-    sum_rc_rate: ((parsed?.stats?.h_rc ?? 0) + (parsed?.stats?.a_rc ?? 0)) / denom,
-  };
-
-  if(nb && nb[phase] && nb[phase].coef){
-    const rem = isHT ? Number(parsed?.state?.rem_ht ?? 0) : Number(parsed?.state?.rem_ft ?? 0);
-    const out = nbMatchProbFromModel(nb[phase], feats, rem, Math.min(k,3));
-    return {
-      p: out.p,
-      p_match: out.p,
-      p_raw: out.raw,
-      lam: out.mu,
-      mu: out.mu,
-      k: k,
-      k_needed: k,
-      source: "NB+ISO"
-    };
-  }
-
-  // Legacy fallback
-  const legacy = legacyMatchProbability_NEXT(parsed);
-  legacy.source = "HEUR";
-  return legacy;
-}
-
 function getArchiveStatsForKey(key){
   const closed = state.history.filter(b => b.key===key && (b.result==="win" || b.result==="loss"));
   const N = closed.length;
@@ -1723,7 +1769,6 @@ if(btnAddManual){
 }
 
 btnParse.addEventListener("click", ()=>{
-  try {
   const res = parseNotification(lpText.value);
   actionWrap.innerHTML="";
   oddsPlayedInput=null; stakePlayedInput=null;
@@ -1806,14 +1851,8 @@ btnParse.addEventListener("click", ()=>{
   stakePlayedInput = document.getElementById("stakePlayed");
 
   btnAddToHistory.disabled=false;
-}
-  } catch(e){
-    console.error(e);
-    lastParsed=null;
-    setParseMsg("Parse: errore JS — "+(e && e.message ? e.message : e));
-    try{ alert((e && e.message)? e.message : String(e)); }catch(_){ }
-  }
 });
+
 btnAddToHistory.addEventListener("click", ()=>{
   if(!lastParsed || !lastStake || !lastStake.ok) return;
 
@@ -2244,41 +2283,35 @@ document.getElementById("restoreFile").addEventListener("change", async (e)=>{
     document.getElementById("restoreFile").value="";
   }
 });
-
-
-// NB model UI
-(function initNbUI(){
-  const ta = document.getElementById("nbJson");
-  const st = document.getElementById("nbStatus");
-  const refresh = ()=>{
-    const nb = loadNbModel();
-    if(nb){
-      ta.value = JSON.stringify(nb);
-      st.textContent = `NB: caricato (${nb.version||"?"})`;
-      st.classList.remove("bad"); st.classList.add("good");
-    }else{
-      ta.value = "";
-      st.textContent = "NB: non caricato";
-      st.classList.remove("good"); st.classList.add("bad");
-    }
-  };
-  document.getElementById("btnNbSave").addEventListener("click", ()=>{
+// NB/ISO UI
+const nbJson = $("#nbJson");
+const btnLoadNB = $("#btnLoadNB");
+const btnClearNB = $("#btnClearNB");
+if(btnLoadNB){
+  btnLoadNB.addEventListener("click", ()=>{
     try{
-      saveNbModel(ta.value.trim());
-      refresh();
-      toast("Modello NB salvato.");
-    }catch(err){
-      console.error(err);
-      toast("Errore nel JSON NB.");
+      const raw = (nbJson?.value || "").trim();
+      if(!raw) return toast("Incolla prima il JSON NB.");
+      const obj = JSON.parse(raw);
+      if(!obj || !obj.ft || !obj.ht || !obj.ft.coef || !obj.ht.coef) throw new Error("Struttura NB non valida");
+      nbSaveToStorage(obj);
+      toast(`NB caricato: ${obj.version || "ok"}`);
+    }catch(e){
+      console.error(e);
+      toast("JSON NB non valido.");
     }
   });
-  document.getElementById("btnNbClear").addEventListener("click", ()=>{
-    clearNbModel();
-    refresh();
-    toast("Modello NB rimosso.");
+}
+if(btnClearNB){
+  btnClearNB.addEventListener("click", ()=>{
+    if(nbJson) nbJson.value = "";
+    nbClear();
+    toast("NB svuotato.");
   });
-  refresh();
-})();
+}
+// init
+nbLoadFromStorage();
+if(nbJson && window.__nbModel) nbJson.value = JSON.stringify(window.__nbModel, null, 2);
 
 
 /* =========================
