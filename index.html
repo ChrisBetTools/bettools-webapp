@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LivePick iOS26 — UI v1.9.6</title>
+  <title>LivePick iOS26 — UI v1.9.7</title>
   <style>
 :root{
   color-scheme: light;
@@ -394,7 +394,7 @@ details summary::-webkit-details-marker{display:none}
     <div class="hamburger" id="hamburger" aria-label="Apri menu" title="Menu"><span></span></div>
     <div class="brand">
       <b>BetTools</b>
-      <small>V3 • NEXT • Stake v1 • UI v1.9.6</small>
+      <small>V3 • NEXT • Stake v1 • UI v1.9.7</small>
     </div>
     <div class="spacer"></div>
     <button class="iconBtn" id="themeToggle" aria-label="Tema" title="Tema">☾</button>
@@ -1484,7 +1484,100 @@ function legacyMatchProbability_NEXT(parsed){
 
   return {p, needed, reason:null, lambda: lam};
 }
+/* ==========================================
+   PARTE 1: MOTORE MATEMATICO V2 (NB + Features)
+   Incolla questo blocco PRIMA di pickMatchProbability_NEXT
+   ========================================== */
 
+// Calcola la PMF (probabilità esatta P(X=k)) per la Negative Binomial
+function nbPmf(mu, alpha, k) {
+  if (k < 0) return 0;
+  const r = 1.0 / Math.max(alpha, 1e-9);
+  const p = r / (r + Math.max(mu, 1e-12)); 
+  
+  let logP = r * Math.log(p) + k * Math.log(1 - p);
+  for (let i = 0; i < k; i++) {
+    logP += Math.log(r + i) - Math.log(1 + i);
+  }
+  return Math.exp(logP);
+}
+
+// Estrae tutte le feature possibili dalla notifica per passarle al modello JSON V2
+function extractFeaturesV2(parsed) {
+  const t = Number(parsed?.state?.Time ?? 0);
+  const denom = (t + 1); // Evita divisione per zero
+  const st = parsed?.stats || {};
+  const l10 = parsed?.l10 || {};
+  const goalsH = Number(parsed?.state?.ScoreHome ?? 0);
+  const goalsA = Number(parsed?.state?.ScoreAway ?? 0);
+
+  return {
+    "const": 1.0,
+    "picked_minute": t,
+    "Goals_Scored_So_far": goalsH + goalsA,
+    
+    // Stats All Time (Home/Away/Total per minute)
+    "Avg_H_SOT_per_min": (st.SOT_H ?? 0) / denom,
+    "Avg_A_SOT_per_min": (st.SOT_A ?? 0) / denom,
+    "Avg_SOT_per_min": ((st.SOT_H ?? 0) + (st.SOT_A ?? 0)) / denom,
+
+    "Avg_H_SOFF_per_min": (st.SOFF_H ?? 0) / denom,
+    "Avg_A_SOFF_per_min": (st.SOFF_A ?? 0) / denom,
+    "Avg_SOFF_per_min": ((st.SOFF_H ?? 0) + (st.SOFF_A ?? 0)) / denom,
+
+    "Avg_H_CORNER_per_min": (st.COR_H ?? 0) / denom,
+    "Avg_A_CORNER_per_min": (st.COR_A ?? 0) / denom,
+    "Avg_CORNER_per_min": ((st.COR_H ?? 0) + (st.COR_A ?? 0)) / denom,
+
+    "Avg_H_DA_per_min": (st.DATT_H ?? 0) / denom,
+    "Avg_A_DA_per_min": (st.DATT_A ?? 0) / denom,
+    "Avg_DA_per_min": ((st.DATT_H ?? 0) + (st.DATT_A ?? 0)) / denom,
+
+    "Avg_H_ATT_per_min": (st.ATT_H ?? 0) / denom,
+    "Avg_A_ATT_per_min": (st.ATT_A ?? 0) / denom,
+    "Avg_ATT_per_min": ((st.ATT_H ?? 0) + (st.ATT_A ?? 0)) / denom,
+
+    // Stats L10 (Home/Away/Total per minute)
+    "Avg_H_SOT_L10_perMin": (l10.SOT_H ?? 0) / 10.0,
+    "Avg_A_SOT_L10_perMin": (l10.SOT_A ?? 0) / 10.0,
+    "Avg_SOT_L10_perMin": ((l10.SOT_H ?? 0) + (l10.SOT_A ?? 0)) / 10.0,
+
+    "Avg_H_SOFF_L10_perMin": (l10.SOFF_H ?? 0) / 10.0,
+    "Avg_A_SOFF_L10_perMin": (l10.SOFF_A ?? 0) / 10.0,
+    "Avg_SOFF_L10_perMin": ((l10.SOFF_H ?? 0) + (l10.SOFF_A ?? 0)) / 10.0,
+
+    "Avg_H_CORNERS_L10_perMin": (l10.COR_H ?? 0) / 10.0,
+    "Avg_A_CORNERS_L10_perMin": (l10.COR_A ?? 0) / 10.0,
+    "Avg_CORNERS_L10_perMin": ((l10.COR_H ?? 0) + (l10.COR_A ?? 0)) / 10.0,
+
+    "Avg_H_DA_L10_perMin": (l10.DATT_H ?? 0) / 10.0,
+    "Avg_A_DA_L10_perMin": (l10.DATT_A ?? 0) / 10.0,
+    "Avg_DA_L10_perMin": ((l10.DATT_H ?? 0) + (l10.DATT_A ?? 0)) / 10.0,
+
+    "Avg_H_ATT_L10_perMin": (l10.ATT_H ?? 0) / 10.0,
+    "Avg_A_ATT_L10_perMin": (l10.ATT_A ?? 0) / 10.0,
+    "Avg_ATT_L10_perMin": ((l10.ATT_H ?? 0) + (l10.ATT_A ?? 0)) / 10.0
+  };
+}
+
+// Calcola il valore Mu (Lambda) da un modello specifico del JSON V2
+function computeV2Mu(modelDef, features, minutesRemaining) {
+  if (!modelDef || !modelDef.coef) return 0;
+  let eta = modelDef.intercept || 0;
+  
+  if(Array.isArray(modelDef.feature_cols) && Array.isArray(modelDef.coef)){
+      eta = modelDef.intercept || 0;
+      for(let i=0; i<modelDef.feature_cols.length; i++){
+          const col = modelDef.feature_cols[i];
+          const val = features[col] || 0;
+          eta += val * (modelDef.coef[i] || 0);
+      }
+  }
+
+  // Offset temporale
+  eta += Math.log(Math.max(minutesRemaining, 1e-6));
+  return Math.exp(eta);
+}
 /* ==========================================
    PARTE 2: LOGICA PRINCIPALE (Versione FIX "NEXT")
    Sostituisci interamente la funzione pickMatchProbability_NEXT
