@@ -1485,64 +1485,188 @@ function legacyMatchProbability_NEXT(parsed){
   return {p, needed, reason:null, lambda: lam};
 }
 
+/* ==========================================
+   PARTE 2: LOGICA PRINCIPALE (Versione FIX "NEXT")
+   Sostituisci interamente la funzione pickMatchProbability_NEXT
+   ========================================== */
 function pickMatchProbability_NEXT(parsed){
   const nb = loadNbModel();
   const oddsObj = parsed?.oddsToBet; 
-  const methodStr = (parsed?.meta?.Method || oddsObj?.market || "").toUpperCase();
-  const isHT = methodStr.includes("HT");
-  const phase = isHT ? "ht" : "ft";
+  // Normalizzo l'etichetta del mercato (es. "FT Next Over 1.5")
+  const label = (parsed?.meta?.Method || oddsObj?.market || oddsObj?.label || "").trim();
+  const labelUp = label.toUpperCase();
 
-  const line = oddsObj?.line ?? null;
-  const home = parsed?.state?.ScoreHome ?? 0;
-  const away = parsed?.state?.ScoreAway ?? 0;
-  const goalsSoFar = home + away;
-
-  let needTotal = null;
-  if(typeof line === "number" && isFinite(line)){
-    needTotal = Math.floor(line) + 1;
-  }
-  let k = 1;
-  if(needTotal !== null){
-    k = Math.max(0, needTotal - goalsSoFar);
-  }
-
+  // Dati base partita
   const t = Number(parsed?.state?.Time ?? 0);
-  const denom = (t + 1);
-  const st = parsed?.stats || {};
+  const remFT = Number(parsed?.state?.RemFT ?? 0);
+  const remHT = Number(parsed?.state?.RemHT ?? 0);
+  const scoreH = Number(parsed?.state?.ScoreHome ?? 0);
+  const scoreA = Number(parsed?.state?.ScoreAway ?? 0);
   
-  // Feature vector per il modello
-  const feats = {
-    t: t,
-    goals_so_far: goalsSoFar,
-    goal_diff: home - away,
-    diff_poss: 0,
-    sum_att_rate: ((st.ATT_H ?? 0) + (st.ATT_A ?? 0)) / denom,
-    sum_cor_rate: ((st.COR_H ?? 0) + (st.COR_A ?? 0)) / denom,
-    sum_datt_rate: ((st.DATT_H ?? 0) + (st.DATT_A ?? 0)) / denom,
-    sum_soff_rate: ((st.SOFF_H ?? 0) + (st.SOFF_A ?? 0)) / denom,
-    sum_sot_rate: ((st.SOT_H ?? 0) + (st.SOT_A ?? 0)) / denom,
-    sum_yc_rate: 0, sum_rc_rate: 0
-  };
+  // Rilevamento fase (HT/FT)
+  let phase = "FT";
+  if (labelUp.includes("HT")) phase = "HT";
 
-  if(nb && nb[phase] && nb[phase].coef){
-    const rem = isHT ? Number(parsed?.state?.RemHT ?? 0) : Number(parsed?.state?.RemFT ?? 0);
-    const out = nbMatchProbFromModel(nb[phase], feats, rem, Math.min(k,3));
-    return {
-      p: out.p,
-      p_match: out.p,
-      p_raw: out.raw,
-      lam: out.mu,
-      mu: out.mu,
-      needed: k, // <--- FIX FONDAMENTALE PER L'ETICHETTA
-      k: k,
-      source: "NB+ISO"
-    };
+  // LOGICA K (Goal Necessari):
+  // Se è "NEXT", ignoriamo i goal già segnati. Partiamo da 0-0 virtuale.
+  // Next Over 0.5 -> servono >0.5 goal -> k=1
+  // Next Over 1.5 -> servono >1.5 goal -> k=2
+  const line = oddsObj?.line ?? 0.5;
+  const isNext = labelUp.includes("NEXT");
+  
+  // Calcolo di base per i TOTALI (per Home/Away/Win lo sovrascriviamo dopo)
+  let k_needed = 1; 
+
+  if (isNext) {
+      // LOGICA RICHIESTA: Next Over X.5 -> Servono floor(X.5) + 1 goal
+      k_needed = Math.floor(line) + 1;
+  } else {
+      // LOGICA MATCH OVER (Legacy): Totale > X.5 -> (floor(line)+1) - GoalFatti
+      const goalsSoFar = scoreH + scoreA;
+      const totalNeeded = Math.floor(line) + 1;
+      k_needed = Math.max(1, totalNeeded - goalsSoFar);
   }
 
+  // Identificazione Outcome Key nel JSON V2
+  let outcomeKey = null;
+
+  // --- MAPPATURA MERCATI ---
+
+  if (labelUp.includes("BOTH TEAMS") || labelUp.includes("BTTS")) {
+      outcomeKey = "BTTS_FT";
+      k_needed = 1; // Per BTTS il concetto di k è interno alla formula
+  } 
+  else if (labelUp.includes("HOME") && labelUp.includes("WIN")) {
+      outcomeKey = "HOME_WIN_FT";
+  } 
+  else if (labelUp.includes("AWAY") && labelUp.includes("WIN")) {
+      outcomeKey = "AWAY_WIN_FT";
+  } 
+  else if (labelUp.includes("HOME") && labelUp.includes("OVER")) {
+      // Home Next Over 0.5 -> Home deve segnare 1
+      // JSON V2 ha "HOME_NEXT_0_5_FT"
+      // Se la linea fosse 1.5 (improbabile per "Next"), servirebbe un modello k=2 che forse non c'è.
+      // Assumiamo standard 0.5 Next.
+      outcomeKey = "HOME_NEXT_0_5_FT";
+      k_needed = 1; // Home deve segnare 1
+  } 
+  else if (labelUp.includes("AWAY") && labelUp.includes("OVER")) {
+      outcomeKey = "AWAY_NEXT_0_5_FT";
+      k_needed = 1; // Away deve segnare 1
+  } 
+  else {
+      // Default: Total Goals (Next Over X.5)
+      // Mappiamo k_needed alle chiavi del JSON
+      if (k_needed === 1) outcomeKey = phase + "_1plus";
+      else if (k_needed === 2) outcomeKey = phase + "_2plus";
+      else if (k_needed >= 3) outcomeKey = phase + "_3plus";
+      else outcomeKey = phase + "_1plus"; // Fallback sicuro
+  }
+
+  // --- ESECUZIONE CALCOLO MODELLO ---
+  if (nb && nb.outcomes && nb.outcomes[outcomeKey]) {
+      const outDef = nb.outcomes[outcomeKey];
+      const feats = extractFeaturesV2(parsed);
+      const minutesRem = (outDef.phase === "HT") ? remHT : remFT;
+
+      let rawProb = 0;
+      let muVal = 0;
+
+      // 1. Modelli semplici (Total o Team Goals) -> P(X >= k)
+      if (outDef.type === "total_goals_remaining" || outDef.type === "team_goals_remaining") {
+          const muModel = nb.mu_models[outDef.mu_model];
+          const dispersion = nb.dispersion[outDef.r]; 
+          
+          muVal = computeV2Mu(muModel, feats, minutesRem);
+          // Qui usiamo outDef.k dal JSON, ma per i totali dinamici usiamo il nostro k_needed calcolato
+          // Se è un Next Over 1.5, abbiamo mappato a FT_2plus che ha k=2 nel JSON. Tutto torna.
+          rawProb = nbProbGE(muVal, dispersion, outDef.k);
+      }
+      
+      // 2. Modelli derivati (BTTS, WIN)
+      else if (outDef.type === "derived") {
+          const modH = nb.mu_models["ft_home"];
+          const modA = nb.mu_models["ft_away"];
+          const rTeam = nb.dispersion["team_r"];
+          
+          const muH = computeV2Mu(modH, feats, minutesRem);
+          const muA = computeV2Mu(modA, feats, minutesRem);
+          muVal = (muH + muA) / 2; // Valore medio per debug
+
+          if (outcomeKey === "BTTS_FT") {
+              // P(H_rem >= 1) * P(A_rem >= 1)
+              // Logica Next: BTTS Next -> Entrambe devono segnare DA ORA.
+              // Se la notifica è "BTTS" generico su risultato 1-0, diventa "Away Next Over 0.5".
+              // MA: Se la label è "Next BTTS" (raro), serve 1-1 da ora.
+              // STANDARD V3: Se notifica dice "BTTS", intende che l'esito finale sarà Goal/Goal.
+              // Quindi se score 1-0, manca solo goal Away.
+              // Se score 1-1, probabilità è 100% (bet vinta).
+              // Se score 0-0, servono entrambi.
+              
+              const p_H_rem_ge_1 = nbProbGE(muH, rTeam, 1);
+              const p_A_rem_ge_1 = nbProbGE(muA, rTeam, 1);
+              
+              // Verifica goal già fatti
+              let probH = (scoreH > 0) ? 1.0 : p_H_rem_ge_1;
+              let probA = (scoreA > 0) ? 1.0 : p_A_rem_ge_1;
+              
+              rawProb = probH * probA;
+          } 
+          else if (outcomeKey.includes("WIN")) {
+              // Somma probabilità esatte P(H_rem=i, A_rem=j) tali che (ScoreH+i) > (ScoreA+j)
+              let sumWin = 0;
+              const limit = 12;
+              
+              const pmfH = [];
+              const pmfA = [];
+              for(let i=0; i<limit; i++) pmfH[i] = nbPmf(muH, rTeam, i);
+              for(let i=0; i<limit; i++) pmfA[i] = nbPmf(muA, rTeam, i);
+
+              if (outcomeKey === "HOME_WIN_FT") {
+                  for (let hRem=0; hRem<limit; hRem++) {
+                      for (let aRem=0; aRem<limit; aRem++) {
+                          if ( (scoreH + hRem) > (scoreA + aRem) ) {
+                              sumWin += (pmfH[hRem] * pmfA[aRem]);
+                          }
+                      }
+                  }
+              } else { // AWAY WIN
+                   for (let hRem=0; hRem<limit; hRem++) {
+                      for (let aRem=0; aRem<limit; aRem++) {
+                          if ( (scoreA + aRem) > (scoreH + hRem) ) {
+                              sumWin += (pmfH[hRem] * pmfA[aRem]);
+                          }
+                      }
+                  }
+              }
+              rawProb = sumWin;
+          }
+      }
+
+      // 3. Calibrazione Isotonica
+      let calProb = rawProb;
+      const isoKey = outDef.calibrator;
+      if (nb.isotonic && nb.isotonic[isoKey]) {
+          const iso = nb.isotonic[isoKey];
+          calProb = isoMap(rawProb, iso.x, iso.y);
+      }
+
+      return {
+          p: clamp01(calProb),
+          p_match: clamp01(calProb),
+          p_raw: clamp01(rawProb),
+          mu: muVal,
+          needed: k_needed, // Questo ora sarà 2 per "Next Over 1.5"
+          k: k_needed,
+          source: `NB-V2 (${outcomeKey})`
+      };
+  }
+
+  // Fallback Legacy
   const legacy = legacyMatchProbability_NEXT(parsed);
   legacy.source = "HEUR";
-  legacy.mu = legacy.lambda; // Compatibilità debug
-  legacy.p_raw = legacy.p;   // Compatibilità debug
+  legacy.mu = legacy.lambda; 
+  legacy.p_raw = legacy.p;
   return legacy;
 }
 
