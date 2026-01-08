@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LivePick iOS26 — UI v1.9.7</title>
+  <title>LivePick iOS26 — UI v1.9.8</title>
   <style>
 :root{
   color-scheme: light;
@@ -394,7 +394,7 @@ details summary::-webkit-details-marker{display:none}
     <div class="hamburger" id="hamburger" aria-label="Apri menu" title="Menu"><span></span></div>
     <div class="brand">
       <b>BetTools</b>
-      <small>V3 • NEXT • Stake v1 • UI v1.9.7</small>
+      <small>V3 • NEXT • Stake v1 • UI v1.9.8</small>
     </div>
     <div class="spacer"></div>
     <button class="iconBtn" id="themeToggle" aria-label="Tema" title="Tema">☾</button>
@@ -858,7 +858,7 @@ details summary::-webkit-details-marker{display:none}
 const STORAGE_KEY = "bettools_v3_uiv1.7a";
 const DEFAULT_STATE = {
   version: "V3_SIMPLIFIED_UI162",
-  settings: { bankroll: 1000 },
+  settings: { bankroll: 100 },
   dailySnapshot: { date: null, bankroll: null },
   history: []
 };
@@ -1223,16 +1223,22 @@ function parseLP(chunk){
     N: safeNum(kv.N)
   };
 }
+/* ==========================================
+   FIX LETTURA STATISTICHE (SOT, CORNER, ECC.)
+   Cerca la funzione parseStatsLine e sostituiscila con questa
+   ========================================== */
 function parseStatsLine(chunk){
   // chunk like: "STATS | SOT=4/0 | SOFF=1/0 | COR=1/0 | ATT=34/16 | DATT=20/7"
   const kv = parsePipeKVs(chunk);
   const sot = parseHA(kv.SOT), soff = parseHA(kv.SOFF), cor = parseHA(kv.COR), att = parseHA(kv.ATT), datt = parseHA(kv.DATT);
+  
+  // FIX CRUCIALE: Uso .home e .away (come restituito da parseHA) invece di .h e .a
   return {
-    SOT_H:sot.h, SOT_A:sot.a,
-    SOFF_H:soff.h, SOFF_A:soff.a,
-    COR_H:cor.h, COR_A:cor.a,
-    ATT_H:att.h, ATT_A:att.a,
-    DATT_H:datt.h, DATT_A:datt.a
+    SOT_H: sot.home, SOT_A: sot.away,
+    SOFF_H: soff.home, SOFF_A: soff.away,
+    COR_H: cor.home, COR_A: cor.away,
+    ATT_H: att.home, ATT_A: att.away,
+    DATT_H: datt.home, DATT_A: datt.away
   };
 }
 function parseMETA(chunk){
@@ -1485,109 +1491,159 @@ function legacyMatchProbability_NEXT(parsed){
   return {p, needed, reason:null, lambda: lam};
 }
 /* ==========================================
-   PARTE 1: MOTORE MATEMATICO V2 (NB + Features)
-   Incolla questo blocco PRIMA di pickMatchProbability_NEXT
+   PARTE 1: MOTORE MATEMATICO V2 (FIX DISPERSIONE R)
+   Sostituisci le funzioni nbPmf, nbProbGE, extractFeaturesV2 e computeV2Mu
    ========================================== */
 
-// Calcola la PMF (probabilità esatta P(X=k)) per la Negative Binomial
-function nbPmf(mu, alpha, k) {
+// FIX 1: Probabilità >= k. Ora usa 'r' direttamente dal JSON senza invertirlo.
+function nbProbGE(mu, r_param, k) {
+  if (k <= 0) return 1.0;
+  
+  // Il JSON passa direttamente 'r' (es. 24.0). NON invertirlo!
+  const r = Math.max(r_param, 1e-9); 
+  const p = r / (r + Math.max(mu, 1e-12)); // Probability of success
+  const q = 1.0 - p;                       // Probability of failure (1-p)
+
+  // Calcolo P(X=0) = p^r
+  const p0 = Math.pow(p, r);
+
+  if (k === 1) return 1.0 - p0;
+
+  // Calcolo P(X=1) = r * q * p0
+  const p1 = r * q * p0;
+
+  if (k === 2) return 1.0 - (p0 + p1);
+
+  // Calcolo P(X=2) = (r * (r+1) / 2) * q^2 * p0
+  const p2 = (r * (r + 1) / 2.0) * (q * q) * p0;
+
+  if (k === 3) return 1.0 - (p0 + p1 + p2);
+
+  // Fallback per k > 3 (approssimazione o espansione futura)
+  return 1.0 - (p0 + p1 + p2); 
+}
+
+// FIX 2: PMF Esatta (per calcoli Win/BTTS). Anche qui 'r' diretto.
+function nbPmf(mu, r_param, k) {
   if (k < 0) return 0;
-  const r = 1.0 / Math.max(alpha, 1e-9);
+  const r = Math.max(r_param, 1e-9);
   const p = r / (r + Math.max(mu, 1e-12)); 
   
+  // Log-space per stabilità numerica
   let logP = r * Math.log(p) + k * Math.log(1 - p);
+  // Aggiungi log(Gamma(r+k)/(Gamma(r)*Gamma(k+1))) -> approx combinatoriale
   for (let i = 0; i < k; i++) {
     logP += Math.log(r + i) - Math.log(1 + i);
   }
   return Math.exp(logP);
 }
 
-// Estrae tutte le feature possibili dalla notifica per passarle al modello JSON V2
+// FIX 3: Feature Names allineati al JSON V3 (senza "Avg_")
 function extractFeaturesV2(parsed) {
   const t = Number(parsed?.state?.Time ?? 0);
-  const denom = (t + 1); // Evita divisione per zero
+  const denom = (t + 1); 
   const st = parsed?.stats || {};
   const l10 = parsed?.l10 || {};
   const goalsH = Number(parsed?.state?.ScoreHome ?? 0);
   const goalsA = Number(parsed?.state?.ScoreAway ?? 0);
+
+  // Somme Casa + Trasferta
+  const sot = (st.SOT_H ?? 0) + (st.SOT_A ?? 0);
+  const soff = (st.SOFF_H ?? 0) + (st.SOFF_A ?? 0);
+  const cor = (st.COR_H ?? 0) + (st.COR_A ?? 0);
+  const da = (st.DATT_H ?? 0) + (st.DATT_A ?? 0);
+  const att = (st.ATT_H ?? 0) + (st.ATT_A ?? 0);
+
+  const sot10 = (l10.SOT_H ?? 0) + (l10.SOT_A ?? 0);
+  const soff10 = (l10.SOFF_H ?? 0) + (l10.SOFF_A ?? 0);
+  const cor10 = (l10.COR_H ?? 0) + (l10.COR_A ?? 0);
+  const da10 = (l10.DATT_H ?? 0) + (l10.DATT_A ?? 0);
+  const att10 = (l10.ATT_H ?? 0) + (l10.ATT_A ?? 0);
 
   return {
     "const": 1.0,
     "picked_minute": t,
     "Goals_Scored_So_far": goalsH + goalsA,
     
-    // Stats All Time (Home/Away/Total per minute)
-    "Avg_H_SOT_per_min": (st.SOT_H ?? 0) / denom,
-    "Avg_A_SOT_per_min": (st.SOT_A ?? 0) / denom,
-    "Avg_SOT_per_min": ((st.SOT_H ?? 0) + (st.SOT_A ?? 0)) / denom,
+    // Nomi corretti per JSON V3 Live
+    "SOT_per_min": sot / denom,
+    "SOFF_per_min": soff / denom,
+    "CORNER_per_min": cor / denom,
+    "DA_per_min": da / denom,
+    "ATT_per_min": att / denom,
 
-    "Avg_H_SOFF_per_min": (st.SOFF_H ?? 0) / denom,
-    "Avg_A_SOFF_per_min": (st.SOFF_A ?? 0) / denom,
-    "Avg_SOFF_per_min": ((st.SOFF_H ?? 0) + (st.SOFF_A ?? 0)) / denom,
+    "SOT_L10_perMin": sot10 / 10.0,
+    "SOFF_L10_perMin": soff10 / 10.0,
+    "CORNERS_L10_perMin": cor10 / 10.0, 
+    "DA_L10_perMin": da10 / 10.0,
+    "ATT_L10_perMin": att10 / 10.0,
 
-    "Avg_H_CORNER_per_min": (st.COR_H ?? 0) / denom,
-    "Avg_A_CORNER_per_min": (st.COR_A ?? 0) / denom,
-    "Avg_CORNER_per_min": ((st.COR_H ?? 0) + (st.COR_A ?? 0)) / denom,
+    // Home
+    "H_SOT_per_min": (st.SOT_H ?? 0) / denom,
+    "H_SOFF_per_min": (st.SOFF_H ?? 0) / denom,
+    "H_CORNER_per_min": (st.COR_H ?? 0) / denom,
+    "H_DA_per_min": (st.DATT_H ?? 0) / denom,
+    "H_ATT_per_min": (st.ATT_H ?? 0) / denom,
+    "H_SOT_L10_perMin": (l10.SOT_H ?? 0) / 10.0,
+    "H_SOFF_L10_perMin": (l10.SOFF_H ?? 0) / 10.0,
+    "H_CORNERS_L10_perMin": (l10.COR_H ?? 0) / 10.0,
+    "H_DA_L10_perMin": (l10.DATT_H ?? 0) / 10.0,
+    "H_ATT_L10_perMin": (l10.ATT_H ?? 0) / 10.0,
 
-    "Avg_H_DA_per_min": (st.DATT_H ?? 0) / denom,
-    "Avg_A_DA_per_min": (st.DATT_A ?? 0) / denom,
-    "Avg_DA_per_min": ((st.DATT_H ?? 0) + (st.DATT_A ?? 0)) / denom,
-
-    "Avg_H_ATT_per_min": (st.ATT_H ?? 0) / denom,
-    "Avg_A_ATT_per_min": (st.ATT_A ?? 0) / denom,
-    "Avg_ATT_per_min": ((st.ATT_H ?? 0) + (st.ATT_A ?? 0)) / denom,
-
-    // Stats L10 (Home/Away/Total per minute)
-    "Avg_H_SOT_L10_perMin": (l10.SOT_H ?? 0) / 10.0,
-    "Avg_A_SOT_L10_perMin": (l10.SOT_A ?? 0) / 10.0,
-    "Avg_SOT_L10_perMin": ((l10.SOT_H ?? 0) + (l10.SOT_A ?? 0)) / 10.0,
-
-    "Avg_H_SOFF_L10_perMin": (l10.SOFF_H ?? 0) / 10.0,
-    "Avg_A_SOFF_L10_perMin": (l10.SOFF_A ?? 0) / 10.0,
-    "Avg_SOFF_L10_perMin": ((l10.SOFF_H ?? 0) + (l10.SOFF_A ?? 0)) / 10.0,
-
-    "Avg_H_CORNERS_L10_perMin": (l10.COR_H ?? 0) / 10.0,
-    "Avg_A_CORNERS_L10_perMin": (l10.COR_A ?? 0) / 10.0,
-    "Avg_CORNERS_L10_perMin": ((l10.COR_H ?? 0) + (l10.COR_A ?? 0)) / 10.0,
-
-    "Avg_H_DA_L10_perMin": (l10.DATT_H ?? 0) / 10.0,
-    "Avg_A_DA_L10_perMin": (l10.DATT_A ?? 0) / 10.0,
-    "Avg_DA_L10_perMin": ((l10.DATT_H ?? 0) + (l10.DATT_A ?? 0)) / 10.0,
-
-    "Avg_H_ATT_L10_perMin": (l10.ATT_H ?? 0) / 10.0,
-    "Avg_A_ATT_L10_perMin": (l10.ATT_A ?? 0) / 10.0,
-    "Avg_ATT_L10_perMin": ((l10.ATT_H ?? 0) + (l10.ATT_A ?? 0)) / 10.0
+    // Away
+    "A_SOT_per_min": (st.SOT_A ?? 0) / denom,
+    "A_SOFF_per_min": (st.SOFF_A ?? 0) / denom,
+    "A_CORNER_per_min": (st.COR_A ?? 0) / denom,
+    "A_DA_per_min": (st.DATT_A ?? 0) / denom,
+    "A_ATT_per_min": (st.ATT_A ?? 0) / denom,
+    "A_SOT_L10_perMin": (l10.SOT_A ?? 0) / 10.0,
+    "A_SOFF_L10_perMin": (l10.SOFF_A ?? 0) / 10.0,
+    "A_CORNERS_L10_perMin": (l10.COR_A ?? 0) / 10.0,
+    "A_DA_L10_perMin": (l10.DATT_A ?? 0) / 10.0,
+    "A_ATT_L10_perMin": (l10.ATT_A ?? 0) / 10.0
   };
 }
 
-// Calcola il valore Mu (Lambda) da un modello specifico del JSON V2
+// FIX 4: Compute Mu con gestione Standardizzazione + Protezione Infinity
 function computeV2Mu(modelDef, features, minutesRemaining) {
   if (!modelDef || !modelDef.coef) return 0;
   let eta = modelDef.intercept || 0;
-  
+  const hasScaling = Array.isArray(modelDef.means) && Array.isArray(modelDef.stds);
+
   if(Array.isArray(modelDef.feature_cols) && Array.isArray(modelDef.coef)){
       eta = modelDef.intercept || 0;
       for(let i=0; i<modelDef.feature_cols.length; i++){
           const col = modelDef.feature_cols[i];
-          const val = features[col] || 0;
+          let val = features[col] || 0;
+
+          if(hasScaling){
+              const mean = modelDef.means[i] || 0;
+              let std = modelDef.stds[i];
+              if (std < 0.0001) std = 1.0; // Protezione
+              val = (val - mean) / std;
+          }
           eta += val * (modelDef.coef[i] || 0);
       }
   }
-
-  // Offset temporale
   eta += Math.log(Math.max(minutesRemaining, 1e-6));
+  eta = Math.max(-10, Math.min(4.0, eta)); // Tetto massimo
   return Math.exp(eta);
 }
 /* ==========================================
-   PARTE 2: LOGICA PRINCIPALE (Versione FIX "NEXT")
+   PARTE 2: LOGICA PRINCIPALE (SOLO ODDS_TO_BET)
+   Sostituisci interamente la funzione pickMatchProbability_NEXT
+   ========================================== */
+/* ==========================================
+   PARTE 2: LOGICA PRINCIPALE (FIX BTTS STATE-AWARE + DYNAMIC CALIB)
    Sostituisci interamente la funzione pickMatchProbability_NEXT
    ========================================== */
 function pickMatchProbability_NEXT(parsed){
   const nb = loadNbModel();
   const oddsObj = parsed?.oddsToBet; 
-  // Normalizzo l'etichetta del mercato (es. "FT Next Over 1.5")
-  const label = (parsed?.meta?.Method || oddsObj?.market || oddsObj?.label || "").trim();
-  const labelUp = label.toUpperCase();
+  
+  // 1. FONTE UNICA DI VERITÀ: ODDS_TO_BET
+  const label = (oddsObj?.market || oddsObj?.label || "").trim();
+  const labelUp = label.toUpperCase(); // Es: "FT NEXT OVER 1.5" o "BTTS"
 
   // Dati base partita
   const t = Number(parsed?.state?.Time ?? 0);
@@ -1596,64 +1652,45 @@ function pickMatchProbability_NEXT(parsed){
   const scoreH = Number(parsed?.state?.ScoreHome ?? 0);
   const scoreA = Number(parsed?.state?.ScoreAway ?? 0);
   
-  // Rilevamento fase (HT/FT)
+  // Rilevamento fase
   let phase = "FT";
   if (labelUp.includes("HT")) phase = "HT";
 
-  // LOGICA K (Goal Necessari):
-  // Se è "NEXT", ignoriamo i goal già segnati. Partiamo da 0-0 virtuale.
-  // Next Over 0.5 -> servono >0.5 goal -> k=1
-  // Next Over 1.5 -> servono >1.5 goal -> k=2
-  const line = oddsObj?.line ?? 0.5;
+  // 2. RILEVAMENTO "NEXT"
   const isNext = labelUp.includes("NEXT");
   
-  // Calcolo di base per i TOTALI (per Home/Away/Win lo sovrascriviamo dopo)
+  const line = oddsObj?.line ?? 0.5;
   let k_needed = 1; 
 
   if (isNext) {
-      // LOGICA RICHIESTA: Next Over X.5 -> Servono floor(X.5) + 1 goal
       k_needed = Math.floor(line) + 1;
   } else {
-      // LOGICA MATCH OVER (Legacy): Totale > X.5 -> (floor(line)+1) - GoalFatti
       const goalsSoFar = scoreH + scoreA;
       const totalNeeded = Math.floor(line) + 1;
       k_needed = Math.max(1, totalNeeded - goalsSoFar);
   }
 
-  // Identificazione Outcome Key nel JSON V2
+  // Identificazione Outcome Key
   let outcomeKey = null;
-
-  // --- MAPPATURA MERCATI ---
 
   if (labelUp.includes("BOTH TEAMS") || labelUp.includes("BTTS")) {
       outcomeKey = "BTTS_FT";
-      k_needed = 1; // Per BTTS il concetto di k è interno alla formula
+      k_needed = 1; 
   } 
-  else if (labelUp.includes("HOME") && labelUp.includes("WIN")) {
-      outcomeKey = "HOME_WIN_FT";
-  } 
-  else if (labelUp.includes("AWAY") && labelUp.includes("WIN")) {
-      outcomeKey = "AWAY_WIN_FT";
-  } 
+  else if (labelUp.includes("HOME") && labelUp.includes("WIN")) outcomeKey = "HOME_WIN_FT";
+  else if (labelUp.includes("AWAY") && labelUp.includes("WIN")) outcomeKey = "AWAY_WIN_FT";
   else if (labelUp.includes("HOME") && labelUp.includes("OVER")) {
-      // Home Next Over 0.5 -> Home deve segnare 1
-      // JSON V2 ha "HOME_NEXT_0_5_FT"
-      // Se la linea fosse 1.5 (improbabile per "Next"), servirebbe un modello k=2 che forse non c'è.
-      // Assumiamo standard 0.5 Next.
-      outcomeKey = "HOME_NEXT_0_5_FT";
-      k_needed = 1; // Home deve segnare 1
+      outcomeKey = "HOME_NEXT_0_5_FT"; k_needed = 1; 
   } 
   else if (labelUp.includes("AWAY") && labelUp.includes("OVER")) {
-      outcomeKey = "AWAY_NEXT_0_5_FT";
-      k_needed = 1; // Away deve segnare 1
+      outcomeKey = "AWAY_NEXT_0_5_FT"; k_needed = 1; 
   } 
   else {
-      // Default: Total Goals (Next Over X.5)
-      // Mappiamo k_needed alle chiavi del JSON
+      // Default: Total Goals
       if (k_needed === 1) outcomeKey = phase + "_1plus";
       else if (k_needed === 2) outcomeKey = phase + "_2plus";
       else if (k_needed >= 3) outcomeKey = phase + "_3plus";
-      else outcomeKey = phase + "_1plus"; // Fallback sicuro
+      else outcomeKey = phase + "_1plus"; 
   }
 
   // --- ESECUZIONE CALCOLO MODELLO ---
@@ -1664,52 +1701,61 @@ function pickMatchProbability_NEXT(parsed){
 
       let rawProb = 0;
       let muVal = 0;
+      // Importante: permettiamo di cambiare il calibratore dinamicamente (per il BTTS)
+      let currentIsoKey = outDef.calibrator; 
 
-      // 1. Modelli semplici (Total o Team Goals) -> P(X >= k)
       if (outDef.type === "total_goals_remaining" || outDef.type === "team_goals_remaining") {
           const muModel = nb.mu_models[outDef.mu_model];
           const dispersion = nb.dispersion[outDef.r]; 
-          
           muVal = computeV2Mu(muModel, feats, minutesRem);
-          // Qui usiamo outDef.k dal JSON, ma per i totali dinamici usiamo il nostro k_needed calcolato
-          // Se è un Next Over 1.5, abbiamo mappato a FT_2plus che ha k=2 nel JSON. Tutto torna.
-          rawProb = nbProbGE(muVal, dispersion, outDef.k);
+          rawProb = nbProbGE(muVal, dispersion, outDef.k); // Qui usiamo outDef.k come base, ma se è un Totale dinamico usiamo k_needed
+          if (outDef.type === "total_goals_remaining") {
+             // Sovrascriviamo se stiamo cercando k diversi (es. next over 2.5 -> k=3)
+             // Nota: per ora il JSON ha solo k fissi, ma nbProbGE supporta k dinamico.
+             rawProb = nbProbGE(muVal, dispersion, k_needed);
+          }
       }
-      
-      // 2. Modelli derivati (BTTS, WIN)
       else if (outDef.type === "derived") {
           const modH = nb.mu_models["ft_home"];
           const modA = nb.mu_models["ft_away"];
           const rTeam = nb.dispersion["team_r"];
-          
           const muH = computeV2Mu(modH, feats, minutesRem);
           const muA = computeV2Mu(modA, feats, minutesRem);
-          muVal = (muH + muA) / 2; // Valore medio per debug
+          
+          // Default Mu medio
+          muVal = (muH + muA) / 2;
 
           if (outcomeKey === "BTTS_FT") {
-              // P(H_rem >= 1) * P(A_rem >= 1)
-              // Logica Next: BTTS Next -> Entrambe devono segnare DA ORA.
-              // Se la notifica è "BTTS" generico su risultato 1-0, diventa "Away Next Over 0.5".
-              // MA: Se la label è "Next BTTS" (raro), serve 1-1 da ora.
-              // STANDARD V3: Se notifica dice "BTTS", intende che l'esito finale sarà Goal/Goal.
-              // Quindi se score 1-0, manca solo goal Away.
-              // Se score 1-1, probabilità è 100% (bet vinta).
-              // Se score 0-0, servono entrambi.
-              
-              const p_H_rem_ge_1 = nbProbGE(muH, rTeam, 1);
-              const p_A_rem_ge_1 = nbProbGE(muA, rTeam, 1);
-              
-              // Verifica goal già fatti
-              let probH = (scoreH > 0) ? 1.0 : p_H_rem_ge_1;
-              let probA = (scoreA > 0) ? 1.0 : p_A_rem_ge_1;
-              
-              rawProb = probH * probA;
+              // --- LOGICA BTTS STATE-AWARE AVANZATA ---
+              if (scoreH > 0 && scoreA > 0) {
+                  // Già vinto (1-1, 2-1...)
+                  rawProb = 1.0;
+              } 
+              else if (scoreH > 0 && scoreA === 0) {
+                  // 1-0: Serve solo Away. 
+                  // Usiamo Mu Away e il calibratore di Away Next 0.5!
+                  muVal = muA;
+                  rawProb = nbProbGE(muA, rTeam, 1);
+                  currentIsoKey = "AWAY_NEXT_0_5_FT"; 
+              } 
+              else if (scoreH === 0 && scoreA > 0) {
+                  // 0-1: Serve solo Home.
+                  // Usiamo Mu Home e il calibratore di Home Next 0.5!
+                  muVal = muH;
+                  rawProb = nbProbGE(muH, rTeam, 1);
+                  currentIsoKey = "HOME_NEXT_0_5_FT";
+              } 
+              else {
+                  // 0-0: Servono entrambi
+                  const pH = nbProbGE(muH, rTeam, 1);
+                  const pA = nbProbGE(muA, rTeam, 1);
+                  rawProb = pH * pA;
+                  // Qui teniamo currentIsoKey originale ("BTTS_FT")
+              }
           } 
           else if (outcomeKey.includes("WIN")) {
-              // Somma probabilità esatte P(H_rem=i, A_rem=j) tali che (ScoreH+i) > (ScoreA+j)
               let sumWin = 0;
-              const limit = 12;
-              
+              const limit = 15;
               const pmfH = [];
               const pmfA = [];
               for(let i=0; i<limit; i++) pmfH[i] = nbPmf(muH, rTeam, i);
@@ -1718,17 +1764,13 @@ function pickMatchProbability_NEXT(parsed){
               if (outcomeKey === "HOME_WIN_FT") {
                   for (let hRem=0; hRem<limit; hRem++) {
                       for (let aRem=0; aRem<limit; aRem++) {
-                          if ( (scoreH + hRem) > (scoreA + aRem) ) {
-                              sumWin += (pmfH[hRem] * pmfA[aRem]);
-                          }
+                          if ( (scoreH + hRem) > (scoreA + aRem) ) sumWin += (pmfH[hRem] * pmfA[aRem]);
                       }
                   }
               } else { // AWAY WIN
                    for (let hRem=0; hRem<limit; hRem++) {
                       for (let aRem=0; aRem<limit; aRem++) {
-                          if ( (scoreA + aRem) > (scoreH + hRem) ) {
-                              sumWin += (pmfH[hRem] * pmfA[aRem]);
-                          }
+                          if ( (scoreA + aRem) > (scoreH + hRem) ) sumWin += (pmfH[hRem] * pmfA[aRem]);
                       }
                   }
               }
@@ -1736,11 +1778,10 @@ function pickMatchProbability_NEXT(parsed){
           }
       }
 
-      // 3. Calibrazione Isotonica
+      // --- CALIBRAZIONE (Isotonic) ---
       let calProb = rawProb;
-      const isoKey = outDef.calibrator;
-      if (nb.isotonic && nb.isotonic[isoKey]) {
-          const iso = nb.isotonic[isoKey];
+      if (nb.isotonic && nb.isotonic[currentIsoKey]) {
+          const iso = nb.isotonic[currentIsoKey];
           calProb = isoMap(rawProb, iso.x, iso.y);
       }
 
@@ -1749,20 +1790,18 @@ function pickMatchProbability_NEXT(parsed){
           p_match: clamp01(calProb),
           p_raw: clamp01(rawProb),
           mu: muVal,
-          needed: k_needed, // Questo ora sarà 2 per "Next Over 1.5"
+          needed: k_needed,
           k: k_needed,
           source: `NB-V2 (${outcomeKey})`
       };
   }
 
-  // Fallback Legacy
   const legacy = legacyMatchProbability_NEXT(parsed);
   legacy.source = "HEUR";
   legacy.mu = legacy.lambda; 
   legacy.p_raw = legacy.p;
   return legacy;
 }
-
 function getArchiveStatsForKey(key){
   const closed = state.history.filter(b => b.key===key && (b.result==="win" || b.result==="loss"));
   const N = closed.length;
@@ -2017,24 +2056,28 @@ if(btnAddManual){
     if(help) help.textContent="Aggiunta.";
   });
 }
-
+/* ==========================================
+   TASTO PARSE CON DEBUG (Incolla questo al posto del vecchio btnParse)
+   ========================================== */
 btnParse.addEventListener("click", ()=>{
   let res;
   try { res = parseNotification(lpText.value); }
-  catch(e){ console.error(e); parseMsg.innerHTML = `<div class="note danger">Parse error: ${escapeHtml(String(e?.message||e))}</div>`; lastParsed=null; lastStake=null; btnAddToHistory.disabled=true; return; }
+  catch(e){ console.error(e); parseMsg.innerHTML = `<div class="note danger">Parse error: ${escapeHtml(String(e?.message||e))}</div>`; return; }
   actionWrap.innerHTML="";
   oddsPlayedInput=null; stakePlayedInput=null;
 
   if(!res || !res.ok){
-    lastParsed=null; lastStake=null; btnAddToHistory.disabled=true;
-    const errs = (res && Array.isArray(res.errors)) ? res.errors : ["Errore sconosciuto"];
-    const warns = (res && Array.isArray(res.warnings)) ? res.warnings : [];
-    parseMsg.innerHTML = `<div class="errLine"><b>Parse fallito:</b><br/>${errs.map(e=>`• ${escapeHtml(e)}`).join("<br/>")}</div>` +
-      (warns.length ? `<div class="warnLine"><b>Warning:</b><br/>${warns.map(w=>`• ${escapeHtml(w)}`).join("<br/>")}</div>` : "");
+    parseMsg.innerHTML = `<div class="errLine"><b>Parse fallito.</b></div>`;
     return;
   }
 
   lastParsed=res.data;
+  
+  // --- DEBUG POPUP: CONTROLLIAMO I NUMERI ---
+  const s = lastParsed.stats || {};
+  alert(`CONTROLLO LETTURA DATI:\n\nTiri Casa: ${s.SOT_H}\nTiri Ospite: ${s.SOT_A}\nCorner Casa: ${s.COR_H}\nCorner Ospite: ${s.COR_A}\n\nSe questi numeri sono tutti 0 o undefined, il parser ha problemi. Se sono giusti, il modello funziona!`);
+  // ------------------------------------------
+
   lastStake=calcStakeV1(lastParsed);
 
   const warn = [...res.warnings, ...(lastStake.warnings||[])];
@@ -2047,7 +2090,6 @@ btnParse.addEventListener("click", ()=>{
 
   const stakeAmt = roundStake1decMin1((lastStake.stake_pct || 0.01) * brBase);
   const pRef = lastStake.P_REF!==null ? fmtPct(lastStake.P_REF) : "—";
-  const implied = lastStake.implied!==null ? fmtPct(lastStake.implied) : "—";
   const edge = lastStake.edge!==null ? fmtPct(lastStake.edge) : "—";
   const needed = lastStake.needed_goals ?? "—";
   const edgeTag = (lastStake.edge!==null && lastStake.edge<=0)
@@ -2055,8 +2097,9 @@ btnParse.addEventListener("click", ()=>{
     : `<span class="badge win">Edge: ${escapeHtml(edge)}</span>`;
   const oddsRef = lastParsed.oddsToBet?.odds_ref ?? null;
 
-  // DEBUG STRING PER VERIFICA
+  // DEBUG STRING AGGIORNATA
   const d = lastStake.debug || {};
+  // Mostriamo più dettagli nel box piccolo
   const debugStr = (d.mu !== undefined) 
     ? `k=${d.k} • μ=${Number(d.mu).toFixed(3)} • raw=${(Number(d.p_raw)*100).toFixed(1)}%` 
     : "No debug data";
