@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LivePick iOS26 — UI v1.9.8</title>
+  <title>LivePick iOS26 — UI v1.9.9</title>
   <style>
 :root{
   color-scheme: light;
@@ -394,7 +394,7 @@ details summary::-webkit-details-marker{display:none}
     <div class="hamburger" id="hamburger" aria-label="Apri menu" title="Menu"><span></span></div>
     <div class="brand">
       <b>BetTools</b>
-      <small>V3 • NEXT • Stake v1 • UI v1.9.8</small>
+      <small>V3 • NEXT • Stake v1 • UI v1.9.9</small>
     </div>
     <div class="spacer"></div>
     <button class="iconBtn" id="themeToggle" aria-label="Tema" title="Tema">☾</button>
@@ -2396,7 +2396,8 @@ historyList.addEventListener("click",(e)=>{
     return;
   }
 
-  if(act==="save"){
+if(act==="save"){
+    // 1. Recupera i valori dagli input
     const dateEl = document.querySelector(`[data-edit="date"][data-id="${CSS.escape(id)}"]`);
     const methodEl = document.querySelector(`[data-edit="method"][data-id="${CSS.escape(id)}"]`);
     const matchEl = document.querySelector(`[data-edit="match"][data-id="${CSS.escape(id)}"]`);
@@ -2404,6 +2405,7 @@ historyList.addEventListener("click",(e)=>{
     const oddsEl  = document.querySelector(`[data-edit="odds_played"][data-id="${CSS.escape(id)}"]`);
     const resEl   = document.querySelector(`[data-edit="result"][data-id="${CSS.escape(id)}"]`);
 
+    // 2. Aggiorna i dati base della bet
     if(dateEl && dateEl.value) b.date = dateEl.value;
     if(methodEl && methodEl.value.trim()) b.meta.Method = methodEl.value.trim();
     if(matchEl && matchEl.value.trim()) b.meta.Match = matchEl.value.trim();
@@ -2417,19 +2419,43 @@ historyList.addEventListener("click",(e)=>{
     if(sp!==null) b.execution.stake_played = roundStake1decMin1(sp);
     if(op!==null) b.execution.odds_played = op;
 
+    // 3. LOGICA DI AGGIORNAMENTO BANKROLL (FIX)
+    // Memorizziamo il profitto VECCHIO prima di cambiarlo
+    const oldProfit = Number(b.profit_real) || 0;
+    
     if(resEl && resEl.value) b.result = resEl.value;
 
+    // Calcoliamo il NUOVO profitto
+    let newProfit = 0;
     if(b.result==="win" || b.result==="loss"){
-      b.profit_real = calcProfit(b.result, b.execution.stake_played, b.execution.odds_played);
-    }else{
-      b.profit_real = null;
+      const p = calcProfit(b.result, b.execution.stake_played, b.execution.odds_played);
+      newProfit = (p !== null) ? p : 0;
+    }
+    
+    b.profit_real = (b.result==="win" || b.result==="loss") ? newProfit : null;
+
+    // Calcoliamo la differenza (Delta) e aggiorniamo il Bankroll
+    // Esempio: Era Pending (0) -> Diventa Win (+10) -> Delta = +10 -> Bankroll +10
+    // Esempio: Era Win (+10) -> Correggo in Loss (-10) -> Delta = -20 -> Bankroll -20
+    const delta = newProfit - oldProfit;
+    
+    if (delta !== 0) {
+        state.settings.bankroll = (Number(state.settings.bankroll) || 0) + delta;
+        // Aggiorna anche l'input visibile se siamo nella pagina settings
+        const brInput = document.getElementById("bankrollInput");
+        if(brInput) brInput.value = state.settings.bankroll.toFixed(2);
+        const brDash = document.getElementById("bankrollInputDash");
+        if(brDash) brDash.value = state.settings.bankroll.toFixed(2);
     }
 
     saveState();
     editingBetId = null;
     renderAll();
+    
+    // Feedback utente
+    if(delta !== 0) toast(`Bankroll aggiornato: ${delta > 0 ? '+' : ''}${delta.toFixed(2)}€`, delta>0?"success":"warn");
     return;
-  }
+  } 
 });
 
 /* =========================
