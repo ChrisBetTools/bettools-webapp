@@ -573,6 +573,20 @@
       background: rgba(124, 143, 183, .12)
     }
 
+    .badge.amber {
+      border-color: rgba(255, 159, 10, .45);
+      color: rgba(255, 159, 10, .95);
+      background: rgba(255, 159, 10, .12)
+    }
+
+    .betInlineDetail {
+      margin-top: 10px;
+      border-top: 1px solid var(--stroke);
+      padding-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
     .list {
       display: flex;
       flex-direction: column;
@@ -924,7 +938,7 @@
     <div class="hamburger" id="hamburger" aria-label="Apri menu" title="Menu"><span></span></div>
     <div class="brand">
       <b>BetTools</b>
-      <small>V3 • NEXT • Stake v1 • UI v2.1</small>
+      <small>V3 • NEXT • Stake v1 • UI v2.2</small>
     </div>
     <div class="spacer"></div>
     <button class="iconBtn" id="themeToggle" aria-label="Tema" title="Tema">☾</button>
@@ -1031,16 +1045,27 @@
               <option value="all">Tutte</option>
               <option value="win">Vinte</option>
               <option value="loss">Perse</option>
-              <option value="pending">Pending</option>
+              <option value="pending" selected>Pending</option>
               <option value="not_played">Non giocate</option>
             </select>
             <select id="historyDateFilter" style="width:auto; min-width:160px">
-              <option value="all">Tutto</option>
+              <option value="all" selected>Tutto</option>
               <option value="today">Oggi</option>
               <option value="yesterday">Ieri</option>
               <option value="week">Settimana corrente</option>
               <option value="month">Mese corrente</option>
+              <option value="range">Intervallo...</option>
             </select>
+          </div>
+          <div id="historyRangeWrap" style="display:none; gap:8px; margin-top:8px; flex-wrap:wrap" class="row">
+            <div style="display:flex; align-items:center; gap:6px">
+              <label style="font-size:12px; white-space:nowrap">Dal</label>
+              <input type="date" id="historyDateFrom" style="width:auto" />
+            </div>
+            <div style="display:flex; align-items:center; gap:6px">
+              <label style="font-size:12px; white-space:nowrap">Al</label>
+              <input type="date" id="historyDateTo" style="width:auto" />
+            </div>
           </div>
         </div>
 
@@ -1164,7 +1189,18 @@
               <option value="yesterday">Ieri</option>
               <option value="week">Settimana corrente</option>
               <option value="month">Mese corrente</option>
+              <option value="range">Intervallo...</option>
             </select>
+          </div>
+        </div>
+        <div id="dashRangeWrap" style="display:none; gap:8px; margin-top:8px; flex-wrap:wrap" class="row">
+          <div style="display:flex; align-items:center; gap:6px">
+            <label style="font-size:12px; white-space:nowrap">Dal</label>
+            <input type="date" id="dashDateFrom" style="width:auto" />
+          </div>
+          <div style="display:flex; align-items:center; gap:6px">
+            <label style="font-size:12px; white-space:nowrap">Al</label>
+            <input type="date" id="dashDateTo" style="width:auto" />
           </div>
         </div>
 
@@ -1263,6 +1299,23 @@
               <option value="week">Settimane</option>
               <option value="month">Mesi</option>
             </select>
+            <select id="timePeriodSelect" style="width:auto; min-width:180px">
+              <option value="all" selected>Tutto</option>
+              <option value="today">Oggi</option>
+              <option value="week">Settimana corrente</option>
+              <option value="month">Mese corrente</option>
+              <option value="range">Intervallo...</option>
+            </select>
+          </div>
+          <div id="timeRangeWrap" style="display:none; gap:8px; margin-top:8px; flex-wrap:wrap" class="row">
+            <div style="display:flex; align-items:center; gap:6px">
+              <label style="font-size:12px; white-space:nowrap">Dal</label>
+              <input type="date" id="timeDateFrom" style="width:auto" />
+            </div>
+            <div style="display:flex; align-items:center; gap:6px">
+              <label style="font-size:12px; white-space:nowrap">Al</label>
+              <input type="date" id="timeDateTo" style="width:auto" />
+            </div>
           </div>
         </div>
 
@@ -1569,7 +1622,7 @@
       return d.toISOString().slice(0, 10);
     }
     function monthKey(dISO) { return dISO.slice(0, 7); }
-    function inDateRange(dISO, range) {
+    function inDateRange(dISO, range, fromISO, toISO) {
       if (range === "all") return true;
       const t = todayISO();
       if (range === "today") return dISO === t;
@@ -1581,6 +1634,14 @@
       if (range === "month") {
         const ym = t.slice(0, 7);
         return dISO.slice(0, 7) === ym;
+      }
+      if (range === "range") {
+        const from = fromISO || "";
+        const to = toISO || "";
+        if (!from && !to) return true;
+        if (from && dISO < from) return false;
+        if (to && dISO > to) return false;
+        return true;
       }
       return true;
     }
@@ -2728,7 +2789,13 @@
     const historyResultFilter = document.getElementById("historyResultFilter");
     const historyDateFilter = document.getElementById("historyDateFilter");
     historyResultFilter.addEventListener("change", renderHistory);
-    historyDateFilter.addEventListener("change", renderHistory);
+    historyDateFilter.addEventListener("change", (e) => {
+      const wrap = document.getElementById("historyRangeWrap");
+      if (wrap) wrap.style.display = e.target.value === "range" ? "flex" : "none";
+      renderHistory();
+    });
+    document.getElementById("historyDateFrom")?.addEventListener("change", renderHistory);
+    document.getElementById("historyDateTo")?.addEventListener("change", renderHistory);
 
     let selectedBetId = null;
     let showRaw = false;
@@ -2771,7 +2838,11 @@
       const rf = historyResultFilter.value;
       const df = historyDateFilter.value;
       if (rf !== "all") arr = arr.filter(b => b.result === rf);
-      if (df !== "all") arr = arr.filter(b => inDateRange(b.date, df));
+      if (df !== "all") {
+        const fromISO = (df === "range") ? (document.getElementById("historyDateFrom")?.value || "") : "";
+        const toISO = (df === "range") ? (document.getElementById("historyDateTo")?.value || "") : "";
+        arr = arr.filter(b => inDateRange(b.date, df, fromISO, toISO));
+      }
       return arr;
     }
     function renderBetCardHTML(b, mode) {
@@ -2852,13 +2923,14 @@
       `;
 
       return `
-    <div class="betCard">
+    <div class="betCard" data-bid="${escapeHtml(b.id)}">
       <div class="betTop">
         <div class="betTopLeft">${topLine}</div>
         <div>${badge}</div>
       </div>
       <div class="betMid">${midLine}</div>
       <div class="betActions">${actions}</div>
+      <div class="betInlineDetail" style="display:none"></div>
     </div>
   `;
     }
@@ -2900,11 +2972,26 @@
       }
 
       if (act === "details") {
-        selectedBetId = id;
-        showRaw = false;
-        document.getElementById("btnToggleRaw").disabled = false;
-        document.getElementById("btnToggleRaw").textContent = "Mostra JSON raw";
-        renderDetails(b);
+        // Toggle inline detail in the card
+        const card = e.target.closest(".betCard");
+        const inlineDiv = card?.querySelector(".betInlineDetail");
+        if (inlineDiv) {
+          if (inlineDiv.style.display === "none" || inlineDiv.innerHTML === "") {
+            inlineDiv.innerHTML = buildInlineDetailHTML(b);
+            inlineDiv.style.display = "block";
+            btn.textContent = "Chiudi";
+          } else {
+            inlineDiv.style.display = "none";
+            inlineDiv.innerHTML = "";
+            btn.textContent = "Dettagli";
+          }
+        } else {
+          // Fallback to old detailsBox
+          selectedBetId = id;
+          showRaw = false;
+          document.getElementById("btnToggleRaw").disabled = false;
+          renderDetails(b);
+        }
         return;
       }
 
@@ -3018,6 +3105,31 @@
         `).join("")}
       </div>
     </div>`;
+    }
+    function buildInlineDetailHTML(b) {
+      const infoRows = [
+        ["id", b.id],
+        ["date", b.date],
+        ["result", b.result],
+        ["profit_real", (b.profit_real === null || b.profit_real === undefined) ? "—" : fmtMoney(b.profit_real)],
+      ];
+      const all = [];
+      all.push(sec("INFO", infoRows));
+      all.push(sec("META", kvRowsFromObj(b.meta)));
+      all.push(sec("STATE", kvRowsFromObj(b.state)));
+      all.push(sec("STATS", kvRowsFromObj(b.stats)));
+      all.push(sec("L10", kvRowsFromObj(b.l10)));
+      all.push(sec("PROB.HT", kvRowsFromObj(b.prob?.HT)));
+      all.push(sec("PROB.FT", kvRowsFromObj(b.prob?.FT)));
+      all.push(sec("PRESS", kvRowsFromObj(b.press)));
+      all.push(sec("LATE", kvRowsFromObj(b.late)));
+      all.push(sec("ODDS_TO_BET", kvRowsFromObj(b.odds_to_bet)));
+      all.push(sec("ODDS PRE", kvRowsFromObj(b.odds_pre)));
+      all.push(sec("ODDS LIVE", kvRowsFromObj(b.odds_live)));
+      all.push(sec("LP", kvRowsFromObj(b.lp)));
+      all.push(sec("CALC", kvRowsFromObj(b.calc)));
+      all.push(sec("EXECUTION", kvRowsFromObj(b.execution)));
+      return `<div class="detailsList" style="font-size:11px">${all.join("")}</div>`;
     }
     function renderDetails(b) {
       const box = document.getElementById("detailsBox");
@@ -3167,8 +3279,13 @@
 
     document.getElementById("dashRangeSelect").addEventListener("change", (e) => {
       dashRange = e.target.value;
+      const wrap = document.getElementById("dashRangeWrap");
+      if (wrap) wrap.style.display = dashRange === "range" ? "flex" : "none";
       renderDashboard();
     });
+    document.getElementById("dashDateFrom")?.addEventListener("change", renderDashboard);
+    document.getElementById("dashDateTo")?.addEventListener("change", renderDashboard);
+
     document.getElementById("profitRangeSelect").addEventListener("change", (e) => {
       profitRange = e.target.value;
       renderDashboard();
@@ -3191,7 +3308,9 @@
     document.getElementById("btnGoStorico").addEventListener("click", () => setPage("storico"));
 
     function closedBetsFiltered(range) {
-      return state.history.filter(b => (b.result === "win" || b.result === "loss") && inDateRange(b.date, range));
+      const fromISO = (range === "range") ? (document.getElementById("dashDateFrom")?.value || "") : "";
+      const toISO = (range === "range") ? (document.getElementById("dashDateTo")?.value || "") : "";
+      return state.history.filter(b => (b.result === "win" || b.result === "loss") && inDateRange(b.date, range, fromISO, toISO));
     }
     function computeTotalsRange(range) {
       const closed = closedBetsFiltered(range);
@@ -3296,10 +3415,9 @@
       const W = rect.width || 300, H = rect.height || 200;
 
       const dpr = window.devicePixelRatio || 1;
-      // Checking if already scaled to avoid double scaling
-      if (canvas.width !== W * dpr) {
-        canvas.width = W * dpr;
-        canvas.height = H * dpr;
+      if (canvas.width !== Math.round(W * dpr)) {
+        canvas.width = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
         ctx.scale(dpr, dpr);
       }
 
@@ -3317,45 +3435,44 @@
       }
 
       let eq = 0;
-      const pts = [{ x: 0, y: 0 }];
-      data.forEach((b, i) => { eq += Number(b.profit_real) || 0; pts.push({ x: i + 1, y: eq }); });
+      const pts = [{ x: 0, y: 0, date: "", label: "Start" }];
+      data.forEach((b, i) => {
+        eq += Number(b.profit_real) || 0;
+        pts.push({ x: i + 1, y: eq, date: b.date, label: `${b.meta?.Match || b.meta?.Method || "bet"}` });
+      });
 
       const maxVal = Math.max(...pts.map(p => p.y));
       const minVal = Math.min(...pts.map(p => p.y));
-
       const rangeY = (maxVal - minVal) || 10;
       const pad = rangeY * 0.1;
       const yMin = minVal - pad;
       const yMax = maxVal + pad;
 
-      const padLeft = 0;
-      const padRight = 0;
-      const padTop = 10;
-      const padBot = 20;
+      // Y-axis on the LEFT: measure label width
+      ctx.font = "10px sans-serif";
+      const yLabelW = Math.max(...[yMin, yMax, 0].map(v => ctx.measureText(Math.round(v).toString()).width)) + 8;
+      const padLeft = yLabelW + 4;
+      const padRight = 4;
+      const padTop = 8;
+      const padBot = 18;
 
       const getX = (i) => padLeft + (i / (pts.length - 1)) * (W - padLeft - padRight);
       const getY = (val) => H - padBot - ((val - yMin) / (yMax - yMin)) * (H - padTop - padBot);
 
-      // Grid & Axis
+      // Grid & Y-axis labels (LEFT)
       ctx.lineWidth = 1;
-      ctx.font = "10px sans-serif";
       ctx.textAlign = "right";
-
       const steps = 5;
       for (let i = 0; i <= steps; i++) {
         const val = yMin + ((yMax - yMin) / steps) * i;
         const y = getY(val);
-
-        // Grid line
         ctx.beginPath();
         ctx.moveTo(padLeft, y);
         ctx.lineTo(W - padRight, y);
         ctx.strokeStyle = "rgba(120,120,120,0.15)";
         ctx.stroke();
-
-        // Label
         ctx.fillStyle = "rgba(120,120,120,0.7)";
-        ctx.fillText(Math.round(val), W - 4, y - 4);
+        ctx.fillText(Math.round(val), padLeft - 4, y + 3);
       }
 
       // Zero line
@@ -3368,26 +3485,19 @@
         ctx.stroke();
       }
 
-      // Determine Color Scheme
       const finalProfit = pts[pts.length - 1].y;
       const isPositive = finalProfit >= 0;
-
-      // Colors
-      const colorStroke = isPositive ? "#4ade80" : "#f87171"; // Green / Red
+      const colorStroke = isPositive ? "#4ade80" : "#f87171";
       const colorFillTop = isPositive ? "rgba(52, 199, 89, 0.2)" : "rgba(248, 113, 113, 0.2)";
       const colorFillBot = isPositive ? "rgba(52, 199, 89, 0)" : "rgba(248, 113, 113, 0)";
 
-      // Area
+      // Area fill
       ctx.beginPath();
       ctx.moveTo(getX(pts[0].x), getY(pts[0].y));
-      for (let i = 1; i < pts.length; i++) {
-        ctx.lineTo(getX(pts[i].x), getY(pts[i].y));
-      }
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(getX(pts[i].x), getY(pts[i].y));
       ctx.lineTo(getX(pts[pts.length - 1].x), H - padBot);
       ctx.lineTo(getX(pts[0].x), H - padBot);
       ctx.closePath();
-
-      // Gradient
       const grad = ctx.createLinearGradient(0, padTop, 0, H - padBot);
       grad.addColorStop(0, colorFillTop);
       grad.addColorStop(1, colorFillBot);
@@ -3397,16 +3507,82 @@
       // Line
       ctx.beginPath();
       ctx.moveTo(getX(pts[0].x), getY(pts[0].y));
-      for (let i = 1; i < pts.length; i++) {
-        ctx.lineTo(getX(pts[i].x), getY(pts[i].y));
-      }
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(getX(pts[i].x), getY(pts[i].y));
       ctx.strokeStyle = colorStroke;
       ctx.lineWidth = 2;
       ctx.stroke();
+
+      // Store chart state on canvas for tooltip
+      canvas._chartMeta = { pts, getX, getY, padLeft, padRight, W, H, data };
     }
     function drawProfitChart(closed, mode) {
       drawProfitChartOn(document.getElementById("profitChart"), closed, mode);
     }
+
+    // Tooltip overlay for profit charts (shared)
+    let _sharedTooltipEl = null;
+    function _ensureChartTooltip() {
+      if (_sharedTooltipEl) return _sharedTooltipEl;
+      _sharedTooltipEl = document.createElement("div");
+      _sharedTooltipEl.style.cssText = [
+        "position:fixed","pointer-events:none","display:none",
+        "background:rgba(24,26,36,.88)","color:rgba(232,238,252,.92)",
+        "border:1px solid rgba(255,255,255,.14)","border-radius:8px",
+        "padding:6px 10px","font-size:12px","line-height:1.4",
+        "font-family:inherit","z-index:9999","box-shadow:0 4px 16px rgba(0,0,0,.4)"
+      ].join(";");
+      document.body.appendChild(_sharedTooltipEl);
+      return _sharedTooltipEl;
+    }
+    function _chartFindClosest(canvas, clientX) {
+      const m = canvas._chartMeta;
+      if (!m) return null;
+      const rect = canvas.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const { pts, getX } = m;
+      let best = 0, bestDx = Infinity;
+      for (let i = 0; i < pts.length; i++) {
+        const dx = Math.abs(getX(pts[i].x) - x);
+        if (dx < bestDx) { bestDx = dx; best = i; }
+      }
+      return pts[best];
+    }
+    function _chartShowTip(canvas, clientX, clientY) {
+      const pt = _chartFindClosest(canvas, clientX);
+      if (!pt) return;
+      const tip = _ensureChartTooltip();
+      const sign = pt.y >= 0 ? "+" : "";
+      tip.innerHTML = `<span style="color:${pt.y >= 0 ? '#4ade80' : '#f87171'}; font-weight:700">${sign}${pt.y.toFixed(2)}€</span>`
+        + (pt.date ? `<br><span style="opacity:.6">${pt.date}</span>` : "");
+      tip.style.display = "block";
+      tip.style.left = (clientX + 14) + "px";
+      tip.style.top = Math.max(6, clientY - 36) + "px";
+    }
+    function _chartHideTip() {
+      if (_sharedTooltipEl) _sharedTooltipEl.style.display = "none";
+    }
+    function bindProfitChartTooltip(canvas) {
+      if (!canvas || canvas._tooltipBound) return;
+      canvas._tooltipBound = true;
+      canvas.addEventListener("mousemove", (e) => _chartShowTip(canvas, e.clientX, e.clientY));
+      canvas.addEventListener("mouseleave", _chartHideTip);
+      canvas.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        const t = e.touches[0];
+        _chartShowTip(canvas, t.clientX, t.clientY);
+      }, { passive: false });
+      canvas.addEventListener("touchmove", (e) => {
+        e.preventDefault();
+        const t = e.touches[0];
+        _chartShowTip(canvas, t.clientX, t.clientY);
+      }, { passive: false });
+      canvas.addEventListener("touchend", _chartHideTip);
+    }
+    // Bind main profit chart once DOM ready
+    window.addEventListener("DOMContentLoaded", () => {
+      bindProfitChartTooltip(document.getElementById("profitChart"));
+    });
+    bindProfitChartTooltip(document.getElementById("profitChart"));
 
     function renderLatest() {
       const latestList = document.getElementById("latestList");
@@ -3479,6 +3655,13 @@
       timeGroup = e.target.value;
       renderTimeSummary();
     });
+    document.getElementById("timePeriodSelect")?.addEventListener("change", (e) => {
+      const wrap = document.getElementById("timeRangeWrap");
+      if (wrap) wrap.style.display = e.target.value === "range" ? "flex" : "none";
+      renderTimeSummary();
+    });
+    document.getElementById("timeDateFrom")?.addEventListener("change", renderTimeSummary);
+    document.getElementById("timeDateTo")?.addEventListener("change", renderTimeSummary);
     let timeGroup = "day";
 
     function periodKey(dateISO, mode) {
@@ -3494,20 +3677,26 @@
       return key;
     }
     function dayStatusFromROC(roc) {
+      // Day mode: only show Target or Stop; otherwise return empty
       if (roc === null) return { label: "", cls: "" };
       if (roc >= 0.03) return { label: "Target", cls: "badge win" };
       if (roc <= -0.10) return { label: "Stop", cls: "badge loss" };
-      return { label: "", cls: "" };
+      return { label: "", cls: "" };  // Positivo and In corso removed
     }
 
     function renderTimeSummary() {
       const empty = document.getElementById("timeEmpty");
       const table = document.getElementById("timeTable");
-      const body = document.getElementById("timeBody");
+      const body  = document.getElementById("timeBody");
 
-      const closed = state.history.filter(b => b.result === "win" || b.result === "loss");
+      const timePeriod = document.getElementById("timePeriodSelect")?.value || "all";
+      const timeFrom = timePeriod === "range" ? (document.getElementById("timeDateFrom")?.value || "") : "";
+      const timeTo   = timePeriod === "range" ? (document.getElementById("timeDateTo")?.value || "") : "";
+
+      const allClosed = state.history.filter(b => b.result === "win" || b.result === "loss");
+      const closed = allClosed.filter(b => inDateRange(b.date, timePeriod, timeFrom, timeTo));
       if (closed.length === 0) {
-        empty.textContent = "Nessuna bet chiusa: riepilogo non disponibile.";
+        empty.textContent = "Nessuna bet chiusa nel periodo selezionato.";
         table.style.display = "none";
         body.innerHTML = "";
         return;
@@ -3519,31 +3708,82 @@
       const map = new Map();
       for (const b of closed) {
         const key = periodKey(b.date, timeGroup);
-        if (!map.has(key)) map.set(key, { key, bets: 0, wins: 0, losses: 0, stake: 0, profit: 0, brDay: null });
+        if (!map.has(key)) map.set(key, { key, bets: 0, wins: 0, losses: 0, stake: 0, profit: 0, brPeriod: null, dayBets: new Map() });
         const o = map.get(key);
         o.bets++;
         if (b.result === "win") o.wins++; else o.losses++;
-        o.stake += Number(b.execution.stake_played) || 0;
+        o.stake  += Number(b.execution.stake_played) || 0;
         o.profit += Number(b.profit_real) || 0;
 
-        if (timeGroup === "day") {
-          if (o.brDay === null) {
-            o.brDay = getStartBankrollForDate(b.date);
-          }
+        // Track per-day profit within this period (for multi-period Stato)
+        const dayK = b.date;
+        if (!o.dayBets.has(dayK)) o.dayBets.set(dayK, { profit: 0, br: null });
+        o.dayBets.get(dayK).profit += Number(b.profit_real) || 0;
+
+        // Bankroll at first day of period
+        if (o.brPeriod === null) o.brPeriod = getStartBankrollForDate(b.date);
+      }
+
+      // Fill in day bankrolls for the multi-period Stato
+      for (const o of map.values()) {
+        for (const [dayK, dval] of o.dayBets) {
+          dval.br = getStartBankrollForDate(dayK);
         }
       }
 
       const rows = [...map.values()].sort((a, b) => a.key < b.key ? 1 : -1);
       for (const r of rows) {
         const closedN = r.wins + r.losses;
-        const wr = closedN > 0 ? r.wins / closedN : null;
-        const roi = r.stake > 0 ? r.profit / r.stake : null;
-        const roc = (timeGroup === "day" && r.brDay && r.brDay > 0) ? (r.profit / r.brDay) : null;
-        const status = (timeGroup === "day") ? dayStatusFromROC(roc) : { label: "", cls: "" };
+        const wr  = closedN > 0 ? r.wins / closedN : null;
+        const roi  = r.stake > 0 ? r.profit / r.stake : null;
+        let rocCell = "";
+        let statoCell = "";
+
+        if (timeGroup === "day") {
+          // Day mode: ROC vs bankroll at start of that day, Stato = Target/Stop only
+          const brDay = r.brPeriod;
+          const roc  = (brDay && brDay > 0) ? (r.profit / brDay) : null;
+          const rocCls = roc === null ? "badge neutral"
+            : roc >= 0.03 ? "badge win"
+            : roc <= -0.10 ? "badge loss"
+            : roc >= 0 ? "badge neutral"
+            : "badge amber";
+          rocCell  = `<span class="${rocCls}">${roc === null ? "—" : escapeHtml(fmtPct(roc))}</span>`;
+          const status = dayStatusFromROC(roc);
+          statoCell = status.label ? `<span class="${status.cls}">${escapeHtml(status.label)}</span>` : "";
+
+        } else {
+          // Week / Month / Range: ROC = period profit / bankroll at first bet of period
+          const brPeriod = r.brPeriod;
+          const rocPeriod = (brPeriod && brPeriod > 0) ? (r.profit / brPeriod) : null;
+          const rocCls = rocPeriod === null ? "badge neutral"
+            : rocPeriod >= 0.03 ? "badge win"
+            : rocPeriod <= -0.10 ? "badge loss"
+            : rocPeriod >= 0 ? "badge neutral"
+            : "badge amber";
+          rocCell = `<span class="${rocCls}">${rocPeriod === null ? "—" : escapeHtml(fmtPct(rocPeriod))}</span>`;
+
+          // Stato = 4 colored counters: target | positive | negative | stop
+          let nTarget = 0, nPos = 0, nNeg = 0, nStop = 0;
+          for (const [, dval] of r.dayBets) {
+            const br = dval.br;
+            const dayROC = (br && br > 0) ? (dval.profit / br) : null;
+            if (dayROC === null) { nNeg++; continue; }
+            if (dayROC >= 0.03)   nTarget++;
+            else if (dayROC > 0)  nPos++;
+            else if (dayROC > -0.10) nNeg++;
+            else                  nStop++;
+          }
+          statoCell = [
+            `<span style="color:#4ade80;font-weight:700">${nTarget}</span>`,
+            `<span style="color:#60a5fa;font-weight:700">${nPos}</span>`,
+            `<span style="color:#fb923c;font-weight:700">${nNeg}</span>`,
+            `<span style="color:#f87171;font-weight:700">${nStop}</span>`,
+          ].join(" <span style='opacity:.45'>/</span> ");
+        }
 
         const profitCls = r.profit >= 0 ? "badge win" : "badge loss";
-        const roiCls = (roi !== null && roi >= 0) ? "badge win" : "badge loss";
-        const rocCls = (roc !== null && roc >= 0) ? "badge win" : (roc !== null ? "badge loss" : "badge neutral");
+        const roiCls    = (roi !== null && roi >= 0) ? "badge win" : "badge loss";
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -3552,8 +3792,8 @@
       <td class="mono">${wr === null ? "—" : fmtPct(wr)}</td>
       <td><span class="${profitCls}">${escapeHtml(fmtMoney(r.profit))}</span></td>
       <td><span class="${roiCls}">${roi === null ? "—" : escapeHtml(fmtPct(roi))}</span></td>
-      <td><span class="${rocCls}">${roc === null ? "—" : escapeHtml(fmtPct(roc))}</span></td>
-      <td>${status.label ? `<span class="${status.cls}">${escapeHtml(status.label)}</span>` : ""}</td>
+      <td>${rocCell}</td>
+      <td>${statoCell}</td>
     `;
         body.appendChild(tr);
       }
@@ -3843,10 +4083,13 @@
                 // Wait for layout
                 requestAnimationFrame(() => {
                   drawProfitChartOn(canvas, this._closedBets, "1m");
+                  bindProfitChartTooltip(canvas);
                   // handle select change
                   const sel = this.querySelector("select.filterChartMode");
                   if (sel) {
-                    sel.onchange = (e) => drawProfitChartOn(canvas, this._closedBets, e.target.value);
+                    sel.onchange = (e) => {
+                      drawProfitChartOn(canvas, this._closedBets, e.target.value);
+                    };
                   }
                 });
               }
