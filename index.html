@@ -633,6 +633,12 @@
     /* ===================== ANALYZER CHARTS ===================== */
     .bar-chart-wrap { position: relative; }
     .bar-chart-wrap canvas { cursor: crosshair; }
+    /* Fix: profitChart always fixed height on mobile */
+    #profitChart {
+      width: 100% !important;
+      height: 200px !important;
+      display: block;
+    }
 
     /* ===================== MISC ===================== */
     .muted { color: var(--muted); }
@@ -753,7 +759,7 @@
 <header class="topbar">
   <div class="brand">
     <span class="brand-name">BetTools</span>
-    <span class="brand-ver">v3.0 • LivePick</span>
+    <span class="brand-ver">v3.0A • LivePick</span>
   </div>
   <button class="topbar-btn" id="themeToggle" title="Tema">☾</button>
   <div class="live-pill" id="pillDaily">
@@ -967,7 +973,7 @@
         </div>
       </div>
       <div class="bar-chart-wrap">
-        <canvas id="profitChart" height="200"></canvas>
+        <canvas id="profitChart" style="width:100%;height:200px;display:block"></canvas>
       </div>
       <div class="row mt8" style="justify-content:space-between">
         <div class="badge win" id="wonLabel">Won: —</div>
@@ -1959,7 +1965,10 @@ document.getElementById('analyzerTabs').addEventListener('click',e=>{
 });
 
 function filterKeyName(b){return`${b.meta?.Method||'—'} • ${formatPick(b)}`;}
-function filterClosedBets(name){return state.history.filter(b=>filterKeyName(b)===name&&(b.result==='win'||b.result==='loss'));}
+function filterClosedBets(name){
+  // Respect global filter AND filter by name
+  return closedBetsFiltered(dashRange).filter(b=>filterKeyName(b)===name);
+}
 function computeRangeForBets(bets,daysBackStart,daysBackEnd){
   const now=new Date();const start=new Date(now);start.setDate(start.getDate()-daysBackStart);const end=new Date(now);end.setDate(end.getDate()-daysBackEnd);
   const sel=bets.filter(b=>{const d=new Date(b.date+'T00:00:00');return d<=start&&d>=end;});
@@ -2102,7 +2111,10 @@ function renderProfitChart(){
 function drawLineChart(canvas,closed,mode){
   if(!canvas)return;
   const ctx=canvas.getContext('2d');
-  const W=canvas.offsetWidth||350;const H=parseInt(canvas.getAttribute('height'))||200;
+  const W=canvas.offsetWidth||350;
+  // Use CSS clientHeight for stable height (not attribute, which varies with dpr)
+  const cssH=canvas.clientHeight||parseInt(canvas.style.height)||parseInt(canvas.getAttribute('height'))||200;
+  const H=cssH; // always use CSS height, never multiply by dpr for layout
   const dpr=window.devicePixelRatio||1;
   canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);ctx.scale(dpr,dpr);
   ctx.clearRect(0,0,W,H);
@@ -2687,10 +2699,14 @@ function renderAnalyzer(){
     }
 
     case 'metodo': {
+      // Use filtered history (respects dashboard filter / bookmaker / date etc.)
+      const filteredHistory=closed; // closed = getGlobalClosed(), already filtered
       const groups=new Map();
-      for(const b of state.history){
+      for(const b of filteredHistory){
         const name=filterKeyName(b);if(!groups.has(name))groups.set(name,{name,bets:0,wins:0,losses:0,stake:0,profit:0,oddsSum:0,oddsN:0,lastDate:null});
-        const g=groups.get(name);g.bets++;if(!g.lastDate||b.date>=g.lastDate)g.lastDate=b.date;
+        const g=groups.get(name);
+        // Count ALL filtered bets (including pending) for bets count
+        g.bets++;if(!g.lastDate||b.date>=g.lastDate)g.lastDate=b.date;
         const o=b.execution?.odds_played??b.execution?.odds_ref;if(o&&Number(o)>1){g.oddsSum+=Number(o);g.oddsN++;}
         if(b.result==='win'||b.result==='loss'){g.stake+=Number(b.execution?.stake_played)||0;g.profit+=Number(b.profit_real)||0;if(b.result==='win')g.wins++;else g.losses++;}
       }
